@@ -1,14 +1,14 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["app/**/*.{ts,tsx}", "next.config.ts", "tests/**/*.spec.{ts,tsx}"],
+  "entry": ["app/**/*.{ts,tsx}", "tests/**/*.spec.{ts,tsx}"],
   "project": ["app/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
   "ignore": ["tests/**/*.template.ts"],
   "ignoreDependencies": [
     "@fast-check/vitest",
-    "vite",
     "validate-branch-name",
-    "@vitejs/plugin-react",
-    "jsdom"
+    "fast-check",
+    "eslint-config-next",
+    "eslint-import-resolver-typescript"
   ],
   "ignoreBinaries": ["open", "dot"],
   "ignoreExportsUsedInFile": true
