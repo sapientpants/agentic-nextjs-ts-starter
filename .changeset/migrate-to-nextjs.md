@@ -1,5 +1,5 @@
 ---
-"agentic-nextjs-ts-starter": major
+'agentic-nextjs-ts-starter': major
 ---
 
 **BREAKING CHANGE: Migrate from Node.js to Next.js**

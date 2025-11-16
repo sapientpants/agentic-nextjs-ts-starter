@@ -16,6 +16,17 @@ describe('HomePage', () => {
     expect(heading).toHaveTextContent(/agentic-nextjs-ts-starter/i);
   });
 
+  it('uses default app name when environment variable is not set', () => {
+    const originalEnv = process.env.NEXT_PUBLIC_APP_NAME;
+    delete process.env.NEXT_PUBLIC_APP_NAME;
+
+    render(<HomePage />);
+    const heading = screen.getByRole('heading', { level: 1 });
+    expect(heading).toHaveTextContent(/agentic-nextjs-ts-starter/i);
+
+    process.env.NEXT_PUBLIC_APP_NAME = originalEnv;
+  });
+
   it('displays the features section', () => {
     render(<HomePage />);
     expect(screen.getByText(/What is Agentic Development/i)).toBeInTheDocument();

@@ -80,4 +80,21 @@ describe('Health Check API Route', () => {
 
     expect(contentType).toContain('application/json');
   });
+
+  it('uses default values when environment variables are not set', async () => {
+    const originalAppName = process.env.NEXT_PUBLIC_APP_NAME;
+    const originalVersion = process.env.npm_package_version;
+
+    delete process.env.NEXT_PUBLIC_APP_NAME;
+    delete process.env.npm_package_version;
+
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
+
+    expect(data.application).toBe('agentic-nextjs-ts-starter');
+    expect(data.version).toBe('unknown');
+
+    process.env.NEXT_PUBLIC_APP_NAME = originalAppName;
+    process.env.npm_package_version = originalVersion;
+  });
 });
