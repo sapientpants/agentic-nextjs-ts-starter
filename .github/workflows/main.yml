@@ -119,9 +119,12 @@ jobs:
   # =============================================================================
   # UNIFIED BUILD PHASE
   # Single build job that creates artifacts to be reused throughout the workflow
+  # DISABLED: This is a Next.js starter template, not a distributable package
+  # To enable: Remove 'if: false' condition below
   # =============================================================================
 
   build:
+    if: false # Disabled for starter templates - no releases needed
     runs-on: ubuntu-latest
     outputs:
       artifact-name: dist-${{ github.sha }}
@@ -240,6 +243,8 @@ jobs:
   # =============================================================================
   # PREPARE RELEASE ASSETS PHASE
   # Centralized job for preparing all release artifacts (Docker, binaries, etc.)
+  # DISABLED: Build job is disabled, so these depend on a skipped job
+  # To enable: Remove 'if: false' from build job above
   # =============================================================================
 
   docker:
@@ -259,6 +264,7 @@ jobs:
   npm:
     name: Prepare NPM Package
     needs: [validate, security, build]
+    # DISABLED: Package is private and build job is disabled
     if: vars.ENABLE_NPM_RELEASE == 'true' && needs.build.outputs.changed == 'true'
     runs-on: ubuntu-latest
     outputs:
@@ -330,11 +336,14 @@ jobs:
   # =============================================================================
   # GITHUB RELEASE CREATION PHASE
   # Creates GitHub release as the final step after version is committed
+  # DISABLED: Build job is disabled, so this job will never run
+  # To enable: Remove 'if: false' from build job above
   # =============================================================================
 
   create-release:
     name: Create GitHub Release
     needs: [build, docker, npm]
+    # DISABLED: Build job is disabled (needs.build.outputs.changed will always be empty)
     # Run if build succeeded AND docker/npm either succeeded or were skipped
     if: |
       needs.build.outputs.changed == 'true' &&
