@@ -7,7 +7,7 @@ interface HealthCheckResponse {
   application: string;
   version: string;
   uptime: number;
-  environment: string;
+  environment: string | undefined;
 }
 
 describe('Health Check API Route', () => {

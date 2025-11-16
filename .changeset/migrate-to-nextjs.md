@@ -2,7 +2,7 @@
 'agentic-nextjs-ts-starter': major
 ---
 
-**BREAKING CHANGE: Migrate from Node.js to Next.js**
+## BREAKING CHANGE: Migrate from Node.js to Next.js
 
 Complete migration from agentic-node-ts-starter to agentic-nextjs-ts-starter with Next.js App Router support.
 
