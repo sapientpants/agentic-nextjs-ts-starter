@@ -1,0 +1,31 @@
+# Trivy Ignore File
+# This file contains CVEs to ignore during container security scanning
+# Format: CVE-ID or CVE-ID with expiry date
+# 
+# Example entries:
+# CVE-2022-12345
+# CVE-2022-12345 exp:2025-01-01
+#
+# Add CVEs here that are false positives or accepted risks
+# Each exclusion should be documented with a comment explaining why
+
+# Example: False positive in test dependency
+# CVE-2024-XXXXX
+
+# Note: Regularly review and update this file to remove outdated exclusions
+
+# GHSA-mh29-5h37-fv8m (CVE-2025-64718) - js-yaml prototype pollution
+# Severity: MEDIUM (CVSS 5.3)
+# Affects: js-yaml < 4.1.1 (via @changesets/parse@0.4.1)
+# Risk Accepted: This vulnerability only affects parsing of UNTRUSTED YAML documents.
+# Our usage: @changesets/parse only processes changeset files in .changeset/ which are:
+#   - Developer-written source code (not user input)
+#   - Committed to git and reviewed in PRs
+#   - Part of our trusted codebase
+# Status: Waiting for @changesets/parse to upgrade to js-yaml v4
+#   - Latest @changesets/parse (0.4.1) still uses js-yaml ^3.13.1
+#   - Even next version (1.0.0-next.1) uses js-yaml ^3.13.1
+#   - js-yaml v4 has breaking API changes (safeLoad -> load)
+# Alternative mitigation: Run Node with --disable-proto=delete flag
+# Review: Re-evaluate when @changesets/parse releases js-yaml v4 support
+GHSA-mh29-5h37-fv8m

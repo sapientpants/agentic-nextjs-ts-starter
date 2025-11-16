@@ -1,0 +1,21 @@
+node_modules
+dist
+coverage
+.env
+.DS_Store
+sbom.cdx.json
+.claude/settings.local.json
+tmp/
+
+# Code quality reports
+reports/
+
+# Documentation
+docs/
+temp/
+etc/
+
+# Log files
+logs/
+test-logs/
+*.log
