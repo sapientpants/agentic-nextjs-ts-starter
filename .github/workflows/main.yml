@@ -251,7 +251,7 @@ jobs:
       platforms: 'linux/amd64,linux/arm64'
       save-artifact: true
       artifact-name: 'docker-image-${{ needs.build.outputs.version }}'
-      image-name: 'agentic-node-ts-starter'
+      image-name: 'agentic-nextjs-ts-starter'
       version: ${{ needs.build.outputs.version }}
       tag_sha: ${{ github.sha }}
       build_artifact: ${{ needs.build.outputs.artifact-name }}

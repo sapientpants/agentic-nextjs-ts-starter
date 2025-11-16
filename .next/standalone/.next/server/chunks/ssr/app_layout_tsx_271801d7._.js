@@ -1,0 +1,3 @@
+module.exports=[33290,a=>{"use strict";var b=a.i(60242);function c({children:a}){return(0,b.jsx)("html",{lang:"en",children:(0,b.jsx)("body",{children:a})})}a.s(["default",()=>c,"metadata",0,{title:"Agentic Next.js + TypeScript Starter",description:"A batteries-included Next.js starter template with comprehensive testing, code quality automation, and security scanning. Built for modern Next.js development with AI-assisted (agentic) coding workflow.",keywords:["nextjs","typescript","starter","template","agentic","ai-assisted","testing","code-quality"]}])}];
+
+//# sourceMappingURL=app_layout_tsx_271801d7._.js.map

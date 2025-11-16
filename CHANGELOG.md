@@ -1,4 +1,4 @@
-# agentic-node-ts-starter
+# agentic-nextjs-ts-starter
 
 ## 0.26.2
 

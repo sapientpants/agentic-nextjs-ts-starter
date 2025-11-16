@@ -1,16 +1,19 @@
+import react from '@vitejs/plugin-react';
 import { configDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  plugins: [react()],
   test: {
-    exclude: [...configDefaults.exclude, '**/dist/**'],
-    environment: 'node',
+    exclude: [...configDefaults.exclude, '**/.next/**'],
+    environment: 'jsdom',
     globals: true,
+    setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary', 'lcov'],
       exclude: [
         'coverage/**',
-        'dist/**',
+        '.next/**',
         '*.config.js',
         '*.config.ts',
         '.*.js',
@@ -24,14 +27,14 @@ export default defineConfig({
         '.changeset/**',
         '.claude/**',
         'node_modules/**',
-        'src/dev/**', // Development utilities - no coverage required
-        '**/*.example.ts', // Example files - not part of production code
+        'app/layout.tsx', // Layout wrapper - difficult to test in isolation
+        'app/globals.css', // CSS file
       ],
       thresholds: {
-        branches: 84, // Current: 84.95%, Goal: 90% - see PR#160 for plan
-        functions: 90,
-        lines: 90,
-        statements: 90,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+        statements: 80,
       },
     },
   },

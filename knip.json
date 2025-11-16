@@ -1,15 +1,14 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "entry": ["src/index.ts", "tests/**/*.spec.ts"],
-  "project": ["src/**/*.ts", "tests/**/*.ts"],
-  "ignore": ["src/**/*.example.ts", "tests/**/*.template.ts"],
+  "entry": ["app/**/*.{ts,tsx}", "next.config.ts", "tests/**/*.spec.{ts,tsx}"],
+  "project": ["app/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
+  "ignore": ["tests/**/*.template.ts"],
   "ignoreDependencies": [
-    "pino-roll",
-    "pino-syslog",
-    "pino-pretty",
     "@fast-check/vitest",
     "vite",
-    "validate-branch-name"
+    "validate-branch-name",
+    "@vitejs/plugin-react",
+    "jsdom"
   ],
   "ignoreBinaries": ["open", "dot"],
   "ignoreExportsUsedInFile": true

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///Users/marc/Projects/agentic-nextjs-ts-starter/app/api/health/route.ts"],"sourcesContent":["import { NextResponse } from 'next/server';\n\n/**\n * Health check endpoint\n * Returns the health status of the application\n *\n * @returns JSON response with health status\n */\nexport async function GET() {\n  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'agentic-nextjs-ts-starter';\n\n  return NextResponse.json(\n    {\n      status: 'healthy',\n      timestamp: new Date().toISOString(),\n      application: appName,\n      version: process.env.npm_package_version || 'unknown',\n      uptime: process.uptime(),\n      environment: process.env.NODE_ENV || 'development',\n    },\n    { status: 200 },\n  );\n}\n"],"names":[],"mappings":";;;;AAAA;;AAQO,eAAe;IACpB,MAAM,UAAU,QAAQ,GAAG,CAAC,oBAAoB,IAAI;IAEpD,OAAO,iTAAY,CAAC,IAAI,CACtB;QACE,QAAQ;QACR,WAAW,IAAI,OAAO,WAAW;QACjC,aAAa;QACb,SAAS,QAAQ,GAAG,CAAC,mBAAmB,IAAI;QAC5C,QAAQ,QAAQ,MAAM;QACtB,aAAa,mDAAwB;IACvC,GACA;QAAE,QAAQ;IAAI;AAElB"}}]
+}

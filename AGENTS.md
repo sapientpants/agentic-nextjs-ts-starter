@@ -433,7 +433,7 @@ pnpm changeset
 # Example 1: Change to minor version for a feature
 cat > .changeset/fuzzy-pandas-dance.md << 'EOF'
 ---
-"agentic-node-ts-starter": minor
+"agentic-nextjs-ts-starter": minor
 ---
 
 feat: Add new authentication system with JWT support
@@ -442,7 +442,7 @@ EOF
 # Example 2: Change to patch for a bug fix
 cat > .changeset/fuzzy-pandas-dance.md << 'EOF'
 ---
-"agentic-node-ts-starter": patch
+"agentic-nextjs-ts-starter": patch
 ---
 
 fix: Resolve memory leak in logger initialization

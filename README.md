@@ -1,30 +1,30 @@
-# Agentic Node + TypeScript Starter
+# Agentic Next.js + TypeScript Starter
 
 ## 📊 Build Status & Quality Metrics
 
 ### CI/CD Workflows
 
-[![Main](https://github.com/sapientpants/agentic-node-ts-starter/actions/workflows/main.yml/badge.svg)](https://github.com/sapientpants/agentic-node-ts-starter/actions/workflows/main.yml)
-[![PR](https://github.com/sapientpants/agentic-node-ts-starter/actions/workflows/pr.yml/badge.svg)](https://github.com/sapientpants/agentic-node-ts-starter/actions/workflows/pr.yml)
-[![CodeQL](https://github.com/sapientpants/agentic-node-ts-starter/actions/workflows/codeql.yml/badge.svg)](https://github.com/sapientpants/agentic-node-ts-starter/actions/workflows/codeql.yml)
+[![Main](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions/workflows/main.yml/badge.svg)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions/workflows/main.yml)
+[![PR](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions/workflows/pr.yml/badge.svg)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions/workflows/pr.yml)
+[![CodeQL](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions/workflows/codeql.yml/badge.svg)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions/workflows/codeql.yml)
 
 ### Test Coverage & Quality
 
-[![Lines Coverage](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-node-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.coverage.lines&suffix=%25&label=Coverage%20(Lines)&color=brightgreen>)](https://github.com/sapientpants/agentic-node-ts-starter/actions)
-[![Branches Coverage](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-node-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.coverage.branches&suffix=%25&label=Coverage%20(Branches)&color=brightgreen>)](https://github.com/sapientpants/agentic-node-ts-starter/actions)
-[![Functions Coverage](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-node-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.coverage.functions&suffix=%25&label=Coverage%20(Functions)&color=brightgreen>)](https://github.com/sapientpants/agentic-node-ts-starter/actions)
+[![Lines Coverage](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.coverage.lines&suffix=%25&label=Coverage%20(Lines)&color=brightgreen>)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions)
+[![Branches Coverage](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.coverage.branches&suffix=%25&label=Coverage%20(Branches)&color=brightgreen>)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions)
+[![Functions Coverage](<https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.coverage.functions&suffix=%25&label=Coverage%20(Functions)&color=brightgreen>)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions)
 
 ### Code Quality Metrics
 
-[![Code Duplication](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-node-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.duplication.percentage&suffix=%25&label=Duplication&color=brightgreen)](https://github.com/sapientpants/agentic-node-ts-starter/actions)
-[![Mutation Score](https://img.shields.io/badge/Mutation%20Score-N%2FA-lightgrey)](https://github.com/sapientpants/agentic-node-ts-starter/actions)
+[![Code Duplication](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.duplication.percentage&suffix=%25&label=Duplication&color=brightgreen)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions)
+[![Mutation Score](https://img.shields.io/badge/Mutation%20Score-N%2FA-lightgrey)](https://github.com/sapientpants/agentic-nextjs-ts-starter/actions)
 
 ### Meta
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Node Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-node-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.nodeVersion&label=Node.js&color=339933&logo=node.js)](https://nodejs.org)
+[![Node Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.nodeVersion&label=Node.js&color=339933&logo=node.js)](https://nodejs.org)
 [![Package Manager](https://img.shields.io/badge/pnpm-10.22.0-orange.svg?logo=pnpm)](https://pnpm.io)
-[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-node-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.version&label=Version)](https://github.com/sapientpants/agentic-node-ts-starter/releases)
+[![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.version&label=Version)](https://github.com/sapientpants/agentic-nextjs-ts-starter/releases)
 
 A **batteries-included** TypeScript starter template with comprehensive testing, code quality automation, and security scanning. Built for modern Node.js development with AI-assisted (agentic) coding workflow.
 
@@ -64,7 +64,7 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 
 ```bash
 # Clone and setup
-git clone https://github.com/sapientpants/agentic-node-ts-starter.git my-project
+git clone https://github.com/sapientpants/agentic-nextjs-ts-starter.git my-project
 cd my-project
 
 # Install dependencies (requires Node.js 22+ and pnpm 10.15)

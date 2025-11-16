@@ -14,6 +14,7 @@ import eslintComments from '@eslint-community/eslint-plugin-eslint-comments';
 import n from 'eslint-plugin-n';
 import regexp from 'eslint-plugin-regexp';
 import jsdoc from 'eslint-plugin-jsdoc';
+import nextPlugin from '@next/eslint-plugin-next';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 
@@ -23,7 +24,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default [
   // Ignore patterns
   {
-    ignores: ['dist/**', 'coverage/**', 'node_modules/**', 'sbom.cdx.json', 'reports/**'],
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'node_modules/**',
+      'sbom.cdx.json',
+      'reports/**',
+      '.next/**',
+    ],
   },
   // Base configuration for all JS/TS files
   {
@@ -42,9 +50,9 @@ export default [
       'no-debugger': 'error',
     },
   },
-  // Type-aware rules for TypeScript source files
+  // Type-aware rules for TypeScript source files (Next.js app directory)
   {
-    files: ['src/**/*.ts'],
+    files: ['app/**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -66,6 +74,7 @@ export default [
       n,
       regexp,
       jsdoc,
+      '@next/next': nextPlugin,
     },
     settings: {
       'import/resolver': {
@@ -171,6 +180,11 @@ export default [
       'jsdoc/require-jsdoc': 'off', // Don't require JSDoc everywhere, use selectively
       'jsdoc/require-param-description': 'warn',
       'jsdoc/require-returns-description': 'warn',
+
+      // Next.js - App Router and React Server Components
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
+      'no-console': 'warn', // Allow console in server components but warn
     },
   },
   // Allow barrel files for index.ts entry points and legitimate re-exports

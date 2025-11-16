@@ -15,7 +15,7 @@ node_modules
 .pnpm-store
 
 # Build outputs (we build fresh in Docker)
-dist
+.next
 *.tsbuildinfo
 
 # Test files
@@ -33,6 +33,7 @@ docs
 # Environment files
 .env*
 !.env.example
+!.env.local.example
 
 # Logs
 *.log
