@@ -1,20 +1,29 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET } from '../app/api/health/route';
 
+interface HealthCheckResponse {
+  status: string;
+  timestamp: string;
+  application: string;
+  version: string;
+  uptime: number;
+  environment: string;
+}
+
 describe('Health Check API Route', () => {
   beforeEach(() => {
     // Mock process.uptime()
     vi.spyOn(process, 'uptime').mockReturnValue(123.45);
   });
 
-  it('returns a 200 status code', async () => {
-    const response = await GET();
+  it('returns a 200 status code', () => {
+    const response = GET();
     expect(response.status).toBe(200);
   });
 
   it('returns JSON with correct structure', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
 
     expect(data).toHaveProperty('status');
     expect(data).toHaveProperty('timestamp');
@@ -25,22 +34,22 @@ describe('Health Check API Route', () => {
   });
 
   it('returns healthy status', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
 
     expect(data.status).toBe('healthy');
   });
 
   it('returns the application name from environment', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
 
     expect(data.application).toBe('agentic-nextjs-ts-starter');
   });
 
   it('returns a valid ISO timestamp', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
 
     expect(data.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
 
@@ -51,22 +60,22 @@ describe('Health Check API Route', () => {
   });
 
   it('returns process uptime', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
 
     expect(data.uptime).toBe(123.45);
     expect(typeof data.uptime).toBe('number');
   });
 
   it('returns test environment', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
 
     expect(data.environment).toBe('test');
   });
 
-  it('returns Content-Type application/json', async () => {
-    const response = await GET();
+  it('returns Content-Type application/json', () => {
+    const response = GET();
     const contentType = response.headers.get('content-type');
 
     expect(contentType).toContain('application/json');

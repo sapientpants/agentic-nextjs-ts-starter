@@ -3,10 +3,9 @@ import { NextResponse } from 'next/server';
 /**
  * Health check endpoint
  * Returns the health status of the application
- *
- * @returns JSON response with health status
+ * @returns {NextResponse} JSON response with health status
  */
-export async function GET() {
+export function GET() {
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'agentic-nextjs-ts-starter';
 
   return NextResponse.json(
@@ -16,7 +15,7 @@ export async function GET() {
       application: appName,
       version: process.env.npm_package_version || 'unknown',
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
+      environment: process.env.NODE_ENV,
     },
     { status: 200 },
   );

@@ -7,6 +7,11 @@ sbom.cdx.json
 .claude/settings.local.json
 tmp/
 
+# Next.js build output
+.next/
+out/
+*.tsbuildinfo
+
 # Code quality reports
 reports/
 
