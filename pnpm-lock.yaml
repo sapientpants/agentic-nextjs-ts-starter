@@ -182,8 +182,8 @@ importers:
         specifier: 8.0.0
         version: 8.0.0(typescript@5.9.3)
       markdownlint-cli2:
-        specifier: 0.19.0
-        version: 0.19.0
+        specifier: 0.19.1
+        version: 0.19.1
       npm-check-updates:
         specifier: 19.1.2
         version: 19.1.2
@@ -3965,8 +3965,8 @@ packages:
     resolution: {integrity: sha512-XxwI8EOhVQgWp6iDL+3b0r86f4d6AX6zSU55HfB4ydCEuXLXc5FcYeOu+nnGftS4TEju/11rt4KJPTMgbfmv4A==}
     engines: {node: '>=10.13.0'}
 
-  glob@10.4.5:
-    resolution: {integrity: sha512-7Bv8RF0k6xjo7d4A/PxYLbUCfb6c+Vpd2/mB2yRDlew7Jb5hEXiCD9ibfO7wpk8i4sevK6DFny9h7EYbM3/sHg==}
+  glob@10.5.0:
+    resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
     hasBin: true
 
   glob@11.0.3:
@@ -4827,8 +4827,8 @@ packages:
     peerDependencies:
       markdownlint-cli2: '>=0.0.4'
 
-  markdownlint-cli2@0.19.0:
-    resolution: {integrity: sha512-0+g7Fi/Y3qfvwfhJr77CpC/dEEoc4k7SvumlnL1tb68O+7fjKtIUG7aKzNUQIMXTVi8x63jcfXg4swz/ZYKyCw==}
+  markdownlint-cli2@0.19.1:
+    resolution: {integrity: sha512-p3JTemJJbkiMjXEMiFwgm0v6ym5g8K+b2oDny+6xdl300tUKySxvilJQLSea48C6OaYNmO30kH9KxpiAg5bWJw==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -9718,7 +9718,7 @@ snapshots:
     dependencies:
       '@npmcli/fs': 4.0.0
       fs-minipass: 3.0.3
-      glob: 10.4.5
+      glob: 10.5.0
       lru-cache: 10.4.3
       minipass: 7.1.2
       minipass-collect: 2.0.1
@@ -11487,7 +11487,7 @@ snapshots:
     dependencies:
       is-glob: 4.0.3
 
-  glob@10.4.5:
+  glob@10.5.0:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 3.4.3
@@ -12407,18 +12407,18 @@ snapshots:
     dependencies:
       repeat-string: 1.6.1
 
-  markdownlint-cli2-formatter-default@0.0.6(markdownlint-cli2@0.19.0):
+  markdownlint-cli2-formatter-default@0.0.6(markdownlint-cli2@0.19.1):
     dependencies:
-      markdownlint-cli2: 0.19.0
+      markdownlint-cli2: 0.19.1
 
-  markdownlint-cli2@0.19.0:
+  markdownlint-cli2@0.19.1:
     dependencies:
       globby: 15.0.0
       js-yaml: 4.1.1
       jsonc-parser: 3.3.1
       markdown-it: 14.1.0
       markdownlint: 0.39.0
-      markdownlint-cli2-formatter-default: 0.0.6(markdownlint-cli2@0.19.0)
+      markdownlint-cli2-formatter-default: 0.0.6(markdownlint-cli2@0.19.1)
       micromatch: 4.0.8
     transitivePeerDependencies:
       - supports-color
