@@ -120,11 +120,11 @@ jobs:
   # UNIFIED BUILD PHASE
   # Single build job that creates artifacts to be reused throughout the workflow
   # DISABLED: This is a Next.js starter template, not a distributable package
-  # To enable: Remove 'if: false' condition below
+  # To enable: set the repository variable ENABLE_RELEASE to 'true'
   # =============================================================================
 
   build:
-    if: false # Disabled for starter templates - no releases needed
+    if: ${{ vars.ENABLE_RELEASE == 'true' }} # Disabled by default for starter templates - no releases needed
     runs-on: ubuntu-latest
     outputs:
       artifact-name: dist-${{ github.sha }}
