@@ -19,3 +19,7 @@ logs/
 
 # Generated files
 sbom.cdx.json
+
+# Next.js generated type declarations (auto-regenerated on build, not to be edited)
+next-env.d.ts
+.next/
