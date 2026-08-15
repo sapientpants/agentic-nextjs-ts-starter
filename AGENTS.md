@@ -1,6 +1,8 @@
 # AGENTS.md
 
-This file provides guidance to AI agents (such as Claude Code at claude.ai/code) when working with code in this repository.
+This file provides guidance to AI agents (such as OpenCode) when working with code in this repository.
+
+> **Note:** This project replaced Claude Code with OpenCode and local models. See [ADR-001](./architecture/decisions/001-ditch-claude-code-opencode-local-models.adr.md) for the full rationale.
 
 ## Development Commands
 
@@ -249,8 +251,8 @@ https://img.shields.io/badge/dynamic/json
 - **Type safety**: Strict TypeScript with runtime validation using Zod for external boundaries
 - **Advanced linting**: TypeScript ESLint with type-aware rules for catching subtle type-safety issues
 - **Module system**: ES modules (`"type": "module"`) with NodeNext resolution
-- **Claude Commands**: Custom commands in `.claude/commands/` for common workflows
-- **Git Hooks**: Custom pre-commit verification via `.claude/hooks/`
+- **OpenCode Commands**: Custom commands in `.opencode/commands/` for common workflows
+- **Git Hooks**: Custom pre-commit verification via `.opencode/hooks/`
 
 ### Project Layout
 
@@ -258,7 +260,7 @@ https://img.shields.io/badge/dynamic/json
 src/               # Source code - ES modules with .ts extension
 tests/            # Test files - *.spec.ts (unit), *.property.spec.ts (property-based)
 dist/             # Build output (gitignored)
-.claude/          # Claude Code configurations and commands
+.opencode/          # OpenCode configurations and commands
 ```
 
 ### Key Patterns
@@ -360,9 +362,9 @@ Common gh commands for this repository:
 - `gh pr checks` - View CI status for current PR
 - `gh pr merge --auto --squash` - Enable auto-merge for PR
 
-## Claude Commands
+## OpenCode Commands
 
-Available slash commands in `.claude/commands/`:
+Available slash commands in `.opencode/commands/`:
 
 - `/spec-feature` - Create a feature specification in Gherkin format as a GitHub issue
 - `/implement-github-issue` - Implement a GitHub issue with full workflow
