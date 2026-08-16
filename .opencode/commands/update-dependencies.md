@@ -1,3 +1,7 @@
+---
+description: Update project dependencies following the CI/CD workflow and changeset requirements
+---
+
 # Update Dependencies
 
 You are about to update the dependencies of the project. This command helps maintain the project's dependencies while adhering to the established CI/CD workflow and changeset requirements.
@@ -51,7 +55,7 @@ Run the full verification suite to ensure compatibility:
 
 ```bash
 # Run all checks (audit, typecheck, lint, format, test)
-pnpm verify
+pnpm precommit
 
 # Run specific checks if needed
 pnpm test

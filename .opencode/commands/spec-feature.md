@@ -1,3 +1,7 @@
+---
+description: Create a feature specification in Gherkin format and turn it into a GitHub issue
+---
+
 # Spec a Feature
 
 You are about to create a feature specification in Gherkin format and turn it into a GitHub issue ready for implementation.

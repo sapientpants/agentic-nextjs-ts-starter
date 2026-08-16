@@ -25,7 +25,7 @@ export default defineConfig({
         'docs/**',
         '.github/**',
         '.changeset/**',
-        '.claude/**',
+        '.opencode/**',
         'node_modules/**',
         'app/layout.tsx', // Layout wrapper - difficult to test in isolation
         'app/globals.css', // CSS file

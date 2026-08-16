@@ -1,3 +1,7 @@
+---
+description: Implement a GitHub issue with the full workflow (branch, code, tests, changeset, PR)
+---
+
 # Implement GitHub Issue
 
 You are about to implement GitHub issue: $ARGUMENTS
@@ -34,14 +38,14 @@ Create a plan with:
 ### 4. Create Feature Branch
 
 ```bash
-# Follow branch naming from CLAUDE.md
+# Follow branch naming from AGENTS.md
 git checkout -b <type>/<issue-number>-<description>
 # Example: feat/42-user-authentication
 ```
 
 ### 5. Implement Solution
 
-- Follow patterns in CLAUDE.md (validation, testing, imports)
+- Follow patterns in AGENTS.md (validation, testing, imports)
 - Write clean, focused functions
 - Add TypeScript types and Zod validation
 - Document public APIs with JSDoc
@@ -58,7 +62,7 @@ Required test coverage:
 ### 7. Verify Quality
 
 ```bash
-pnpm verify  # Runs all checks
+pnpm precommit  # Runs all checks
 ```
 
 ### 8. Create Changeset
@@ -145,7 +149,7 @@ gh pr merge --squash --delete-branch
 
 ## Key Points
 
-- **Follow coding standards** in CLAUDE.md
+- **Follow coding standards** in AGENTS.md
 - **Test thoroughly** - Unit + property-based tests required
 - **Use changesets** for version management
 - **Conventional commits** for clear history
@@ -157,9 +161,9 @@ Before completing:
 
 - [ ] All acceptance criteria met
 - [ ] Tests comprehensive (unit + property)
-- [ ] `pnpm verify` passes
+- [ ] `pnpm precommit` passes
 - [ ] Documentation updated
 - [ ] Changeset created and up to date
 - [ ] PR reviewed and approved
 
-See CLAUDE.md for detailed patterns, troubleshooting, and coding standards.
+See AGENTS.md for detailed patterns, troubleshooting, and coding standards.

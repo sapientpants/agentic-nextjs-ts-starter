@@ -26,8 +26,8 @@ function FeaturesSection() {
       <p>
         <strong>&quot;Agentic&quot; refers to AI-assisted development workflow</strong>, not AI
         agent runtime. This template is designed to work seamlessly with AI development tools like{' '}
-        <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer">
-          Claude Code
+        <a href="https://opencode.ai" target="_blank" rel="noopener noreferrer">
+          OpenCode
         </a>{' '}
         to enhance your productivity.
       </p>
