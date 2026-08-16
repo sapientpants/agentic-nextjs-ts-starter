@@ -252,7 +252,7 @@ https://img.shields.io/badge/dynamic/json
 - **Advanced linting**: TypeScript ESLint with type-aware rules for catching subtle type-safety issues
 - **Module system**: ES modules (`"type": "module"`) with NodeNext resolution
 - **OpenCode Commands**: Custom commands in `.opencode/commands/` for common workflows
-- **Git Hooks**: Custom pre-commit verification via `.opencode/hooks/`
+- **Git Hooks**: Husky pre-commit hooks (`.husky/`) run the full verification suite; `--no-verify` is blocked by an OpenCode permission rule
 
 ### Project Layout
 

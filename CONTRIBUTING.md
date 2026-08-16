@@ -344,14 +344,14 @@ This is required for the automated release workflow to create version PRs.
 - Add tests for new features
 - Update documentation
 - Use changesets for tracking changes
-- Run `pnpm verify` before pushing
+- Run `pnpm precommit` before pushing
 
 ## 🤝 Getting Help
 
 - Check existing issues and PRs
 - Read the documentation
 - Ask questions in issues
-- Review CLAUDE.md for AI-assisted development
+- Review AGENTS.md for AI-assisted development
 
 ## 📄 License
 

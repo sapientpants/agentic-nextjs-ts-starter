@@ -32,14 +32,14 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 
 ## 🤔 What is Agentic Development?
 
-**"Agentic" in this context refers to AI-assisted development workflow**, not AI agent runtime. This template is designed to work seamlessly with AI development tools like [Claude Code](https://claude.ai/code) to enhance your productivity through:
+**"Agentic" in this context refers to AI-assisted development workflow**, not AI agent runtime. This template is designed to work seamlessly with AI development tools like [OpenCode](https://opencode.ai) to enhance your productivity through:
 
 - 🤖 **AI-powered code generation** - Let AI assistants help write boilerplate and tests
 - 🔄 **Automated refactoring** - AI tools can safely refactor with comprehensive test coverage
 - 📝 **Documentation assistance** - AI can help maintain docs in sync with code
 - 🎯 **Issue-to-implementation workflows** - Custom commands for AI-driven development
 
-> **Important:** This is a template repository for starting new projects. No AI agents or chatbots are included - the "agentic" aspect comes from using AI development tools (like Claude) to assist you in building your application faster and with higher quality.
+> **Important:** This is a template repository for starting new projects. No AI agents or chatbots are included - the "agentic" aspect comes from using AI development tools (like OpenCode) to assist you in building your application faster and with higher quality.
 
 ## 🛠️ Tech Stack
 
@@ -222,30 +222,29 @@ The `pnpm precommit` command runs checks in optimized order for fast feedback:
 
 **Mutation testing** is excluded from pre-commit due to performance - run it periodically (weekly/monthly).
 
-## 🤖 Claude Code Integration
+## 🤖 OpenCode Integration
 
-This project includes special configurations for [Claude Code](https://claude.ai/code):
+This project includes special configurations for [OpenCode](https://opencode.ai):
 
 ### Custom Commands
 
-- `/analyze-and-fix-github-issue` - Complete workflow for fixing GitHub issues
-- `/release` - Automated release process
-- `/update-dependencies` - Update dependencies with PR workflow
+- `/spec-feature` - Create a feature specification in Gherkin format as a GitHub issue
+- `/implement-github-issue` - Implement a GitHub issue with full workflow
+- `/update-dependencies` - Update all dependencies to latest versions with PR workflow
 
-### Git Hooks
+### Verification Guardrails
 
-- Prevents bypassing verification with `--no-verify` flag
-- Ensures all commits pass quality checks
+- Blocks `git --no-verify` so the AI agent can't skip quality checks
+- Husky pre-commit hooks run the full verification suite
 
-See [CLAUDE.md](./CLAUDE.md) for detailed Claude Code guidance.
+See [AGENTS.md](./AGENTS.md) for detailed OpenCode guidance.
 
 ## 📁 Project Structure
 
 ```
 .
-├── .claude/           # Claude Code configurations
-│   ├── commands/      # Custom slash commands
-│   └── hooks/         # Git hook scripts
+├── .opencode/         # OpenCode configurations
+│   └── commands/      # Custom slash commands
 ├── .github/           # GitHub Actions workflows
 ├── docs/              # Documentation
 ├── src/               # Source code
@@ -287,7 +286,7 @@ See [CLAUDE.md](./CLAUDE.md) for detailed Claude Code guidance.
 - 🚀 **GitHub Actions** CI/CD pipeline
 - 🚀 **Changesets** for versioning
 - 🚀 **Automated releases** with changelog
-- 🚀 **Claude Code** integration
+- 🚀 **OpenCode** integration
 
 ## ⚙️ Required Setup
 

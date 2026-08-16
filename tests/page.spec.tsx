@@ -48,11 +48,11 @@ describe('HomePage', () => {
   it('includes links to external resources', () => {
     render(<HomePage />);
 
-    // Claude Code link
-    const claudeLink = screen.getByRole('link', { name: /Claude Code/i });
-    expect(claudeLink).toHaveAttribute('href', 'https://claude.ai/code');
-    expect(claudeLink).toHaveAttribute('target', '_blank');
-    expect(claudeLink).toHaveAttribute('rel', 'noopener noreferrer');
+    // OpenCode link
+    const opencodeLink = screen.getByRole('link', { name: /OpenCode/i });
+    expect(opencodeLink).toHaveAttribute('href', 'https://opencode.ai');
+    expect(opencodeLink).toHaveAttribute('target', '_blank');
+    expect(opencodeLink).toHaveAttribute('rel', 'noopener noreferrer');
 
     // GitHub link
     const githubLink = screen.getByRole('link', { name: /View on GitHub/i });
