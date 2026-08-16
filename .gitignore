@@ -14,8 +14,6 @@ out/
 # Code quality reports
 reports/
 
-# Documentation
-docs/
 temp/
 etc/
 
