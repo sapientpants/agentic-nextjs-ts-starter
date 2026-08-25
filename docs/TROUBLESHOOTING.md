@@ -25,18 +25,18 @@ This guide helps you resolve common issues when using the Agentic Node + TypeScr
 # Check your current Node version
 node --version
 
-# Must be >= 22.0.0
+# Must be >= 24.0.0
 # If using mise:
 mise install
-mise use node@22
+mise use node@24
 
 # If using nvm:
-nvm install 22
-nvm use 22
+nvm install 24
+nvm use 24
 
 # If using fnm:
-fnm install 22
-fnm use 22
+fnm install 24
+fnm use 24
 ```
 
 ### pnpm Version Issues
@@ -47,14 +47,14 @@ fnm use 22
 
 ```bash
 # Install exact version required
-npm install -g pnpm@10.15.0
+npm install -g pnpm@10.34.5
 
 # Or use Corepack (Node 16.13+)
 corepack enable
-corepack prepare pnpm@10.15.0 --activate
+corepack prepare pnpm@10.34.5 --activate
 
 # Verify version
-pnpm --version  # Should show 10.15.0
+pnpm --version  # Should show 10.34.5
 ```
 
 ### mise Not Found
@@ -355,7 +355,7 @@ trivy --version
 
 ```bash
 # Update base image in Dockerfile
-FROM node:22-alpine  # Use latest patch version
+FROM node:24-alpine  # Use latest patch version
 
 # Rebuild and scan
 pnpm scan:container
@@ -447,8 +447,8 @@ If your issue isn't covered here:
 
 When something's not working, try these in order:
 
-1. ✅ Check Node version: `node --version` (must be >= 22)
-2. ✅ Check pnpm version: `pnpm --version` (must be 10.15.0)
+1. ✅ Check Node version: `node --version` (must be >= 24)
+2. ✅ Check pnpm version: `pnpm --version` (must be 10.34.5)
 3. ✅ Clear and reinstall: `rm -rf node_modules && pnpm install`
 4. ✅ Run all checks: `pnpm precommit`
 5. ✅ Check for changesets: `pnpm changeset:status`

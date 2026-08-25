@@ -15,7 +15,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 - `pnpm lint:fix` - Auto-fix linting issues
 - `pnpm format` - Check Prettier formatting
 - `pnpm format:fix` - Apply Prettier formatting
-- `pnpm precommit` - Run all quality checks in optimized order (see below)
+- `pnpm precommit` - Run all quality checks in optimized order (see below, includes changeset validation)
 
 **Pre-commit Check Order (optimized for fast feedback and fail-fast):**
 
@@ -372,7 +372,7 @@ Available slash commands in `.opencode/commands/`:
 
 ## Configuration
 
-- **Package Manager**: pnpm 10.15.0 (specified in package.json)
+- **Package Manager**: pnpm 10.34.5 (specified in package.json)
 - **Node Version**: >=24.0.0 (engines requirement)
 - **TypeScript**: Strict mode with NodeNext module resolution
 - **Testing**: Vitest with V8 coverage provider + @vitest/ui for visual testing interface

@@ -160,7 +160,7 @@ Or remove the healthcheck section entirely:
 
 ```dockerfile
 # Production stage
-FROM node:22-alpine
+FROM node:24-alpine
 
 # ... other configuration ...
 
