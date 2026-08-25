@@ -1,4 +1,13 @@
+import { createRequire } from 'node:module';
 import { NextResponse } from 'next/server';
+
+const require = createRequire(import.meta.url);
+
+interface PackageJson {
+  version: string;
+}
+
+const packageJson = require('../../../package.json') as PackageJson;
 
 /**
  * Health check endpoint
@@ -13,7 +22,7 @@ export function GET() {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       application: appName,
-      version: process.env.npm_package_version || 'unknown',
+      version: packageJson.version,
       uptime: process.uptime(),
       environment: process.env.NODE_ENV,
     },

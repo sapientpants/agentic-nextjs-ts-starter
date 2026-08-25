@@ -47,6 +47,13 @@ describe('Health Check API Route', () => {
     expect(data.application).toBe('agentic-nextjs-ts-starter');
   });
 
+  it('returns the version from package.json', async () => {
+    const response = GET();
+    const data = (await response.json()) as HealthCheckResponse;
+
+    expect(data.version).toBe('1.0.0');
+  });
+
   it('returns a valid ISO timestamp', async () => {
     const response = GET();
     const data = (await response.json()) as HealthCheckResponse;
@@ -83,18 +90,14 @@ describe('Health Check API Route', () => {
 
   it('uses default values when environment variables are not set', async () => {
     const originalAppName = process.env.NEXT_PUBLIC_APP_NAME;
-    const originalVersion = process.env.npm_package_version;
 
     delete process.env.NEXT_PUBLIC_APP_NAME;
-    delete process.env.npm_package_version;
 
     const response = GET();
     const data = (await response.json()) as HealthCheckResponse;
 
     expect(data.application).toBe('agentic-nextjs-ts-starter');
-    expect(data.version).toBe('unknown');
 
     process.env.NEXT_PUBLIC_APP_NAME = originalAppName;
-    process.env.npm_package_version = originalVersion;
   });
 });
