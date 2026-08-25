@@ -4,7 +4,7 @@ Date: 2025-08-30
 
 ## Status
 
-Superseded by [ADR-001](./001-ditch-claude-code-opencode-local-models.adr.md)
+Superseded by [ADR-0010](./0010-ditch-claude-code-opencode-local-models.adr.md)
 
 ## Context
 

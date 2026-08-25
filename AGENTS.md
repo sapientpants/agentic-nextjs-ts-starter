@@ -2,7 +2,7 @@
 
 This file provides guidance to AI agents (such as OpenCode) when working with code in this repository.
 
-> **Note:** This project replaced Claude Code with OpenCode and local models. See [ADR-001](./docs/architecture/decisions/001-ditch-claude-code-opencode-local-models.adr.md) for the full rationale.
+> **Note:** This project replaced Claude Code with OpenCode and local models. See [ADR-0010](./docs/architecture/decisions/0010-ditch-claude-code-opencode-local-models.adr.md) for the full rationale.
 
 ## Development Commands
 
