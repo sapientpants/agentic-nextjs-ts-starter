@@ -4,6 +4,7 @@
   "project": ["app/**/*.{ts,tsx}", "tests/**/*.{ts,tsx}"],
   "ignore": ["tests/**/*.template.ts"],
   "ignoreDependencies": [
+    "@commitlint/cli",
     "@fast-check/vitest",
     "validate-branch-name",
     "fast-check",
