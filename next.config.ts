@@ -6,10 +6,8 @@ const config: NextConfig = {
     ignoreBuildErrors: false,
   },
   output: 'standalone', // For Docker deployment
-  // Experimental features
-  experimental: {
-    typedRoutes: true, // Type-safe routing
-  },
+  // Stable features (no longer experimental in Next.js 16.x)
+  typedRoutes: true, // Type-safe routing — [source](https://nextjs.org/docs/app/api-reference/config/typescript#statically-typed-links)
 };
 
 export default config;
