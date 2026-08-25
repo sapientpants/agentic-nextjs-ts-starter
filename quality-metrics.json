@@ -35,7 +35,7 @@
     "compileErrors": 0,
     "totalMutants": 0,
     "threshold": {
-      "score": 80
+      "score": 90
     }
   },
   "complexity": {
