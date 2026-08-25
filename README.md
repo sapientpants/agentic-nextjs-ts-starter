@@ -23,7 +23,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.nodeVersion&label=Node.js&color=339933&logo=node.js)](https://nodejs.org)
-[![Package Manager](https://img.shields.io/badge/pnpm-10.22.0-orange.svg?logo=pnpm)](https://pnpm.io)
+[![Package Manager](https://img.shields.io/badge/pnpm-10.34.5-orange.svg?logo=pnpm)](https://pnpm.io)
 [![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.version&label=Version)](https://github.com/sapientpants/agentic-nextjs-ts-starter/releases)
 
 A **batteries-included** TypeScript starter template with comprehensive testing, code quality automation, and security scanning. Built for modern Node.js development with AI-assisted (agentic) coding workflow.
@@ -43,7 +43,7 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 
 ## 🛠️ Tech Stack
 
-**Core:** Node.js 24+ • TypeScript ^5.9.2 (strict) • pnpm 10.15  
+**Core:** Node.js 24+ • TypeScript ^6.0.3 (strict) • pnpm 10.34.5  
 **Testing:** Vitest • fast-check (property testing) • 80% coverage minimum  
 **Quality:** ESLint 9 • Prettier • Husky • Commitlint  
 **Security:** CodeQL • OSV Scanner • SBOM • SLSA attestations  
@@ -67,7 +67,7 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 git clone https://github.com/sapientpants/agentic-nextjs-ts-starter.git my-project
 cd my-project
 
-# Install dependencies (requires Node.js 24+ and pnpm 10.15)
+# Install dependencies (requires Node.js 24+ and pnpm 10.34.5)
 pnpm install
 
 # Set up configuration (required)
@@ -83,7 +83,7 @@ pnpm verify  # Full quality check
 pnpm dev     # TypeScript watch mode
 ```
 
-**Prerequisites:** Node.js 24+, pnpm 10.15, GitHub repo (for CI/CD)  
+**Prerequisites:** Node.js 24+, pnpm 10.34.5, GitHub repo (for CI/CD)  
 **Full setup guide:** [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md)
 
 ## 📚 Key Commands

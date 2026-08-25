@@ -372,7 +372,7 @@ Available slash commands in `.opencode/commands/`:
 
 ## Configuration
 
-- **Package Manager**: pnpm 10.15.0 (specified in package.json)
+- **Package Manager**: pnpm 10.34.5 (specified in package.json)
 - **Node Version**: >=24.0.0 (engines requirement)
 - **TypeScript**: Strict mode with NodeNext module resolution
 - **Testing**: Vitest with V8 coverage provider + @vitest/ui for visual testing interface
