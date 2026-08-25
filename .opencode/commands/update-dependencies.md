@@ -155,7 +155,7 @@ gh pr create \
   - ✅ All tests passing
   - ✅ Type checking successful
   - ✅ Linting clean
-  - ✅ Coverage maintained at 80%+
+  - ✅ Coverage maintained at 90%+
 
   ## Changeset
   - [x] Empty changeset added for dev dependency updates" \

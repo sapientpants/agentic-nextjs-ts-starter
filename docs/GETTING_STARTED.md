@@ -230,9 +230,9 @@ After customization, run through this checklist to ensure everything is properly
 pnpm verify
 # This runs: audit, typecheck, lint, format check, and tests
 
-# 2. Check test coverage meets requirements (80% minimum)
+# 2. Check test coverage meets requirements (90% minimum)
 pnpm test:coverage
-# Should show coverage >= 80% for all metrics
+# Should show coverage >= 90% for all metrics
 
 # 3. Ensure TypeScript builds successfully
 pnpm build

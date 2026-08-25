@@ -44,7 +44,7 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 ## 🛠️ Tech Stack
 
 **Core:** Node.js 24+ • TypeScript ^6.0.3 (strict) • pnpm 10.34.5  
-**Testing:** Vitest • fast-check (property testing) • 80% coverage minimum  
+**Testing:** Vitest • fast-check (property testing) • 90% coverage minimum  
 **Quality:** ESLint 9 • Prettier • Husky • Commitlint  
 **Security:** CodeQL • OSV Scanner • SBOM • SLSA attestations  
 **CI/CD:** GitHub Actions • Changesets • Automated releases
@@ -94,7 +94,7 @@ pnpm dev          # TypeScript watch mode
 pnpm build        # Build to dist/
 pnpm verify       # Run all quality checks
 
-# Testing (80% coverage required)
+# Testing (90% coverage required)
 pnpm test         # Run tests
 pnpm test:watch   # Watch mode
 pnpm test:coverage # With coverage report
@@ -121,11 +121,11 @@ Comprehensive quality metrics tracked automatically on every CI run:
 
 | Metric                 | Current | Threshold | Status     | Local Command        |
 | ---------------------- | ------- | --------- | ---------- | -------------------- |
-| **Line Coverage**      | 93.77%  | ≥80%      | ✅ Pass    | `pnpm test:coverage` |
-| **Branch Coverage**    | 84.95%  | ≥80%      | ✅ Pass    | `pnpm test:coverage` |
-| **Function Coverage**  | 100%    | ≥80%      | ✅ Pass    | `pnpm test:coverage` |
-| **Statement Coverage** | 93.65%  | ≥80%      | ✅ Pass    | `pnpm test:coverage` |
-| **Mutation Score**     | N/A     | ≥80%      | ⏳ Pending | `pnpm mutation-test` |
+| **Line Coverage**      | 93.77%  | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
+| **Branch Coverage**    | 90.00%  | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
+| **Function Coverage**  | 100%    | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
+| **Statement Coverage** | 93.65%  | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
+| **Mutation Score**     | N/A     | ≥90%      | ⏳ Pending | `pnpm mutation-test` |
 
 ### Code Quality Metrics
 
@@ -176,7 +176,7 @@ This project enforces strict quality standards to ensure maintainability, securi
 
 ### Why These Standards?
 
-**80% Coverage Minimum** - Ensures comprehensive test coverage without requiring 100% (which can lead to diminishing returns)
+**90% Coverage Minimum** - Ensures comprehensive test coverage without requiring 100% (which can lead to diminishing returns)
 
 **Low Complexity Limits** - Functions with cyclomatic complexity >10 are harder to understand, test, and maintain
 
@@ -198,7 +198,7 @@ This project enforces strict quality standards to ensure maintainability, securi
 | Max 3 Nesting Depth       | Prevents deeply nested code that's hard to reason about           |
 | Max 15 Statements         | Forces function decomposition, improves testability               |
 | Code Duplication <2%      | Minimal threshold allowing for small necessary repetition         |
-| Mutation Score ≥80%       | Ensures tests actually verify behavior, not just achieve coverage |
+| Mutation Score ≥90%       | Ensures tests actually verify behavior, not just achieve coverage |
 
 ### Test File Exceptions
 
@@ -269,7 +269,7 @@ See [AGENTS.md](./AGENTS.md) for detailed OpenCode guidance.
 ### Testing & Quality
 
 - ✅ **Vitest** with property-based testing (fast-check)
-- ✅ **80% coverage minimum** enforced
+- ✅ **90% coverage minimum** enforced
 - ✅ **Strict TypeScript** with type-aware linting
 - ✅ **Pre-commit hooks** with Husky & lint-staged
 - ✅ **Markdown and YAML linting** for docs/config consistency

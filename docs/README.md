@@ -62,7 +62,7 @@ This starter template follows these principles:
 
 - **Batteries Included** - Everything you need to start building immediately
 - **Type Safety First** - Strict TypeScript with runtime validation
-- **Test Everything** - Unit tests, property-based tests, 80% coverage minimum
+- **Test Everything** - Unit tests, property-based tests, 90% coverage minimum
 - **Automate Quality** - Pre-commit hooks, CI/CD, automated releases
 - **Security by Default** - Dependency scanning, SBOM generation, attestations
 

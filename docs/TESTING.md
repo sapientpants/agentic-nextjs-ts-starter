@@ -253,14 +253,14 @@ describe('Time-dependent code', () => {
 
 ## Coverage Requirements
 
-> **⚠️ IMPORTANT**: This template enforces **80% minimum coverage** for all metrics. Tests will fail if coverage drops below this threshold.
+> **⚠️ IMPORTANT**: This template enforces **90% minimum coverage** for all metrics. Tests will fail if coverage drops below this threshold.
 
-### Coverage Metrics (All require 80% minimum)
+### Coverage Metrics (All require 90% minimum)
 
-- **Lines**: 80% of code lines must be executed
-- **Branches**: 80% of conditional branches must be tested
-- **Functions**: 80% of functions must be called
-- **Statements**: 80% of statements must be executed
+- **Lines**: 90% of code lines must be executed
+- **Branches**: 90% of conditional branches must be tested
+- **Functions**: 90% of functions must be called
+- **Statements**: 90% of statements must be executed
 
 ### Running Tests Locally
 
@@ -270,7 +270,7 @@ pnpm test:watch     # Watch mode - re-runs tests on file changes
 pnpm test           # Run tests once
 
 # Coverage commands
-pnpm test:coverage  # Run tests with coverage report (enforces 80% threshold)
+pnpm test:coverage  # Run tests with coverage report (enforces 90% threshold)
 pnpm coverage:report # Generate detailed HTML report
 pnpm coverage:open  # Open HTML report in browser
 
@@ -295,15 +295,15 @@ $ pnpm test:coverage
   index.ts   |   66.67 |       75 |      50 |   66.67 | 15,22-24
  ------------|---------|----------|---------|---------|-------------------
 
- ✅ Coverage threshold met (80% minimum required)
+ ✅ Coverage threshold met (90% minimum required)
 ```
 
-If coverage is below 80%, you'll see:
+If coverage is below 90%, you'll see:
 
 ```bash
  ❌ Coverage threshold not met:
- - Branches: 75% (minimum 80%)
- - Functions: 78% (minimum 80%)
+ - Branches: 85% (minimum 90%)
+ - Functions: 88% (minimum 90%)
 ```
 
 ### Coverage Configuration
@@ -315,10 +315,10 @@ coverage: {
   provider: 'v8',
   reporter: ['text', 'json', 'html'],
   thresholds: {
-    lines: 80,
-    branches: 80,
-    functions: 80,
-    statements: 80,
+    lines: 90,
+    branches: 90,
+    functions: 90,
+    statements: 90,
   },
 }
 ```

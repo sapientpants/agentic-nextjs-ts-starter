@@ -30,14 +30,14 @@ We chose **Vitest** as our primary test framework with **fast-check** for proper
 
 1. **Primary Framework**: Vitest for unit and integration tests
 2. **Property-Based Testing**: fast-check for invariant testing
-3. **Coverage**: V8 provider with 80% minimum thresholds
+3. **Coverage**: V8 provider with 90% minimum thresholds
 4. **Strategy**: Test-as-contract approach with comprehensive coverage
 
 ### Implementation Details
 
 - **Framework**: Vitest with Node.js environment
 - **Coverage Provider**: V8 (fastest and most accurate)
-- **Coverage Thresholds**: 80% minimum for lines, branches, functions, statements
+- **Coverage Thresholds**: 90% minimum for lines, branches, functions, statements
 - **Property Testing**: fast-check for testing invariants and edge cases
 - **File Organization**: `tests/*.spec.ts` for unit tests, `tests/*.property.spec.ts` for property tests
 - **Watch Mode**: Integrated with development workflow
@@ -58,7 +58,7 @@ We chose **Vitest** as our primary test framework with **fast-check** for proper
 
 - **Ecosystem**: Smaller ecosystem compared to Jest (though growing rapidly)
 - **Learning Curve**: Property-based testing requires understanding of invariants
-- **Coverage Requirements**: 80% threshold may slow down rapid prototyping
+- **Coverage Requirements**: 90% threshold ensures comprehensive test coverage
 - **Tool Compatibility**: Some Jest-specific tools may not work directly
 
 ### Mitigation
