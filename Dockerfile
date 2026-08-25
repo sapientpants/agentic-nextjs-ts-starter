@@ -2,13 +2,13 @@
 FROM node:24-alpine AS builder
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.22.0 --activate
+RUN corepack enable
 
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
@@ -38,6 +38,13 @@ ENV NODE_ENV=production
 # Copy standalone output from builder
 # Next.js standalone output includes minimal dependencies
 COPY --from=builder --chown=nodejs:nodejs /app/.next/standalone ./
+
+# Copy the complete @swc/helpers package from the builder's pnpm store
+# to fix the missing esm/ subpath files (Next.js nft file tracer silently
+# drops ESM variants when resolving transitive dependencies in pnpm mode)
+COPY --from=builder /app/node_modules/.pnpm/@swc+helpers@0.5.23/node_modules/@swc/helpers /app/node_modules/.pnpm/@swc+helpers@0.5.23/node_modules/@swc/helpers
+
+# Copy static assets and public directory
 COPY --from=builder --chown=nodejs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nodejs:nodejs /app/public ./public
 
