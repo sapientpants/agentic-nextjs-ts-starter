@@ -32,7 +32,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 11. `pnpm duplication` - Code duplication analysis (jscpd)
 12. `pnpm dead-code` - Unused exports/files/deps/types (Knip)
 13. `pnpm ts-prune` - Unused TypeScript exports (ts-prune)
-14. `pnpm test:coverage` - Slowest check, runs last (80% minimum threshold)
+14. `pnpm test:coverage` - Slowest check, runs last (90% minimum threshold)
 
 **Note:** The following tools are excluded from precommit due to performance/use-case:
 
@@ -47,13 +47,13 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 
 - `pnpm test` - Run tests without coverage
 - `pnpm test:watch` - Run tests in watch mode
-- `pnpm test:coverage` - Run tests with coverage report and **80% minimum threshold enforcement**
+- `pnpm test:coverage` - Run tests with coverage report and **90% minimum threshold enforcement**
 - `pnpm coverage:report` - Generate detailed coverage report
 - `vitest run tests/specific.spec.ts` - Run a single test file
 - `vitest -t "test name"` - Run tests matching a pattern
 - Test files: `tests/*.spec.ts` for unit tests, `tests/*.property.spec.ts` for property-based tests
 
-**Coverage Requirements**: This project enforces 80% minimum coverage for lines, branches, functions, and statements. Coverage checks will fail in CI if thresholds are not met.
+**Coverage Requirements**: This project enforces 90% minimum coverage for lines, branches, functions, and statements. Coverage checks will fail in CI if thresholds are not met.
 
 ### Code Quality & Complexity
 
@@ -110,7 +110,7 @@ All violations trigger **errors** and cause `pnpm lint` to fail. These rules app
 - **madge** - Circular dependency detection
 - **jscpd** - Code duplication analysis (2% threshold triggers failure)
 - **Knip** - Dead code detection (unused exports, files, dependencies, types)
-- **Stryker Mutator** - Mutation testing for test quality verification (80% threshold)
+- **Stryker Mutator** - Mutation testing for test quality verification (90% threshold)
 - **npm-check-updates** - Dependency freshness tracking
 
 **Test File Relaxed Thresholds** (`tests/**/*.ts`):
@@ -454,11 +454,11 @@ The CI will validate that a changeset is present, and the release workflow will 
 
 - **Unit tests** (`tests/*.spec.ts`) - Test functions in isolation
 - **Property-based tests** (`tests/*.property.spec.ts`) - Required for business logic
-- **Test coverage** - **Minimum 80% coverage enforced** for lines, branches, functions, and statements
+- **Test coverage** - **Minimum 90% coverage enforced** for lines, branches, functions, and statements
 - **Test naming** - Use descriptive names that explain what is being tested
 - **Test independence** - Tests should not depend on execution order
 - **Assertions** - Use multiple assertions to thoroughly verify behavior
-- **Coverage enforcement** - Tests fail if coverage drops below 80% in any metric
+- **Coverage enforcement** - Tests fail if coverage drops below 90% in any metric
 
 ### Code Quality Guidelines
 

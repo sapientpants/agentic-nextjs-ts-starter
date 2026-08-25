@@ -165,7 +165,7 @@ echo "declare module 'module-name';" > src/types/module-name.d.ts
 
 ### Coverage Threshold Failures
 
-**Problem**: Tests pass but coverage check fails with "Coverage for X (79%) does not meet threshold (80%)"
+**Problem**: Tests pass but coverage check fails with "Coverage for X (89%) does not meet threshold (90%)"
 
 **Solution**:
 

@@ -31,14 +31,14 @@ pnpm test:watch
 # Single run
 pnpm test
 
-# With coverage (80% minimum threshold enforced)
+# With coverage (90% minimum threshold enforced)
 pnpm test:coverage
 
 # Coverage in browser
 pnpm coverage:open
 ```
 
-> **📊 Coverage Requirements**: This project enforces **80% minimum coverage** for lines, branches, functions, and statements. The CI pipeline will fail if coverage drops below this threshold.
+> **📊 Coverage Requirements**: This project enforces **90% minimum coverage** for lines, branches, functions, and statements. The CI pipeline will fail if coverage drops below this threshold.
 
 ### 🏗️ Building
 
@@ -61,7 +61,7 @@ Run `pnpm help` to see all available scripts, or check these key commands:
 | `pnpm dev`           | TypeScript watch mode             | `tsc --watch`                            |
 | `pnpm test`          | Run tests once                    | `vitest run`                             |
 | `pnpm test:watch`    | Test watch mode                   | `vitest`                                 |
-| `pnpm test:coverage` | Tests with coverage report        | `vitest run --coverage` (80% threshold)  |
+| `pnpm test:coverage` | Tests with coverage report        | `vitest run --coverage` (90% threshold)  |
 | `pnpm typecheck`     | Type check only                   | `tsc --noEmit`                           |
 | `pnpm lint`          | Check linting                     | `eslint .`                               |
 | `pnpm format`        | Check formatting                  | `prettier --check .`                     |
