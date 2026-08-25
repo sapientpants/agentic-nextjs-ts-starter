@@ -7,8 +7,8 @@ function IntroSection() {
       <ul>
         <li>Next.js 16 with App Router</li>
         <li>React 19</li>
-        <li>TypeScript 5.9 strict mode</li>
-        <li>Node.js 22+</li>
+        <li>TypeScript 6.0 strict mode</li>
+        <li>Node.js 24+</li>
         <li>pnpm 10 package manager</li>
         <li>Comprehensive testing (Vitest + React Testing Library)</li>
         <li>Code quality automation (ESLint, Prettier, Husky)</li>
