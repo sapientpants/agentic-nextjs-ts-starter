@@ -1,0 +1,68 @@
+# =============================================================================
+# WORKFLOW: Weekly Mutation Testing
+# PURPOSE: Run Stryker mutation testing weekly, extract metrics, commit to main
+# TRIGGERS: Weekly cron schedule (Sunday 00:00 UTC)
+# OUTPUTS: Updates quality-metrics.json with mutation score data
+# =============================================================================
+
+name: Weekly Mutation Test
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  mutation-test:
+    name: Mutation Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: 10.34.5
+          run_install: false
+          standalone: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run mutation testing
+        run: pnpm mutation-test
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage/
+
+      - name: Extract quality metrics
+        run: node scripts/extract-quality-metrics.js
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code quality-metrics.json || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit quality metrics
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git add quality-metrics.json
+          git commit --no-verify -m "chore: update mutation metrics from weekly test [skip ci]"
+          git push

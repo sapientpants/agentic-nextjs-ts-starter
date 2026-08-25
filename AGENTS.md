@@ -36,7 +36,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 
 **Note:** The following tools are excluded from precommit due to performance/use-case:
 
-- `pnpm mutation-test` - Run periodically (weekly/monthly)
+- `pnpm mutation-test` - Runs weekly in CI (`weekly-mutation-test.yml`); run locally for debugging
 - `pnpm scan:secrets` - Run manually or in CI (can use `scan:secrets:protect` for staged changes)
 - `pnpm publint` / `pnpm attw` - Run before publishing, not every commit
 - `pnpm size` - Run before release or when concerned about bundle size
@@ -67,7 +67,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 - `pnpm dead-code` - Find unused exports, files, dependencies, and types (via Knip)
 - `pnpm duplication` - Check code duplication (fails if >2% threshold exceeded)
 - `pnpm mutation-test` - Run mutation testing to verify test quality (via Stryker)
-- `pnpm mutation-test:incremental` - Run mutation testing with incremental mode (faster)
+- `pnpm mutation-test:incremental` - Run mutation testing with incremental mode (faster); runs weekly in CI
 - `pnpm metrics` - Run all quality metrics (deps summary, circular deps, duplication)
 - `pnpm metrics:update` - Extract and update quality-metrics.json file for README badges
 
