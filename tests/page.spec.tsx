@@ -66,8 +66,8 @@ describe('HomePage', () => {
     render(<HomePage />);
     expect(screen.getByText(/Next.js 16 with App Router/i)).toBeInTheDocument();
     expect(screen.getByText(/React 19/i)).toBeInTheDocument();
-    expect(screen.getByText(/TypeScript 5\.9 strict mode/i)).toBeInTheDocument();
-    expect(screen.getByText(/Node\.js 22\+/i)).toBeInTheDocument();
+    expect(screen.getByText(/TypeScript 6\.0 strict mode/i)).toBeInTheDocument();
+    expect(screen.getByText(/Node\.js 24\+/i)).toBeInTheDocument();
     expect(screen.getByText(/pnpm 10 package manager/i)).toBeInTheDocument();
     expect(screen.getByText(/Comprehensive testing/i)).toBeInTheDocument();
   });
