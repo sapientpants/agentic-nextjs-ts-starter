@@ -59,6 +59,7 @@
     "sonarjs",
     "Stmts",
     "stryker",
+    "Turbopack",
     "triaging",
     "trivyignore",
     "typecheck",

@@ -2,14 +2,14 @@
 
 This file provides guidance to AI agents (such as OpenCode) when working with code in this repository.
 
-> **Note:** This project replaced Claude Code with OpenCode and local models. See [ADR-001](./architecture/decisions/001-ditch-claude-code-opencode-local-models.adr.md) for the full rationale.
+> **Note:** This project replaced Claude Code with OpenCode and local models. See [ADR-001](./docs/architecture/decisions/001-ditch-claude-code-opencode-local-models.adr.md) for the full rationale.
 
 ## Development Commands
 
 ### Core Development
 
 - `pnpm install` - Install dependencies (use pnpm 10, Node 24 via mise)
-- `pnpm build` - Build TypeScript to dist/
+- `pnpm build` - Build Next.js application (output: .next/)
 - `pnpm typecheck` - Type check without emitting files
 - `pnpm lint` - Run ESLint (fails on any violations)
 - `pnpm lint:fix` - Auto-fix linting issues
@@ -83,7 +83,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 | **Max Nested Callbacks**  | 3         | Per function |
 | **Code Duplication**      | 2%        | Project-wide |
 
-All violations trigger **errors** and cause `pnpm lint` to fail. These rules apply to `src/**/*.ts`.
+All violations trigger **errors** and cause `pnpm lint` to fail. These rules apply to `app/**/*.{ts,tsx}`.
 
 **Tools Used**:
 
@@ -115,9 +115,9 @@ All violations trigger **errors** and cause `pnpm lint` to fail. These rules app
 
 **Test File Relaxed Thresholds** (`tests/**/*.ts`):
 
-- Cyclomatic complexity: 15 (vs 10 for src)
-- Max function lines: 600 (vs 50 for src) - allows large describe blocks with many test cases
-- All other rules: same as src files
+- Cyclomatic complexity: 15 (vs 10 for app)
+- Max function lines: 600 (vs 50 for app) - allows large describe blocks with many test cases
+- All other rules: same as app files
 
 ### Quality Metrics Dashboard
 
@@ -248,43 +248,24 @@ https://img.shields.io/badge/dynamic/json
 ### Project Structure
 
 - **Test-as-contract**: Property-based testing with fast-check for invariants, unit tests with Vitest
-- **Type safety**: Strict TypeScript with runtime validation using Zod for external boundaries
+- **Type safety**: Strict TypeScript with type-aware ESLint rules for catching subtle type-safety issues
 - **Advanced linting**: TypeScript ESLint with type-aware rules for catching subtle type-safety issues
-- **Module system**: ES modules (`"type": "module"`) with NodeNext resolution
+- **Module system**: ES modules (`"type": "module"`) with Next.js Turbopack resolution (no `.js` extensions required)
 - **OpenCode Commands**: Custom commands in `.opencode/commands/` for common workflows
 - **Git Hooks**: Husky pre-commit hooks (`.husky/`) run the full verification suite; `--no-verify` is blocked by an OpenCode permission rule
 
 ### Project Layout
 
 ```
-src/               # Source code - ES modules with .ts extension
+app/               # Next.js App Router (pages, layouts, API routes)
 tests/            # Test files - *.spec.ts (unit), *.property.spec.ts (property-based)
-dist/             # Build output (gitignored)
+.next/            # Build output (gitignored)
 .opencode/          # OpenCode configurations and commands
 ```
 
 ### Key Patterns
 
-#### 1. Validation Pattern
-
-Use Zod schemas for runtime validation at system boundaries:
-
-```typescript
-import { z } from 'zod';
-
-const UserSchema = z.object({
-  email: z.string().email(),
-  age: z.number().positive().int(),
-});
-
-type User = z.infer<typeof UserSchema>;
-
-export function validateUser(data: unknown): User {
-  return UserSchema.parse(data);
-}
-```
-
-#### 2. Property Testing Pattern
+#### 1. Property Testing Pattern
 
 Use fast-check for testing invariants:
 
@@ -307,30 +288,13 @@ Common properties to test:
 - Idempotence: `f(f(a)) === f(a)`
 - Round-trip: `decode(encode(a)) === a`
 
-#### 3. Structured Logging Pattern
+#### 3. Import Extensions
 
-Use Pino logger for structured logging:
-
-```typescript
-import { createChildLogger } from './logger.js';
-
-const logger = createChildLogger('module-name');
-
-// Log with context
-logger.info({ userId: '123', action: 'login' }, 'User logged in');
-
-// Sensitive data is automatically redacted
-logger.info({ password: 'secret', safe: 'data' }, 'Request processed');
-// Output will redact password field
-```
-
-#### 4. Import Extensions
-
-Always use `.js` extension in imports for ES modules:
+Next.js 16's Turbopack resolves imports without `.js` extensions automatically:
 
 ```typescript
-import { myFunction } from './module.js'; // ✓ Correct
-import { myFunction } from './module'; // ✗ Wrong
+import { myFunction } from './module'; // ✓ Correct (Turbopack resolves automatically)
+import { myFunction } from './module.js'; // Also valid
 ```
 
 ### CI/CD Pipeline
@@ -376,7 +340,7 @@ Available slash commands in `.opencode/commands/`:
 - **Node Version**: >=24.0.0 (engines requirement)
 - **TypeScript**: Strict mode with NodeNext module resolution
 - **Testing**: Vitest with V8 coverage provider + @vitest/ui for visual testing interface
-- **Linting**: ESLint 9 with comprehensive plugin ecosystem (11 plugins)
+- **Linting**: ESLint 10 with comprehensive plugin ecosystem (12 plugins)
   - **@typescript-eslint**: Type-aware rules (floating promises, unsafe assertions, strict boolean expressions)
   - **eslint-plugin-sonarjs**: Code quality and bug detection (cognitive complexity, duplicate conditions)
   - **eslint-plugin-security**: Security-focused linting (eval detection, unsafe regex, command injection)
@@ -389,7 +353,8 @@ Available slash commands in `.opencode/commands/`:
   - **eslint-plugin-import**: Import organization and circular dependency detection
   - **eslint-plugin-no-barrel-files**: Barrel file anti-pattern prevention
   - **eslint-plugin-jsonc**: JSON/JSONC/JSON5 linting
-  - Type-aware rules apply to `src/**/*.ts` and `tests/**/*.ts` files
+  - **@next/eslint-plugin-next**: Next.js App Router and React Server Components rules
+  - Type-aware rules apply to `app/**/*.{ts,tsx}` and `tests/**/*.ts` files
   - Performance: ~2-3s for full project lint (enhanced coverage)
 - **Formatting**: Prettier 3 with ESLint integration
 - **Versioning**: Changesets for automated version management
@@ -483,7 +448,7 @@ The CI will validate that a changeset is present, and the release workflow will 
 
 - **Use TypeScript strictly** - Avoid `any`, use `unknown` when type is truly unknown
 - **Define explicit types** - For function parameters, return types, and complex objects
-- **Runtime validation** - Use Zod for data from external sources (APIs, user input, files)
+- **Runtime validation** - Use Zod or hand-rolled validators for data from external sources (APIs, user input, files)
 
 ### Testing Requirements
 
@@ -541,7 +506,7 @@ Closes #42"
 1. **Always run `pnpm precommit`** - Ensures all checks pass in optimized order (see Development Commands section for details)
 2. **Use conventional commits** - Format: `type(scope): description` (e.g., `feat: add dark mode`)
 3. **Add changesets** - Run `pnpm changeset` to document your changes for the release notes
-4. **Use the correct import syntax** - Always use `.js` extension for local ES module imports
+4. **Use the correct import syntax** - Next.js 16's Turbopack resolves imports without `.js` extensions automatically (`.js` extension also valid)
 
 ### Troubleshooting Common Issues
 
@@ -555,7 +520,6 @@ pnpm test        # Ensure tests pass
 
 #### Type Errors
 
-- Check imports include `.js` extension
 - Verify TypeScript version compatibility
 - Ensure strict mode compliance
 
