@@ -15,7 +15,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 - `pnpm lint:fix` - Auto-fix linting issues
 - `pnpm format` - Check Prettier formatting
 - `pnpm format:fix` - Apply Prettier formatting
-- `pnpm precommit` - Run all quality checks in optimized order (see below)
+- `pnpm precommit` - Run all quality checks in optimized order (see below, includes changeset validation)
 
 **Pre-commit Check Order (optimized for fast feedback and fail-fast):**
 
