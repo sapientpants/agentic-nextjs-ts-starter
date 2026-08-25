@@ -1,4 +1,4 @@
-# ADR-001: Replace Claude Code with OpenCode and Local Models
+# ADR-0010: Replace Claude Code with OpenCode and Local Models
 
 **Status:** Accepted
 **Date:** 2025-08-15
