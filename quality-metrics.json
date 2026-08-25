@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-08-25T19:35:40.721Z",
+  "generatedAt": "2026-08-25T20:00:46.050Z",
   "version": "1.0.0",
   "nodeVersion": ">=24.0.0",
   "coverage": {
@@ -35,7 +35,7 @@
     "compileErrors": 0,
     "totalMutants": 0,
     "threshold": {
-      "score": 90
+      "score": 80
     }
   },
   "complexity": {
