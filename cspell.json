@@ -66,7 +66,8 @@
     "vitest",
     "yamllint",
     "yourorg",
-    "zricethezav"
+    "zricethezav",
+    "isinstance"
   ],
   "ignorePaths": [
     "node_modules/**",
