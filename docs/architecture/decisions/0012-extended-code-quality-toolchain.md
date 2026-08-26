@@ -1,4 +1,4 @@
-# 14. Extended Code Quality Toolchain
+# 12. Extended Code Quality Toolchain
 
 Date: 2025-08-30
 
@@ -6,11 +6,11 @@ Date: 2025-08-30
 
 Accepted
 
-Supersedes: [ADR-0006](./0006-code-quality-toolchain-eslint-prettier-strict-typescript.md)
+Supersedes: [ADR-0005](./0005-code-quality-toolchain-eslint-prettier-strict-typescript.md)
 
 ## Context
 
-While ADR-0006 established a strong foundation with ESLint, Prettier, and TypeScript, the project's growth revealed the need for more comprehensive quality enforcement:
+While ADR-0005 established a strong foundation with ESLint, Prettier, and TypeScript, the project's growth revealed the need for more comprehensive quality enforcement:
 
 - **Documentation Quality**: Markdown files had inconsistent formatting
 - **Configuration Safety**: YAML and JSON files lacked validation
@@ -24,18 +24,18 @@ The original toolchain focused primarily on source code, but modern projects req
 
 We extended the code quality toolchain to cover all aspects of the project:
 
-1. **Extended Linting** (ADR-0010):
+1. **Extended Linting**:
    - Markdown linting with markdownlint-cli2
    - YAML linting with yamllint
    - JSON linting via ESLint integration
    - GitHub Actions linting with actionlint
 
-2. **Continuous Quality Monitoring** (ADR-0011):
+2. **Continuous Quality Monitoring**:
    - Automated issue detection and remediation
    - Quality gates on pull requests
    - Historical tracking of metrics
 
-3. **Runtime Validation** (ADR-0012):
+3. **Runtime Validation**:
    - Zod for runtime type validation
    - Schema-driven validation at system boundaries
    - Type inference from validation schemas
@@ -53,7 +53,7 @@ The extended toolchain maintains the original foundation while adding:
 
 ### Positive
 
-All benefits from ADR-0006, plus:
+All benefits from ADR-0005, plus:
 
 - **Comprehensive Coverage**: Quality enforcement for all file types
 - **Early Detection**: Issues caught before they reach production
@@ -64,7 +64,7 @@ All benefits from ADR-0006, plus:
 
 ### Negative
 
-All challenges from ADR-0006, plus:
+All challenges from ADR-0005, plus:
 
 - **Additional Tools**: More dependencies and configurations
 - **Increased Complexity**: Multiple tools to understand
@@ -73,7 +73,7 @@ All challenges from ADR-0006, plus:
 
 ### Mitigation
 
-Extends mitigations from ADR-0006:
+Extends mitigations from ADR-0005:
 
 - **Clear Documentation**: Comprehensive guides for all tools
 - **Gradual Adoption**: Tools can be adopted incrementally
@@ -82,6 +82,4 @@ Extends mitigations from ADR-0006:
 
 ## References
 
-- [ADR-0006: Original Code Quality Toolchain](./0006-code-quality-toolchain-eslint-prettier-strict-typescript.md)
-- [ADR-0010: Extended Linting Strategy](./0010-extended-linting-strategy.md)
-- [ADR-0011: Runtime Validation with Zod](./0011-runtime-validation-with-zod.md)
+- [ADR-0005: Original Code Quality Toolchain](./0005-code-quality-toolchain-eslint-prettier-strict-typescript.md)

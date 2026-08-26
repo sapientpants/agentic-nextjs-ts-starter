@@ -1,4 +1,4 @@
-# 4. ES Modules and Modern JavaScript/TypeScript Stack
+# 3. ES Modules and Modern JavaScript/TypeScript Stack
 
 Date: 2025-08-28
 

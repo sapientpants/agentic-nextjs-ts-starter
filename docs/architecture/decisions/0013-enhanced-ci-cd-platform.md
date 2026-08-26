@@ -1,4 +1,4 @@
-# 15. Enhanced CI/CD Platform
+# 13. Enhanced CI/CD Platform
 
 Date: 2025-08-30
 
@@ -6,11 +6,11 @@ Date: 2025-08-30
 
 Accepted
 
-Extends: [ADR-0008](./0008-ci-cd-platform-github-actions.md)
+Extends: [ADR-0007](./0007-ci-cd-platform-github-actions.md)
 
 ## Context
 
-ADR-0008 established GitHub Actions as our CI/CD platform with solid workflows for validation, releases, and security scanning. As the project matured, we identified opportunities to enhance the platform:
+ADR-0007 established GitHub Actions as our CI/CD platform with solid workflows for validation, releases, and security scanning. As the project matured, we identified opportunities to enhance the platform:
 
 - **Quality Analysis**: Need for continuous code quality monitoring beyond local linting
 - **Extended Validation**: Configuration files and documentation needed validation
@@ -47,7 +47,7 @@ Building on the original workflows:
 
 ### Positive
 
-All benefits from ADR-0008, plus:
+All benefits from ADR-0007, plus:
 
 - **Higher Code Quality**: Continuous monitoring catches more issues
 - **Faster Development**: Automated fixes reduce manual work
@@ -57,7 +57,7 @@ All benefits from ADR-0008, plus:
 
 ### Negative
 
-All challenges from ADR-0008, plus:
+All challenges from ADR-0007, plus:
 
 - **Complex Workflows**: More steps in CI/CD pipeline
 - **Longer Build Times**: Additional 2-3 minutes for analysis
@@ -65,7 +65,7 @@ All challenges from ADR-0008, plus:
 
 ### Mitigation
 
-Extends mitigations from ADR-0008:
+Extends mitigations from ADR-0007:
 
 - **Parallel Processing**: Minimize time impact
 - **Clear Documentation**: Explain all validations
@@ -74,6 +74,4 @@ Extends mitigations from ADR-0008:
 
 ## References
 
-- [ADR-0008: Original CI/CD Platform](./0008-ci-cd-platform-github-actions.md)
-- [ADR-0010: Extended Linting Strategy](./0010-extended-linting-strategy.md)
-- [ADR-0012: Claude Code Development Environment](./0012-claude-code-development-environment.md)
+- [ADR-0007: Original CI/CD Platform](./0007-ci-cd-platform-github-actions.md)

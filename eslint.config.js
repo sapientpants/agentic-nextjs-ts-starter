@@ -196,7 +196,7 @@ export default [
   },
   // Relaxed complexity rules for test files
   {
-    files: ['tests/**/*.ts'],
+    files: ['tests/**/*.{ts,tsx}'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

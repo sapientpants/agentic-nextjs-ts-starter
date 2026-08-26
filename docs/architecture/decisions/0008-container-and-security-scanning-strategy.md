@@ -1,10 +1,10 @@
-# 9. Container and Security Scanning Strategy
+# 8. Container and Security Scanning Strategy
 
 Date: 2025-08-28
 
 ## Status
 
-Extended by [ADR-0017](./0017-comprehensive-security-strategy.md)
+Extended by [ADR-0014](./0014-comprehensive-security-strategy.md)
 
 ## Context
 

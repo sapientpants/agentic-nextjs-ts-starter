@@ -1,4 +1,4 @@
-# 5. Testing Framework and Strategy: Vitest with Property-Based Testing
+# 4. Testing Framework and Strategy: Vitest with Property-Based Testing
 
 Date: 2025-08-28
 

@@ -1,4 +1,4 @@
-# 3. Package Manager Choice: pnpm
+# 2. Package Manager Choice: pnpm
 
 Date: 2025-08-28
 
