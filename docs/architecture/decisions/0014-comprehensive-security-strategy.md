@@ -1,4 +1,4 @@
-# 16. Comprehensive Security Strategy
+# 14. Comprehensive Security Strategy
 
 Date: 2025-08-30
 
@@ -6,11 +6,11 @@ Date: 2025-08-30
 
 Accepted
 
-Extends: [ADR-0009](./0009-container-and-security-scanning-strategy.md)
+Extends: [ADR-0008](./0008-container-and-security-scanning-strategy.md)
 
 ## Context
 
-ADR-0009 established a strong security foundation with CodeQL, OSV Scanner, Trivy, and SLSA attestations. As security threats evolved and our understanding deepened, we identified additional layers needed:
+ADR-0008 established a strong security foundation with CodeQL, OSV Scanner, Trivy, and SLSA attestations. As security threats evolved and our understanding deepened, we identified additional layers needed:
 
 - **Code Quality Security**: Many security issues stem from code quality problems
 - **Security Hotspots**: Code patterns that may not be vulnerabilities but need review
@@ -53,7 +53,7 @@ Building on the original security infrastructure:
 
 ### Positive
 
-All benefits from ADR-0009, plus:
+All benefits from ADR-0008, plus:
 
 - **Deeper Analysis**: More vulnerabilities detected
 - **Faster Remediation**: Automated fixing capabilities
@@ -63,7 +63,7 @@ All benefits from ADR-0009, plus:
 
 ### Negative
 
-All challenges from ADR-0009, plus:
+All challenges from ADR-0008, plus:
 
 - **Tool Overlap**: Some redundancy between scanners
 - **Alert Fatigue**: More findings to triage
@@ -72,7 +72,7 @@ All challenges from ADR-0009, plus:
 
 ### Mitigation
 
-Extends mitigations from ADR-0009:
+Extends mitigations from ADR-0008:
 
 - **Smart Prioritization**: Focus on high-severity issues
 - **Automated Triage**: Claude commands for bulk operations
@@ -81,5 +81,4 @@ Extends mitigations from ADR-0009:
 
 ## References
 
-- [ADR-0009: Original Security Scanning Strategy](./0009-container-and-security-scanning-strategy.md)
-- [ADR-0013: Claude Code Development Environment](./0013-claude-code-development-environment.md)
+- [ADR-0008: Original Security Scanning Strategy](./0008-container-and-security-scanning-strategy.md)

@@ -1,4 +1,4 @@
-# 7. Release Management with Changesets
+# 6. Release Management with Changesets
 
 Date: 2025-08-28
 

@@ -22,18 +22,18 @@ PACKAGE_JSON="$ROOT_DIR/package.json"
 die() { echo "version-drift: $*" >&2; exit 1; }
 
 grep_version() {
-  # $1 = key name (e.g. packageManager)
   python3 -c "
 import json, sys
-pkg = json.load(open('$(cd scripts && cd .. && pwd)/package.json'))
-parts = '$1'.split('.')
+pkg = json.load(open(sys.argv[1]))
+key = sys.argv[2]
+parts = key.split('.')
 val = pkg
 for p in parts:
   val = val[p]
 if isinstance(val, dict):
   val = val.get('version', '')
 print(str(val) or '')
-" 2>/dev/null | sed 's/["^~=>]//g' | tr -d ' '
+" "$PACKAGE_JSON" "$1"
 }
 
 # ── canonical versions ────────────────────────────────────────────────────────

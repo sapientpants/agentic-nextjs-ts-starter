@@ -1,4 +1,4 @@
-# 13. Node Version Management Strategy
+# 11. Node Version Management Strategy
 
 Date: 2025-08-30
 

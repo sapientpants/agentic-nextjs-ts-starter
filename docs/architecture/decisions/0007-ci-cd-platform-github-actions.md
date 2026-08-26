@@ -1,10 +1,10 @@
-# 8. CI/CD Platform: GitHub Actions
+# 7. CI/CD Platform: GitHub Actions
 
 Date: 2025-08-28
 
 ## Status
 
-Extended by [ADR-0016](./0016-enhanced-ci-cd-platform.md)
+Extended by [ADR-0013](./0013-enhanced-ci-cd-platform.md)
 
 ## Context
 

@@ -1,10 +1,10 @@
-# 6. Code Quality Toolchain: ESLint, Prettier, Strict TypeScript
+# 5. Code Quality Toolchain: ESLint, Prettier, Strict TypeScript
 
 Date: 2025-08-28
 
 ## Status
 
-Superseded by [ADR-0015](./0015-extended-code-quality-toolchain.md)
+Superseded by [ADR-0012](./0012-extended-code-quality-toolchain.md)
 
 ## Context
 

@@ -9,7 +9,7 @@
   "tsconfigFile": "tsconfig.json",
   "coverageAnalysis": "perTest",
   "reporters": ["html", "clear-text", "progress"],
-  "mutate": ["src/**/*.ts", "!src/**/*.spec.ts", "!src/**/*.test.ts", "!src/dev/**"],
+  "mutate": ["app/**/*.ts", "!app/**/*.spec.ts", "!app/**/*.test.ts"],
   "thresholds": {
     "high": 80,
     "low": 60,
