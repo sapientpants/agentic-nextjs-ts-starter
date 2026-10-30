@@ -21,6 +21,9 @@ export LC_ALL=C
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PACKAGE_JSON="$ROOT_DIR/package.json"
 
+# All doc paths below are relative to the repo root; run from anywhere.
+cd "$ROOT_DIR"
+
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 die() { echo "version-drift: $*" >&2; exit 1; }
