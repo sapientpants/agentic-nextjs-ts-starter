@@ -29,7 +29,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 8. `pnpm lint` - Comprehensive quality checks (12 ESLint plugins, depends on typecheck)
 9. `pnpm deps:circular` - Circular dependency detection (madge)
 10. `pnpm deps:cruise` - Architectural dependency validation (dependency-cruiser)
-11. `pnpm duplication` - Code duplication analysis (jscpd)
+11. `pnpm duplication` + `pnpm duplication:tests` - Code duplication analysis (jscpd; 2% for `app/`, 5% for `tests/`)
 12. `pnpm dead-code` - Unused exports/files/deps/types (Knip)
 13. `pnpm test:coverage` - Slowest check, runs last (90% minimum threshold)
 
@@ -63,7 +63,8 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 - `pnpm deps:update:minor` - Update dependencies to latest minor versions
 - `pnpm deps:update:patch` - Update dependencies to latest patch versions
 - `pnpm dead-code` - Find unused exports, files, dependencies, and types (via Knip)
-- `pnpm duplication` - Check code duplication (fails if >2% threshold exceeded)
+- `pnpm duplication` - Check code duplication in `app/` (fails if >2% threshold exceeded)
+- `pnpm duplication:tests` - Check code duplication in `tests/` (fails if >5% threshold exceeded)
 - `pnpm mutation-test` - Run mutation testing to verify test quality (via Stryker)
 - `pnpm mutation-test:incremental` - Run mutation testing with incremental mode (faster); runs weekly in CI
 - `pnpm metrics` - Run all quality metrics (deps summary, circular deps, duplication)
@@ -79,7 +80,8 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 | **Max Nesting Depth**     | 3         | Per function |
 | **Max Statements**        | 15        | Per function |
 | **Max Nested Callbacks**  | 3         | Per function |
-| **Code Duplication**      | 2%        | Project-wide |
+| **Code Duplication**      | 2%        | `app/`       |
+| **Test Duplication**      | 5%        | `tests/`     |
 
 All violations trigger **errors** and cause `pnpm lint` to fail. These rules apply to `app/**/*.{ts,tsx}`.
 
@@ -106,7 +108,7 @@ All violations trigger **errors** and cause `pnpm lint` to fail. These rules app
 - **eslint-plugin-no-barrel-files** - Prevent barrel file anti-patterns
 - **ESLint core rules** - Cyclomatic complexity, max lines, max params, max nesting, max statements, max callbacks
 - **madge** - Circular dependency detection
-- **jscpd** - Code duplication analysis (2% threshold triggers failure)
+- **jscpd** - Code duplication analysis (2% threshold for `app/`, 5% for `tests/`)
 - **Knip** - Dead code detection (unused exports, files, dependencies, types)
 - **Stryker Mutator** - Mutation testing for test quality verification (90% threshold)
 - **npm-check-updates** - Dependency freshness tracking

@@ -1,17 +1,10 @@
 {
-  "threshold": 0,
+  "threshold": 2,
   "reporters": ["console", "html", "markdown"],
-  "ignore": [
-    "**/tests/**",
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/coverage/**",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ],
+  "ignore": ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
   "absolute": true,
   "gitignore": true,
-  "format": ["typescript", "javascript"],
+  "format": ["typescript", "tsx", "javascript"],
   "minLines": 5,
   "minTokens": 50,
   "output": "./reports/jscpd"

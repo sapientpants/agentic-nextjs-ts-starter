@@ -1,3 +1,4 @@
+import { getAppName } from './lib/app-config';
 import { toolVersions } from './lib/versions';
 
 function IntroSection() {
@@ -92,11 +93,9 @@ function PageFooter() {
 }
 
 export default function HomePage() {
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'agentic-nextjs-ts-starter';
-
   return (
     <main className="container">
-      <h1>Welcome to {appName}</h1>
+      <h1>Welcome to {getAppName()}</h1>
       <IntroSection />
       <FeaturesSection />
       <GettingStartedSection />
