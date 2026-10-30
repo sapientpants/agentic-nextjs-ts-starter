@@ -194,7 +194,7 @@ export default [
   },
   // Allow barrel files for index.ts entry points and legitimate re-exports
   {
-    files: ['**/index.ts', '**/logger.ts'],
+    files: ['**/index.ts'],
     rules: {
       'no-barrel-files/no-barrel-files': 'off',
     },

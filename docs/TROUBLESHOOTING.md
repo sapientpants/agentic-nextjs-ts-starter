@@ -249,9 +249,8 @@ pnpm changeset --empty
 **Solution**:
 
 1. Ensure changeset was included in PR
-2. Check NPM_TOKEN secret is set (if publishing)
-3. Verify version in package.json was bumped
-4. Check commit message doesn't include `[skip ci]`
+2. Verify version in package.json was bumped
+3. Check commit message doesn't include `[skip ci]`
 
 ## Git and Commit Issues
 

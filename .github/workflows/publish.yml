@@ -1,8 +1,8 @@
 # =============================================================================
-# WORKFLOW: Multi-Channel Package Publishing
-# PURPOSE: Distribute releases to NPM, GitHub Packages, and Docker Hub
+# WORKFLOW: Docker Image Publishing
+# PURPOSE: Distribute the release image to Docker Hub
 # TRIGGERS: GitHub release publication or manual dispatch
-# OUTPUTS: Published packages to configured registries
+# OUTPUTS: Published Docker image on Docker Hub
 # =============================================================================
 
 name: Publish
@@ -30,232 +30,12 @@ env:
 
 # SECURITY: Minimal required permissions
 # contents: read - Checkout code at release tag
-# packages: write - Publish to GitHub Packages
-# id-token: write - Generate provenance for npm
+# packages: read - Pull the pre-built image from GitHub Container Registry
 permissions:
   contents: read
-  packages: write
-  id-token: write
+  packages: read
 
 jobs:
-  # =============================================================================
-  # NPM PUBLISHING
-  # Publishes package to npm registry with provenance
-  # =============================================================================
-
-  npm:
-    name: Publish to NPM
-    runs-on: ubuntu-latest
-    # Only runs if ENABLE_NPM_RELEASE variable is set to 'true'
-    # Configure in Settings > Secrets and variables > Variables
-    if: vars.ENABLE_NPM_RELEASE == 'true'
-    permissions:
-      contents: read
-      id-token: write # Required for npm provenance
-      actions: read # Required to download artifacts
-    steps:
-      - name: Determine version
-        id: version
-        # Extract version from release tag or manual input
-        # Strips 'v' prefix to get semver (v1.2.3 -> 1.2.3)
-        run: |
-          VERSION="${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}"
-          VERSION="${VERSION#v}"  # Remove 'v' prefix
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Publishing to NPM: $VERSION"
-
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          # IMPORTANT: Checkout the exact release tag, not latest main
-          # This ensures we publish exactly what was released
-          ref: ${{ steps.version.outputs.tag }}
-
-      - name: Setup Node.js
-        # Node.js is required for npm publish command
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          # Configure npm registry for authentication
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Determine artifact source
-        id: artifact
-        # Use shared script to find the correct NPM package artifact from the release build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          chmod +x .github/scripts/determine-artifact.sh
-          .github/scripts/determine-artifact.sh \
-            --tag "${{ steps.version.outputs.tag }}" \
-            --repo "${{ github.repository }}" \
-            --version "${{ steps.version.outputs.version }}" \
-            --prefix "npm-package" \
-            --output "$GITHUB_OUTPUT"
-
-      - name: Download pre-built NPM package
-        id: download
-        # Download the pre-built, pre-scanned NPM package from main workflow
-        # This ensures we publish exactly what was tested
-        uses: actions/download-artifact@v7
-        with:
-          name: ${{ steps.artifact.outputs.artifact_name }}
-          path: ./npm-artifact
-          run-id: ${{ steps.artifact.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract pre-built package
-        run: |
-          # Check if any .tgz files exist
-          TARBALL=$(find ./npm-artifact -name "*.tgz" -type f | head -1)
-          if [ -z "$TARBALL" ]; then
-            echo "❌ No .tgz file found in artifact!"
-            echo "Contents of ./npm-artifact:"
-            ls -la ./npm-artifact/
-            exit 1
-          fi
-
-          echo "✅ Using pre-built NPM package from main workflow"
-          echo "📦 Extracting: $TARBALL"
-          tar -xzf "$TARBALL"
-
-          # The package extracts to a 'package' directory
-          # We need to move its contents to the current directory
-          if [ -d package ]; then
-            cp -r package/* .
-            rm -rf package
-          fi
-
-          echo "📋 Verified package contents from manifest"
-          if [ -f ./npm-artifact/npm-package-manifest.txt ]; then
-            echo "Package contains $(wc -l < ./npm-artifact/npm-package-manifest.txt) files"
-          fi
-
-      - name: Check NPM token
-        id: check-npm
-        # Gracefully handle missing NPM_TOKEN
-        # Allows workflow to succeed even without npm publishing
-        run: |
-          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "has_token=true" >> $GITHUB_OUTPUT
-            echo "✅ NPM_TOKEN is configured"
-          else
-            echo "has_token=false" >> $GITHUB_OUTPUT
-            echo "⚠️ NPM_TOKEN is not configured, skipping publish"
-            # To fix: Add NPM_TOKEN secret in Settings > Secrets
-          fi
-
-      - name: Publish to NPM
-        if: steps.check-npm.outputs.has_token == 'true'
-        run: |
-          # Remove private flag and prepare script (which runs husky)
-          # The prepare script runs even with --ignore-scripts, so we must remove it
-          jq 'del(.private) | del(.scripts.prepare)' package.json > tmp.json && mv tmp.json package.json
-
-          # Publish with provenance for supply chain security
-          # --provenance creates a signed attestation of the build
-          npm publish --provenance --access public
-        env:
-          # SECURITY: NPM_TOKEN required for authentication
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  # =============================================================================
-  # GITHUB PACKAGES PUBLISHING
-  # Publishes package to GitHub's npm registry
-  # =============================================================================
-
-  github-packages:
-    name: Publish to GitHub Packages
-    runs-on: ubuntu-latest
-    # Only runs if ENABLE_GITHUB_PACKAGES variable is set
-    # Useful for private packages within organization
-    if: vars.ENABLE_GITHUB_PACKAGES == 'true'
-    permissions:
-      contents: read
-      packages: write # Required to publish to GitHub Packages
-      id-token: write # Required for provenance
-      actions: read # Required to download artifacts
-    steps:
-      - name: Determine version
-        id: version
-        run: |
-          VERSION="${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}"
-          VERSION="${VERSION#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Publishing to GitHub Packages: $VERSION"
-
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ steps.version.outputs.tag }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          # GitHub Packages npm registry URL
-          registry-url: 'https://npm.pkg.github.com'
-
-      - name: Determine artifact source
-        id: artifact
-        # Use shared script to find the correct NPM package artifact (same as npm job)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          chmod +x .github/scripts/determine-artifact.sh
-          .github/scripts/determine-artifact.sh \
-            --tag "${{ steps.version.outputs.tag }}" \
-            --repo "${{ github.repository }}" \
-            --version "${{ steps.version.outputs.version }}" \
-            --prefix "npm-package" \
-            --output "$GITHUB_OUTPUT"
-
-      - name: Download pre-built NPM package
-        id: download
-        uses: actions/download-artifact@v7
-        with:
-          name: ${{ steps.artifact.outputs.artifact_name }}
-          path: ./npm-artifact
-          run-id: ${{ steps.artifact.outputs.run_id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract pre-built package
-        run: |
-          # Check if any .tgz files exist
-          TARBALL=$(find ./npm-artifact -name "*.tgz" -type f | head -1)
-          if [ -z "$TARBALL" ]; then
-            echo "❌ No .tgz file found in artifact!"
-            echo "Contents of ./npm-artifact:"
-            ls -la ./npm-artifact/
-            exit 1
-          fi
-
-          echo "✅ Using pre-built NPM package from main workflow"
-          echo "📦 Extracting: $TARBALL"
-          tar -xzf "$TARBALL"
-
-          # The package extracts to a 'package' directory
-          if [ -d package ]; then
-            cp -r package/* .
-            rm -rf package
-          fi
-
-          echo "📋 Verified package contents"
-
-      - name: Publish to GitHub Packages
-        run: |
-          # Scope package name to organization and remove private flag and prepare script
-          # The prepare script runs even with --ignore-scripts, so we must remove it
-          jq '.name = "@${{ github.repository_owner }}/" + .name | del(.private) | del(.scripts.prepare)' package.json > tmp.json && mv tmp.json package.json
-
-          npm publish --access public
-        env:
-          # SECURITY: Uses GITHUB_TOKEN for authentication
-          # Automatically available, no configuration needed
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   # =============================================================================
   # DOCKER HUB PUBLISHING
   # Copies pre-built multi-platform image from GHCR to Docker Hub
@@ -355,7 +135,7 @@ jobs:
   notify:
     name: Notify
     if: always() # Run even if publishing jobs fail
-    needs: [npm, docker, github-packages]
+    needs: [docker]
     runs-on: ubuntu-latest
     steps:
       - name: Check Slack webhook
@@ -383,9 +163,7 @@ jobs:
                   "type": "section",
                   "fields": [
                     {"type": "mrkdwn", "text": "*Repo:*\n${{ github.repository }}"},
-                    {"type": "mrkdwn", "text": "*NPM:*\n${{ needs.npm.result == 'success' && '✅' || needs.npm.result == 'skipped' && '⏭️' || '❌' }}"},
-                    {"type": "mrkdwn", "text": "*Docker:*\n${{ needs.docker.result == 'success' && '✅' || needs.docker.result == 'skipped' && '⏭️' || '❌' }}"},
-                    {"type": "mrkdwn", "text": "*GitHub:*\n${{ needs.github-packages.result == 'success' && '✅' || needs.github-packages.result == 'skipped' && '⏭️' || '❌' }}"}
+                    {"type": "mrkdwn", "text": "*Docker:*\n${{ needs.docker.result == 'success' && '✅' || needs.docker.result == 'skipped' && '⏭️' || '❌' }}"}
                   ]
                 }
               ]

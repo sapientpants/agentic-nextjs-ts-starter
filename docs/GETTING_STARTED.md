@@ -202,12 +202,6 @@ git push -u origin main
 
 The template includes comprehensive GitHub Actions workflows that handle PR validation, releases, and publishing. See [.github/WORKFLOWS.md](../.github/WORKFLOWS.md) for the full list of secrets and variables.
 
-#### For npm publishing (optional):
-
-1. Generate an npm token at https://www.npmjs.com/
-2. Add it as `NPM_TOKEN` in your GitHub repository secrets
-3. Set repository variable `ENABLE_NPM_RELEASE` to `true`
-
 #### For Docker publishing (optional):
 
 1. Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets

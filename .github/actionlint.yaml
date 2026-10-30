@@ -11,8 +11,6 @@ self-hosted-runner:
 config-variables:
   - ENABLE_RELEASE
   - ENABLE_DOCKER_RELEASE
-  - ENABLE_NPM_RELEASE
-  - ENABLE_GITHUB_PACKAGES
 
 # Ignore specific shellcheck warnings
 # SC2086: Double quote to prevent globbing and word splitting
