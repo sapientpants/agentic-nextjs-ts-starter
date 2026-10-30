@@ -1,6 +1,6 @@
 # Documentation Hub
 
-Welcome to the **Agentic Node + TypeScript Starter** documentation! This template provides a batteries-included foundation for building Node.js applications with TypeScript, comprehensive testing, and quality automation.
+Welcome to the **Agentic Next.js + TypeScript Starter** documentation! This template provides a batteries-included foundation for building Next.js applications with TypeScript, comprehensive testing, and quality automation.
 
 ## 📚 Documentation Structure
 
@@ -14,12 +14,13 @@ Welcome to the **Agentic Node + TypeScript Starter** documentation! This templat
 - **[DEVELOPMENT.md](./DEVELOPMENT.md)** - Daily development workflow and commands
 - **[PATTERNS.md](./PATTERNS.md)** - Copy-paste code patterns and examples
 - **[TESTING.md](./TESTING.md)** - Testing strategies and examples
+- **[DOCKER.md](./DOCKER.md)** - Docker build and healthcheck configuration
 - **[PROCESS.md](./PROCESS.md)** - AI-assisted (agentic) development workflow
 
 ### Reference
 
 - **[CHECKLISTS.md](./CHECKLISTS.md)** - Quick reference checklists
-- **[OBSERVABILITY.md](./OBSERVABILITY.md)** - Logging and monitoring setup
+- **[OBSERVABILITY.md](./OBSERVABILITY.md)** - Health checks, logging and monitoring setup
 - **[../AGENTS.md](../AGENTS.md)** - AI-assisted development with OpenCode
 
 ### Architecture Decisions
@@ -30,16 +31,16 @@ Welcome to the **Agentic Node + TypeScript Starter** documentation! This templat
 
 ### First Time Setup
 
-1. [Prerequisites & Installation](./GETTING_STARTED.md#prerequisites)
-2. [Initial Configuration](./GETTING_STARTED.md#initial-setup)
-3. [Verify Everything Works](./GETTING_STARTED.md#verification)
+1. [Clone & Install](./GETTING_STARTED.md#quick-setup-checklist)
+2. [Environment Variables](./GETTING_STARTED.md#3-set-up-environment-variables-optional)
+3. [Verify Everything Works](./GETTING_STARTED.md#verify-your-setup)
 
 ### Common Tasks
 
 - [Run Tests](./DEVELOPMENT.md#testing) - `pnpm test`
-- [Check Code Quality](./DEVELOPMENT.md#quick-quality-checks) - `pnpm verify`
+- [Check Code Quality](./DEVELOPMENT.md#quick-quality-checks) - `pnpm precommit`
 - [Start Development](./DEVELOPMENT.md#starting-development) - `pnpm dev`
-- [Create a Release](./DEVELOPMENT.md#releases) - `pnpm changeset`
+- [Create a Release](./DEVELOPMENT.md#release-process) - `pnpm changeset`
 
 ### When You're Stuck
 
@@ -78,4 +79,4 @@ When updating documentation:
 
 ---
 
-Last Updated: 2025-08-30
+Last Updated: 2026-10-30

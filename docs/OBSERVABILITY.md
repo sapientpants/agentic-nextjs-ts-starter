@@ -1,59 +1,94 @@
 # Observability Guide
 
-This template includes **Pino** for structured logging, with patterns ready for your observability needs.
+This template ships a health endpoint and relies on Next.js' built-in logging. This guide shows what is included and how to extend it.
 
 ## What's Included
 
-### Structured Logging with Pino
+### Health Endpoint
 
-- **Development**: Pretty-printed, colorized logs
-- **Production**: JSON format for log aggregation
-- **Test**: Silent by default
-- **Security**: Automatic redaction of sensitive fields
+`app/api/health/route.ts` exposes `GET /api/health` and returns:
 
-### Using the Logger
-
-```typescript
-import { logger, createChildLogger } from './logger.js';
-
-// Basic logging with the default logger
-logger.info('Application started');
-logger.error({ err: error }, 'Operation failed');
-
-// Child loggers for module-specific context
-const myModuleLogger = createChildLogger('my-module');
-myModuleLogger.info('Module initialized');
-
-const dbLogger = createChildLogger('database');
-dbLogger.debug({ query: 'SELECT *', duration: 45 }, 'Query executed');
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-01-01T00:00:00.000Z",
+  "application": "agentic-nextjs-ts-starter",
+  "version": "1.0.0",
+  "uptime": 12.34,
+  "environment": "production"
+}
 ```
 
-See [docs/PATTERNS.md](./PATTERNS.md#structured-logging) for more examples.
+The Dockerfile `HEALTHCHECK` polls this endpoint. See [docs/DOCKER.md](./DOCKER.md) for customizing it.
+
+### Logging
+
+Next.js logs requests, build output and server errors to stdout/stderr. In development, `next dev` also prints fetch timings. Configure request logging in `next.config.ts`:
+
+```typescript
+const config: NextConfig = {
+  logging: {
+    fetches: { fullUrl: true },
+  },
+};
+```
+
+For application logs, use `console.*` with structured objects so log aggregators can index them:
+
+```typescript
+console.info(JSON.stringify({ level: 'info', event: 'user.login', userId }));
+```
+
+Keep logging in Server Components, Route Handlers and Server Actions. Anything logged in a Client Component ends up in the browser console.
 
 ## Extending for Your Project
 
 ### Adding OpenTelemetry
 
-The logger is designed to work with OpenTelemetry when you're ready:
+Next.js supports OpenTelemetry through an `instrumentation.ts` file at the project root:
 
 ```bash
-# When you need distributed tracing
-pnpm add @opentelemetry/api @opentelemetry/sdk-node
+pnpm add @vercel/otel @opentelemetry/api
 ```
 
-The `withTraceContext` helper is already prepared for trace integration.
+```typescript
+// instrumentation.ts
+import { registerOTel } from '@vercel/otel';
+
+export function register() {
+  registerOTel({ serviceName: 'my-app' });
+}
+```
+
+See the [Next.js OpenTelemetry guide](https://nextjs.org/docs/app/guides/open-telemetry) for exporter configuration.
+
+### Adding a Structured Logger
+
+If you need log levels, child loggers or redaction, add a server-only logger (for example `pino`) and import it only from server code:
+
+```bash
+pnpm add pino
+```
+
+```typescript
+// lib/logger.ts
+import 'server-only';
+import pino from 'pino';
+
+export const logger = pino({ level: process.env.LOG_LEVEL ?? 'info' });
+```
 
 ### Adding Metrics
 
 For application metrics, consider:
 
-- **Prometheus** - Time-series metrics
-- **StatsD** - Simple metric aggregation
-- **OpenTelemetry Metrics** - Unified with tracing
+- **OpenTelemetry Metrics** - Unified with tracing via `instrumentation.ts`
+- **Prometheus** - Expose a `/api/metrics` Route Handler
+- **Hosting-provider analytics** - Vercel, Cloudflare and others provide request metrics out of the box
 
 ### Log Aggregation
 
-In production, send logs to:
+In production, send container stdout/stderr to:
 
 - **ELK Stack** (Elasticsearch, Logstash, Kibana)
 - **Datadog** / **New Relic** / **Splunk**
@@ -63,26 +98,25 @@ In production, send logs to:
 ### Environment Variables
 
 ```bash
-# Current logging configuration
-NODE_ENV=production       # Controls log format
-LOG_LEVEL=info            # Minimum log level
-CORRELATION_ID=abc-123    # Request correlation
+# Server-only
+NODE_ENV=production
+LOG_LEVEL=info                      # If you add a logger that reads it
 
-# Future OpenTelemetry (when you add it)
+# OpenTelemetry (when you add it)
 OTEL_SERVICE_NAME=my-app
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 ```
 
 ## Tips for Production
 
-1. **Use correlation IDs** for request tracking
-2. **Add context** with child loggers per module
-3. **Avoid logging sensitive data** (Pino redacts common fields)
-4. **Set appropriate log levels** per environment
-5. **Use structured logging** for better querying
+1. **Keep `/api/health` cheap** so container orchestrators can poll it frequently
+2. **Add dependency checks** (database, cache) to the health endpoint only when they are critical
+3. **Avoid logging sensitive data** (request bodies, tokens, personal data)
+4. **Use structured JSON logs** for better querying
+5. **Correlate requests** by logging a request ID from the `x-request-id` header
 
 ## Learn More
 
-- [Pino Documentation](https://getpino.io/)
-- [OpenTelemetry JS](https://opentelemetry.io/docs/instrumentation/js/) (when you're ready)
-- [Logging Best Practices](https://www.datadoghq.com/blog/node-logging-best-practices/)
+- [Next.js OpenTelemetry guide](https://nextjs.org/docs/app/guides/open-telemetry)
+- [Next.js instrumentation](https://nextjs.org/docs/app/guides/instrumentation)
+- [OpenTelemetry JS](https://opentelemetry.io/docs/languages/js/)

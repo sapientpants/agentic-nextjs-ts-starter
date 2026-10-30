@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps you resolve common issues when using the Agentic Node + TypeScript Starter template.
+This guide helps you resolve common issues when using the Agentic Next.js + TypeScript Starter template.
 
 ## Table of Contents
 
@@ -25,18 +25,18 @@ This guide helps you resolve common issues when using the Agentic Node + TypeScr
 # Check your current Node version
 node --version
 
-# Must be >= 24.0.0
+# Must be >= 26.0.0
 # If using mise:
 mise install
 mise use node@26
 
 # If using nvm:
-nvm install 24
-nvm use 24
+nvm install 26
+nvm use 26
 
 # If using fnm:
-fnm install 24
-fnm use 24
+fnm install 26
+fnm use 26
 ```
 
 ### pnpm Version Issues
@@ -114,18 +114,18 @@ pnpm install --frozen-lockfile=false
 
 ## TypeScript and Module Issues
 
-### Import Extension Errors
+### Import Path Errors
 
-**Problem**: `Cannot find module './module' or its corresponding type declarations`
+**Problem**: `Cannot find module '@/lib/module' or its corresponding type declarations`
 
-**Solution**:
+**Solution**: The `@/` alias maps to the project root (see `paths` in `tsconfig.json`). Turbopack resolves imports with or without a `.js` extension.
 
 ```typescript
-// ❌ Wrong - missing extension
+// ✅ Relative import
 import { myFunction } from './module';
 
-// ✅ Correct - include .js extension for ES modules
-import { myFunction } from './module.js';
+// ✅ Alias import from the project root
+import { GET } from '@/app/api/health/route';
 ```
 
 ### Type Declaration Not Found
@@ -138,25 +138,27 @@ import { myFunction } from './module.js';
 # Check if types are available
 pnpm add -D @types/module-name
 
-# If no types exist, create declaration
-echo "declare module 'module-name';" > src/types/module-name.d.ts
+# If no types exist, create a declaration (tsconfig includes **/*.ts)
+echo "declare module 'module-name';" > types/module-name.d.ts
 ```
 
 ### Module Resolution Errors
 
-**Problem**: `ERR_MODULE_NOT_FOUND` or resolution failures.
+**Problem**: `Module not found` during `pnpm build` or `pnpm dev`.
 
 **Solution**:
 
 1. Ensure `"type": "module"` is in package.json
-2. Use `.js` extensions in all imports
-3. Check tsconfig.json has correct settings:
+2. Check the import path and alias (`@/` points at the project root)
+3. Clear the build cache: `pnpm clean && pnpm dev`
+4. Check tsconfig.json keeps the Next.js settings:
 
 ```json
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "plugins": [{ "name": "next" }]
   }
 }
 ```
@@ -189,10 +191,10 @@ open coverage/index.html
 ```typescript
 // In test files, use correct import paths
 import { describe, it, expect } from 'vitest';
-import { myFunction } from '../src/module.js'; // Note .js extension
+import { GET } from '../app/api/health/route';
 
-// For test utilities
-import { testHelper } from './helpers/test-utils.js';
+// Or via the @/ alias
+import HomePage from '@/app/page';
 ```
 
 ### Property Tests Failing Randomly
@@ -388,15 +390,14 @@ echo "CVE-2024-XXXXX # False positive: reason" >> .trivyignore
 - OpenCode commands should remind you about changesets
 - Check `pnpm changeset:status` to see pending changes
 
-### AI Getting Import Paths Wrong
+### AI Using the Old Project Layout
 
-**Problem**: OpenCode suggests imports without `.js` extensions.
+**Problem**: OpenCode suggests the predecessor project's layout: a top-level source folder instead of `app/`, a compiled build folder instead of `.next/`, or a `verify` script that no longer exists.
 
 **Solution**:
 
-- Remind OpenCode about the ES modules requirement
-- Point to AGENTS.md for correct patterns
-- Always review generated imports for `.js` extensions
+- Point to AGENTS.md: code lives in `app/`, builds go to `.next/`, and `pnpm precommit` runs all checks
+- `scripts/check-version-drift.sh` fails the pre-commit hook if those stale names land in the docs
 
 ## Common Error Messages
 
@@ -408,9 +409,9 @@ echo "CVE-2024-XXXXX # False positive: reason" >> .trivyignore
 
 ### `ERR_UNKNOWN_FILE_EXTENSION`
 
-**Cause**: TypeScript files not being compiled or wrong extension.
+**Cause**: Running a `.ts` file directly with `node` instead of through Next.js or Vitest.
 
-**Fix**: Ensure you're running compiled `.js` files from `dist/`, not `.ts` files.
+**Fix**: Use `pnpm dev` / `pnpm start` for the app and `pnpm test` for tests; do not run `.ts` files with plain `node`.
 
 ### `EACCES: permission denied`
 
@@ -432,7 +433,7 @@ pnpm config set prefix ~/.pnpm-global
 
 If your issue isn't covered here:
 
-1. **Check existing issues**: [GitHub Issues](https://github.com/sapientpants/agentic-node-ts-starter/issues)
+1. **Check existing issues**: [GitHub Issues](https://github.com/sapientpants/agentic-nextjs-ts-starter/issues)
 2. **Review documentation**:
    - [GETTING_STARTED.md](./GETTING_STARTED.md)
    - [AGENTS.md](../AGENTS.md)
@@ -447,7 +448,7 @@ If your issue isn't covered here:
 
 When something's not working, try these in order:
 
-1. ✅ Check Node version: `node --version` (must be >= 24)
+1. ✅ Check Node version: `node --version` (must be >= 26)
 2. ✅ Check pnpm version: `pnpm --version` (must be 12.16.1)
 3. ✅ Clear and reinstall: `rm -rf node_modules && pnpm install`
 4. ✅ Run all checks: `pnpm precommit`
@@ -458,4 +459,4 @@ When something's not working, try these in order:
 
 ---
 
-**Remember**: Most issues are related to versions, missing extensions in imports, or forgetting to add changesets. Check these first!
+**Remember**: Most issues are related to versions, a stale `.next/` cache, or forgetting to add changesets. Check these first!

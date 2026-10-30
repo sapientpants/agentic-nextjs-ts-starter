@@ -1,6 +1,6 @@
 # Development Guide
 
-> **Quick Start**: Run `pnpm install` to install dependencies, then `pnpm dev` to start development.
+> **Quick Start**: Run `pnpm install` to install dependencies, then `pnpm dev` to start the Next.js dev server on http://localhost:3000.
 
 ## Daily Development Workflow
 
@@ -8,7 +8,7 @@
 
 ```bash
 # Start development
-pnpm dev        # TypeScript watch mode
+pnpm dev        # Next.js dev server with hot reload (Turbopack)
 pnpm test:watch # Test watch mode
 ```
 
@@ -18,8 +18,8 @@ pnpm test:watch # Test watch mode
 # Fast check before committing
 pnpm quick-check  # typecheck + lint + test
 
-# Full verification (like CI)
-pnpm verify       # All quality gates including audit + format
+# Full verification (what the pre-commit hook runs)
+pnpm precommit    # All quality gates including audit, format, linting and coverage
 ```
 
 ### 🧪 Testing
@@ -43,11 +43,11 @@ pnpm coverage:open
 ### 🏗️ Building
 
 ```bash
-# Production build
+# Production build (standalone output in .next/)
 pnpm build
 
-# Watch build (rebuilds on file changes)
-pnpm build:watch
+# Serve the production build locally
+pnpm start
 ```
 
 ## Development Tools
@@ -56,19 +56,21 @@ pnpm build:watch
 
 Run `pnpm help` to see all available scripts, or check these key commands:
 
-| Command              | Description                       | What it runs                             |
-| -------------------- | --------------------------------- | ---------------------------------------- |
-| `pnpm dev`           | TypeScript watch mode             | `tsc --watch`                            |
-| `pnpm test`          | Run tests once                    | `vitest run`                             |
-| `pnpm test:watch`    | Test watch mode                   | `vitest`                                 |
-| `pnpm test:coverage` | Tests with coverage report        | `vitest run --coverage` (90% threshold)  |
-| `pnpm typecheck`     | Type check only                   | `tsc --noEmit`                           |
-| `pnpm lint`          | Check linting                     | `eslint .`                               |
-| `pnpm format`        | Check formatting                  | `prettier --check .`                     |
-| `pnpm verify`        | Full verification (CI equivalent) | audit + typecheck + lint + format + test |
-| `pnpm quick-check`   | Fast quality check                | typecheck + lint + test                  |
-| `pnpm ci:local`      | Simulate full CI locally          | Complete CI pipeline simulation          |
-| `pnpm doctor`        | Check environment health          | Node/pnpm version check                  |
+| Command              | Description                    | What it runs                                  |
+| -------------------- | ------------------------------ | --------------------------------------------- |
+| `pnpm dev`           | Next.js dev server             | `next dev`                                    |
+| `pnpm build`         | Production build               | `next build`                                  |
+| `pnpm start`         | Serve production build         | `next start`                                  |
+| `pnpm test`          | Run tests once                 | `vitest run`                                  |
+| `pnpm test:watch`    | Test watch mode                | `vitest`                                      |
+| `pnpm test:coverage` | Tests with coverage report     | `vitest run --coverage` (90% threshold)       |
+| `pnpm typecheck`     | Type check only                | `tsc --noEmit`                                |
+| `pnpm lint`          | Check linting                  | `eslint .`                                    |
+| `pnpm format`        | Check formatting               | `prettier --check .`                          |
+| `pnpm quick-check`   | Fast quality check             | typecheck + lint + test                       |
+| `pnpm precommit`     | Full verification (pre-commit) | audit + format + lint + typecheck + tests + … |
+| `pnpm ci:local`      | Simulate full CI locally       | Complete CI pipeline simulation               |
+| `pnpm doctor`        | Check environment health       | Node/pnpm version check                       |
 
 ## IDE Setup
 
@@ -91,9 +93,14 @@ The project includes VS Code configuration in `.vscode/`:
 
 ### Debugging
 
-- **F5** - Debug Node.js app (builds first)
-- **Ctrl+F5** - Debug current test file
-- Set breakpoints in `.ts` files (source maps enabled)
+The launch configurations in `.vscode/launch.json` follow the [Next.js debugging guide](https://nextjs.org/docs/app/guides/debugging):
+
+- **Next.js: debug server-side** - Starts `pnpm dev` with the Node.js inspector attached
+- **Next.js: debug client-side** - Opens Chrome against http://localhost:3000
+- **Next.js: debug full stack** - Both of the above
+- **Debug Tests** - Runs Vitest with `--inspect-brk`
+
+Set breakpoints directly in `.ts`/`.tsx` files (source maps enabled).
 
 ## Code Quality
 
@@ -115,7 +122,7 @@ function processUser(user) {
 
 ### Testing Philosophy
 
-1. **Unit tests** (`.spec.ts`) - Test functions in isolation
+1. **Unit and component tests** (`.spec.ts`, `.spec.tsx`) - Test Route Handlers and components in isolation
 2. **Property-based tests** (`.property.spec.ts`) - Test invariants with fast-check
 
 **Test Templates Available:**
@@ -127,67 +134,60 @@ function processUser(user) {
 
 - **Markdown linting** with markdownlint-cli2 ensures consistent documentation
 - **YAML validation** with yamllint catches config file issues early
+- **Version drift check** (`scripts/check-version-drift.sh`) keeps Node/pnpm/TypeScript versions and project names in docs aligned with `package.json`
 - Run `pnpm format:fix` to automatically fix markdown and YAML formatting issues
 - Pre-commit hooks enforce these standards automatically
 
 ### Code Organization
 
 ```
-src/
-├── index.ts           # Main entry point
-├── logger.ts          # Structured logging
-├── dev/               # Development utilities (debug, performance)
-└── [your-modules]/    # Feature modules
+app/
+├── layout.tsx         # Root layout and metadata
+├── page.tsx           # Home page (Server Component)
+├── globals.css        # Global styles
+├── api/
+│   └── health/
+│       └── route.ts   # Route Handler: GET /api/health
+└── [your-routes]/     # Additional pages, layouts and API routes
 
 tests/
-├── *.spec.ts         # Unit tests
+├── *.spec.ts(x)      # Unit and component tests
 ├── *.property.spec.ts # Property-based tests
-├── helpers/          # Test utilities
+├── setup.ts          # Vitest setup (Testing Library matchers)
 └── templates/        # Test templates to copy
 ```
 
+Import project files with the `@/` alias (configured in `tsconfig.json`), for example `import { GET } from '@/app/api/health/route'`.
+
 ## Performance & Debugging
 
-### Development Debug Tools
+### Route Handler Timing
+
+Wrap expensive work inside a Route Handler with `console.time` during development, or use the Next.js dev overlay to inspect server timings:
 
 ```typescript
-import { PerformanceTimer, timed, trace, devConsole } from './src/dev/debug-utils.js';
+import { NextResponse } from 'next/server';
 
-// Time operations
-const timer = new PerformanceTimer('slow-operation');
-await doSomething();
-timer.checkpoint('phase-1');
-await doSomethingElse();
-timer.end();
-
-// Auto-time methods with decorator
-class MyService {
-  @timed
-  async processData(data: unknown[]) {
-    // Method automatically timed in development
-  }
-
-  @trace
-  criticalMethod() {
-    // Method calls automatically logged in development
-  }
+export async function GET() {
+  console.time('expensive-operation');
+  const result = await expensiveOperation();
+  console.timeEnd('expensive-operation');
+  return NextResponse.json(result);
 }
-
-// Enhanced console (development only)
-devConsole.log(complexObject, 'debug-label');
-devConsole.table(arrayData);
-devConsole.time('operation', () => expensiveOperation());
 ```
 
-### Memory Monitoring
+### HTTP Benchmarking
 
-```typescript
-import { logMemoryUsage } from './src/dev/debug-utils.js';
+```bash
+pnpm build && pnpm start &   # Serve the production build
+pnpm perf:bench              # autocannon: 100 connections for 10 seconds against localhost:3000
+```
 
-// Log current memory usage (development only)
-logMemoryUsage('before-operation');
-await heavyOperation();
-logMemoryUsage('after-operation');
+### Bundle Size
+
+```bash
+pnpm build
+pnpm size   # Checks .next output against .size-limit.json
 ```
 
 ## CI/CD Integration
@@ -204,7 +204,7 @@ pnpm ci:local
 pnpm ci:local:fast
 
 # Quick commands
-pnpm verify       # Full verification
+pnpm precommit    # Full verification
 pnpm quick-check  # Fast quality check
 ```
 
@@ -212,16 +212,20 @@ pnpm quick-check  # Fast quality check
 
 #### What Runs on Every Commit
 
-The project uses Husky to enforce quality checks before each commit. The `precommit` script runs:
+The project uses Husky to enforce quality checks before each commit. The `precommit` script runs, in order:
 
-1. **Security audit** (`pnpm audit --audit-level critical`) - Checks for critical vulnerabilities
-2. **Type check** (`pnpm typecheck`) - Ensures TypeScript types are correct
-3. **Linting** (`pnpm lint`) - ESLint checks
-4. **Workflow linting** (`pnpm lint:workflows`) - GitHub Actions validation
-5. **Markdown linting** (`pnpm lint:markdown`) - Documentation quality
-6. **YAML linting** (`pnpm lint:yaml`) - Configuration file validation
-7. **Format check** (`pnpm format`) - Prettier formatting verification
-8. **Tests** (`pnpm test`) - All test suites must pass
+1. **Security audit** (`pnpm audit --audit-level critical`)
+2. **Format check** (`pnpm format`)
+3. **Spelling, YAML, Markdown and workflow linting**
+4. **Version drift check** (`scripts/check-version-drift.sh`)
+5. **Type check** (`pnpm typecheck`)
+6. **Linting** (`pnpm lint`)
+7. **Dependency analysis** (`pnpm deps:circular`, `pnpm deps:cruise`)
+8. **Duplication and dead code** (`pnpm duplication`, `pnpm dead-code`, `pnpm ts-prune`)
+9. **Tests with coverage** (`pnpm test:coverage`)
+10. **Changeset status** (`pnpm changeset:status`)
+
+See [AGENTS.md](../AGENTS.md#development-commands) for the rationale behind the order.
 
 #### Important: No Bypass Allowed
 
@@ -237,7 +241,7 @@ pnpm format:fix
 pnpm lint:fix
 
 # Run full verification to debug
-pnpm verify
+pnpm precommit
 ```
 
 ## Troubleshooting
@@ -247,7 +251,7 @@ pnpm verify
 **TypeScript errors after pulling changes:**
 
 ```bash
-pnpm reset  # Clean + reinstall dependencies
+pnpm reset  # Clean .next + coverage, then reinstall dependencies
 ```
 
 **Tests failing randomly:**
@@ -256,11 +260,10 @@ pnpm reset  # Clean + reinstall dependencies
 pnpm test:watch  # Check for shared state between tests
 ```
 
-**Slow development builds:**
+**Stale dev server output:**
 
 ```bash
-# Use incremental builds
-pnpm dev  # TypeScript watch mode with incremental compilation
+pnpm clean && pnpm dev  # Clear the .next cache
 ```
 
 **Memory issues during development:**
@@ -279,29 +282,25 @@ node --max-old-space-size=4096 ./node_modules/.bin/vitest
 
 ## Environment Variables
 
+Next.js loads `.env.local` (gitignored) on top of `.env.development`, `.env.test` and `.env.production`. Copy `.env.local.example` to get started.
+
+- `NEXT_PUBLIC_*` variables are inlined into the browser bundle. Never put secrets there.
+- Everything else is available only on the server (Server Components, Route Handlers, Server Actions).
+
 ### Development
 
 ```bash
 # .env.local (not committed)
-NODE_ENV=development
-LOG_LEVEL=debug
-DEBUG=myapp:*
+NEXT_PUBLIC_APP_NAME=my-app
 ```
 
 ### Testing
 
-```bash
-NODE_ENV=test
-LOG_LEVEL=silent  # Reduce noise in tests
-```
+Vitest runs with `NODE_ENV=test`. Set test-only values in `tests/setup.ts` or inside the test with `vi.stubEnv`.
 
 ### Production
 
-```bash
-NODE_ENV=production
-LOG_LEVEL=info
-CORRELATION_ID=request-uuid  # For request tracing
-```
+Provide variables through your hosting platform or the container environment, for example `docker run -e NEXT_PUBLIC_APP_NAME=my-app ...`. `NEXT_PUBLIC_*` values are baked in at `pnpm build` time, so set them before building.
 
 ## Release Process
 
@@ -334,10 +333,10 @@ CORRELATION_ID=request-uuid  # For request tracing
 
 ### Repository Variables
 
-| Variable                | Purpose                                          |
-| ----------------------- | ------------------------------------------------ |
-| `ENABLE_DOCKER_RELEASE` | Set to `true` to enable Docker builds            |
-| `ENABLE_DOCS_RELEASE`   | Set to `true` to enable documentation deployment |
+| Variable                | Purpose                                |
+| ----------------------- | -------------------------------------- |
+| `ENABLE_NPM_RELEASE`    | Set to `true` to enable npm publishing |
+| `ENABLE_DOCKER_RELEASE` | Set to `true` to enable Docker builds  |
 
 > **Note**: Without `RELEASE_TOKEN`, the workflow uses `GITHUB_TOKEN` but may fail on protected branches.
 

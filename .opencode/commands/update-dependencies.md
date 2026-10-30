@@ -107,8 +107,8 @@ pnpm changeset
 # - major: breaking changes requiring user action
 
 # Examples:
-# patch: "Update zod to fix validation edge case"
-# minor: "Update Pino with new structured logging features"
+# patch: "Update next to fix a routing edge case"
+# minor: "Update React with new concurrent rendering features"
 # major: "Update to Node 26 (drops Node 24 support)"
 ```
 

@@ -11,7 +11,7 @@
 ## PR Readiness
 
 - [ ] Tests added/updated; fast-check properties for core invariants
-- [ ] Type-safe edges validated with Zod
+- [ ] Inputs validated at trust boundaries (Route Handlers, Server Actions, env)
 - [ ] Lint/typecheck pass locally
 - [ ] SBOM generated
 - [ ] OSV scan clean or risk accepted with issue link

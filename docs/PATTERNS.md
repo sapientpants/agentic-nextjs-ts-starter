@@ -1,54 +1,115 @@
 # Code Patterns & Examples
 
-Copy-paste ready patterns for common tasks in your TypeScript application.
+Copy-paste ready patterns for common tasks in your Next.js + TypeScript application.
 
 ## Table of Contents
 
-- [Validation with Zod](#validation-with-zod)
+- [Route Handlers](#route-handlers)
+- [Input Validation](#input-validation)
 - [Property-Based Testing](#property-based-testing)
-- [Structured Logging](#structured-logging)
+- [Testing Route Handlers and Components](#testing-route-handlers-and-components)
 - [Error Handling](#error-handling)
 - [Async Patterns](#async-patterns)
 - [Type-Safe Environment Variables](#type-safe-environment-variables)
 
-## Validation with Zod
+## Route Handlers
 
-### Basic Schema Definition
+### JSON Endpoint
 
 ```typescript
-import { z } from 'zod';
+// app/api/hello/route.ts
+import { NextResponse } from 'next/server';
 
-// Define a schema
-const UserSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  name: z.string().min(1).max(100),
-  age: z.number().int().positive().max(120),
-  roles: z.array(z.enum(['admin', 'user', 'guest'])),
-  metadata: z.record(z.string()).optional(),
-});
-
-// Infer the TypeScript type
-type User = z.infer<typeof UserSchema>;
-
-// Parse with validation
-export function validateUser(data: unknown): User {
-  return UserSchema.parse(data); // Throws if invalid
-}
-
-// Safe parse without throwing
-export function safeValidateUser(data: unknown) {
-  const result = UserSchema.safeParse(data);
-  if (result.success) {
-    return { data: result.data, error: null };
-  }
-  return { data: null, error: result.error };
+export function GET() {
+  return NextResponse.json({ message: 'hello' });
 }
 ```
 
-### API Request Validation
+### Reading the Request
 
 ```typescript
+// app/api/posts/route.ts
+import { NextResponse, type NextRequest } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  const body: unknown = await request.json();
+  const page = request.nextUrl.searchParams.get('page') ?? '1';
+
+  // Validate `body` before using it (see Input Validation below)
+  return NextResponse.json({ received: body, page: Number(page) }, { status: 201 });
+}
+```
+
+### Dynamic Segments
+
+```typescript
+// app/api/users/[id]/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  return NextResponse.json({ id });
+}
+```
+
+## Input Validation
+
+Validate everything that crosses a trust boundary (request bodies, search params, form data) at the edge. Use hand-rolled type guards for small shapes, or a schema library such as `zod` for larger ones.
+
+### Hand-Rolled Type Guard (no dependencies)
+
+```typescript
+// lib/validation.ts
+export interface CreatePostInput {
+  title: string;
+  content: string;
+  tags: string[];
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+export function isCreatePostInput(value: unknown): value is CreatePostInput {
+  if (typeof value !== 'object' || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    typeof record.title === 'string' &&
+    record.title.length > 0 &&
+    record.title.length <= 200 &&
+    typeof record.content === 'string' &&
+    record.content.length >= 10 &&
+    isStringArray(record.tags) &&
+    record.tags.length <= 5
+  );
+}
+```
+
+```typescript
+// app/api/posts/route.ts
+import { NextResponse, type NextRequest } from 'next/server';
+import { isCreatePostInput } from '@/lib/validation';
+
+export async function POST(request: NextRequest) {
+  const body: unknown = await request.json().catch(() => null);
+
+  if (!isCreatePostInput(body)) {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  // `body` is now typed as CreatePostInput
+  return NextResponse.json({ id: 'post-123', ...body }, { status: 201 });
+}
+```
+
+### Schema Validation with Zod (optional dependency)
+
+```bash
+pnpm add zod
+```
+
+```typescript
+import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 
 const CreatePostSchema = z.object({
@@ -58,15 +119,14 @@ const CreatePostSchema = z.object({
   published: z.boolean().default(false),
 });
 
-export async function createPost(requestBody: unknown) {
-  // Validate input
-  const validatedData = CreatePostSchema.parse(requestBody);
+export async function POST(request: NextRequest) {
+  const result = CreatePostSchema.safeParse(await request.json().catch(() => null));
 
-  // Now validatedData is fully typed and validated
-  console.log(validatedData.title); // TypeScript knows this is a string
+  if (!result.success) {
+    return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
+  }
 
-  // Process the post...
-  return { id: 'post-123', ...validatedData };
+  return NextResponse.json({ id: 'post-123', ...result.data }, { status: 201 });
 }
 ```
 
@@ -132,69 +192,58 @@ describe('calculateDiscount', () => {
 });
 ```
 
-## Structured Logging
-
-### Basic Logging Setup
+### Property Test for a Route Handler
 
 ```typescript
-import { logger, createChildLogger } from './logger.js';
+import { describe, it, expect } from 'vitest';
+import { fc } from '@fast-check/vitest';
+import { GET } from '../app/api/health/route';
 
-// Use the default logger for general application logging
-logger.info({ userId: '123', action: 'login' }, 'User logged in');
-logger.error({ err: new Error('Connection failed'), retries: 3 }, 'Database error');
-
-// Create child loggers for module-specific logging
-const appLogger = createChildLogger('app');
-appLogger.info('Application initialized');
-
-const dbLogger = createChildLogger('database');
-dbLogger.debug({ query: 'SELECT * FROM users', duration: 45 }, 'Query executed');
+describe('GET /api/health', () => {
+  it.prop([fc.string({ minLength: 1 })])('echoes NEXT_PUBLIC_APP_NAME', async (appName) => {
+    vi.stubEnv('NEXT_PUBLIC_APP_NAME', appName);
+    const body = await GET().json();
+    expect(body.application).toBe(appName);
+    vi.unstubAllEnvs();
+  });
+});
 ```
 
-### Request Logging Pattern
+## Testing Route Handlers and Components
+
+### Route Handler Unit Test
 
 ```typescript
-import { createChildLogger } from './logger.js';
+import { describe, it, expect } from 'vitest';
+import { POST } from '../app/api/posts/route';
 
-const logger = createChildLogger('api');
+describe('POST /api/posts', () => {
+  it('rejects an invalid body', async () => {
+    const request = new Request('http://localhost/api/posts', {
+      method: 'POST',
+      body: JSON.stringify({ title: '' }),
+      headers: { 'content-type': 'application/json' },
+    });
 
-export async function handleRequest(req: Request) {
-  const requestId = crypto.randomUUID();
-  const requestLogger = logger.child({ requestId });
+    const response = await POST(request as never);
+    expect(response.status).toBe(400);
+  });
+});
+```
 
-  requestLogger.info(
-    {
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-    },
-    'Request received',
-  );
+### Component Test
 
-  try {
-    const result = await processRequest(req);
+```tsx
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import HomePage from '../app/page';
 
-    requestLogger.info(
-      {
-        statusCode: 200,
-        duration: Date.now() - startTime,
-      },
-      'Request completed',
-    );
-
-    return result;
-  } catch (error) {
-    requestLogger.error(
-      {
-        err: error,
-        statusCode: 500,
-      },
-      'Request failed',
-    );
-
-    throw error;
-  }
-}
+describe('HomePage', () => {
+  it('renders the main heading', () => {
+    render(<HomePage />);
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+  });
+});
 ```
 
 ## Error Handling
@@ -227,14 +276,49 @@ export class NotFoundError extends AppError {
     this.name = 'NotFoundError';
   }
 }
+```
 
-// Usage
-function getUser(id: string) {
-  const user = db.findUser(id);
-  if (!user) {
-    throw new NotFoundError('User');
+### Mapping Errors to Responses in a Route Handler
+
+```typescript
+import { NextResponse } from 'next/server';
+import { AppError, NotFoundError } from '@/lib/errors';
+
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await context.params;
+    const user = await findUser(id);
+    if (!user) throw new NotFoundError('User');
+    return NextResponse.json(user);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json(
+        { error: error.code, message: error.message },
+        { status: error.statusCode },
+      );
+    }
+    console.error(error);
+    return NextResponse.json({ error: 'INTERNAL_ERROR' }, { status: 500 });
   }
-  return user;
+}
+```
+
+### Error Boundaries for Pages
+
+Add an `error.tsx` next to a page to catch rendering errors in that segment:
+
+```tsx
+// app/dashboard/error.tsx
+'use client';
+
+export default function DashboardError({ error, reset }: { error: Error; reset: () => void }) {
+  return (
+    <main>
+      <h2>Something went wrong</h2>
+      <p>{error.message}</p>
+      <button onClick={reset}>Try again</button>
+    </main>
+  );
 }
 ```
 
@@ -326,48 +410,63 @@ const data = await retry(() => fetch('/api/data').then((r) => r.json()), {
 });
 ```
 
+### Data Fetching in Server Components
+
+```tsx
+// app/posts/page.tsx
+export default async function PostsPage() {
+  const response = await fetch('https://api.example.com/posts', { next: { revalidate: 60 } });
+  const posts: Array<{ id: string; title: string }> = await response.json();
+
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>{post.title}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
 ## Type-Safe Environment Variables
 
-### Environment Schema
+Next.js exposes `NEXT_PUBLIC_*` variables to the browser and keeps everything else server-only. Read them through a single module so typos fail fast:
 
 ```typescript
-import { z } from 'zod';
+// lib/env.ts
+import 'server-only';
 
-const EnvSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().transform(Number).pipe(z.number().positive()),
-  DATABASE_URL: z.string().url(),
-  API_KEY: z.string().min(32),
-  ENABLE_FEATURE: z
-    .string()
-    .transform((v) => v === 'true')
-    .default('false'),
-  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
-});
-
-type Env = z.infer<typeof EnvSchema>;
-
-// Parse and validate environment
-export function loadEnv(): Env {
-  const result = EnvSchema.safeParse(process.env);
-
-  if (!result.success) {
-    console.error('Invalid environment variables:');
-    console.error(result.error.format());
-    process.exit(1);
+function required(name: string): string {
+  const value = process.env[name];
+  if (value === undefined || value === '') {
+    throw new Error(`Missing required environment variable: ${name}`);
   }
-
-  return result.data;
+  return value;
 }
 
-// Export validated env
-export const env = loadEnv();
+function optional(name: string, fallback: string): string {
+  return process.env[name] ?? fallback;
+}
 
-// Usage with full type safety
-console.log(env.NODE_ENV); // TypeScript knows this is 'development' | 'production' | 'test'
-console.log(env.PORT); // TypeScript knows this is number
-console.log(env.ENABLE_FEATURE); // TypeScript knows this is boolean
+export const env = {
+  nodeEnv: optional('NODE_ENV', 'development') as 'development' | 'production' | 'test',
+  databaseUrl: required('DATABASE_URL'),
+  apiKey: required('API_KEY'),
+  enableFeature: optional('ENABLE_FEATURE', 'false') === 'true',
+} as const;
 ```
+
+```typescript
+// lib/public-env.ts (safe to import from Client Components)
+export const publicEnv = {
+  appName: process.env.NEXT_PUBLIC_APP_NAME ?? 'my-app',
+} as const;
+```
+
+Notes:
+
+- `NEXT_PUBLIC_*` values are inlined at build time, so reference them as `process.env.NEXT_PUBLIC_X` literally (no dynamic keys).
+- `import 'server-only'` turns an accidental client import into a build error.
 
 ## Testing Patterns
 
@@ -406,4 +505,4 @@ describe('User Service', () => {
 
 ---
 
-_These patterns are designed to be copied and adapted for your specific needs. Remember to install required dependencies (`zod`, `@fast-check/vitest`) if not already present._
+_These patterns are designed to be copied and adapted for your specific needs. `@fast-check/vitest`, `@testing-library/react` and `next` are already installed; add `zod` or `server-only` if you use those snippets._

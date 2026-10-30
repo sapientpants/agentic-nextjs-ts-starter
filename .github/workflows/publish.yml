@@ -322,7 +322,7 @@ jobs:
         # This properly handles multi-platform manifest lists
         if: steps.check-docker.outputs.has_credentials == 'true'
         run: |
-          SOURCE_IMAGE="ghcr.io/${{ github.repository_owner }}/agentic-node-ts-starter"
+          SOURCE_IMAGE="ghcr.io/${{ github.repository_owner }}/agentic-nextjs-ts-starter"
           TARGET_REPO="${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}"
           VERSION="${{ steps.version.outputs.version }}"
 

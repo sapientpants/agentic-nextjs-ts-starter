@@ -63,7 +63,7 @@ jobs:
     with:
       platforms: 'linux/amd64' # Single platform for faster PR validation
       save-artifact: false # Don't save artifact for PRs
-      image-name: 'agentic-node-ts-starter-pr'
+      image-name: 'agentic-nextjs-ts-starter-pr'
 
   # =============================================================================
   # FINAL STATUS CHECK

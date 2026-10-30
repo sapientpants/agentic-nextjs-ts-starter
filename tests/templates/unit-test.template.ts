@@ -10,7 +10,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Import the module you're testing
-// import { functionToTest } from '../src/module.js';
+// import { functionToTest } from '../app/module';
 
 describe('MODULE_NAME', () => {
   beforeEach(() => {

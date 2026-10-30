@@ -196,7 +196,7 @@ https://img.shields.io/badge/dynamic/json
 
 ### Documentation Generation
 
-- `pnpm docs:generate` - Generate API documentation with TypeDoc (output: docs/)
+- `pnpm docs:generate` - Generate API documentation with TypeDoc (output: reports/api-docs/, gitignored)
 - `pnpm docs:api` - Build project and extract API surface with Microsoft API Extractor
 - **Configuration**: `typedoc.json` and `api-extractor.json`
 - **Output**: TypeDoc generates HTML docs, API Extractor creates API reports and .d.ts rollups

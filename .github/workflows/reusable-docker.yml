@@ -33,7 +33,7 @@ on:
       image-name:
         description: 'Docker image name (without registry)'
         type: string
-        default: 'agentic-node-ts-starter'
+        default: 'agentic-nextjs-ts-starter'
       tag_sha:
         description: 'SHA of the version tag for consistent naming'
         type: string

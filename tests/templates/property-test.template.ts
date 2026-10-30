@@ -9,7 +9,7 @@
 
 import { describe, it } from 'vitest';
 import fc from 'fast-check';
-// import { functionToTest } from '../src/module.js';
+// import { functionToTest } from '../app/module';
 
 describe('MODULE_NAME (property-based)', () => {
   describe('FUNCTION_NAME properties', () => {

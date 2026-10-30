@@ -26,7 +26,7 @@
 [![Package Manager](https://img.shields.io/badge/pnpm-12.16.1-orange.svg?logo=pnpm)](https://pnpm.io)
 [![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fsapientpants%2Fagentic-nextjs-ts-starter%2Fmain%2Fquality-metrics.json&query=%24.version&label=Version)](https://github.com/sapientpants/agentic-nextjs-ts-starter/releases)
 
-A **batteries-included** TypeScript starter template with comprehensive testing, code quality automation, and security scanning. Built for modern Node.js development with AI-assisted (agentic) coding workflow.
+A **batteries-included** Next.js + TypeScript starter template with comprehensive testing, code quality automation, and security scanning. Built for modern Next.js development with AI-assisted (agentic) coding workflow.
 
 > **Note:** This template includes example code to demonstrate its capabilities. These example files are clearly marked with header comments and should be removed when starting your project. See [Getting Started](./docs/GETTING_STARTED.md#clean-up-example-code) for details.
 
@@ -43,9 +43,9 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 
 ## 🛠️ Tech Stack
 
-**Core:** Node.js 24+ • TypeScript ^6.0.3 (strict) • pnpm 12.16.1  
-**Testing:** Vitest • fast-check (property testing) • 90% coverage minimum  
-**Quality:** ESLint 9 • Prettier • Husky • Commitlint  
+**Core:** Next.js 16 (App Router) • React 19 • Node.js 26+ • TypeScript ^6.0.3 (strict) • pnpm 12.16.1  
+**Testing:** Vitest • React Testing Library • fast-check (property testing) • 90% coverage minimum  
+**Quality:** ESLint 10 • Prettier • Husky • Commitlint  
 **Security:** CodeQL • OSV Scanner • SBOM • SLSA attestations  
 **CI/CD:** GitHub Actions • Changesets • Automated releases
 
@@ -67,32 +67,32 @@ A **batteries-included** TypeScript starter template with comprehensive testing,
 git clone https://github.com/sapientpants/agentic-nextjs-ts-starter.git my-project
 cd my-project
 
-# Install dependencies (requires Node.js 24+ and pnpm 12.16.1)
+# Install dependencies (requires Node.js 26+ and pnpm 12.16.1)
 pnpm install
 
-# Set up configuration (required)
-cp .env.example .env
-# Edit .env with your configuration
-# See docs/CONFIG.md for required environment variables
+# Set up environment variables (optional, defaults work out of the box)
+cp .env.local.example .env.local
 
 # Verify everything works
 pnpm test
-pnpm verify  # Full quality check
+pnpm precommit  # Full quality check (same as the pre-commit hook)
 
 # Start developing
-pnpm dev     # TypeScript watch mode
+pnpm dev        # Next.js dev server on http://localhost:3000
 ```
 
-**Prerequisites:** Node.js 24+, pnpm 12.16.1, GitHub repo (for CI/CD)  
+**Prerequisites:** Node.js 26+, pnpm 12.16.1, GitHub repo (for CI/CD)  
 **Full setup guide:** [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md)
 
 ## 📚 Key Commands
 
 ```bash
 # Development
-pnpm dev          # TypeScript watch mode
-pnpm build        # Build to dist/
-pnpm verify       # Run all quality checks
+pnpm dev          # Next.js dev server (http://localhost:3000)
+pnpm build        # Production build to .next/ (standalone output)
+pnpm start        # Serve the production build
+pnpm precommit    # Run all quality checks (what the pre-commit hook runs)
+pnpm quick-check  # Fast check: typecheck + lint + test
 
 # Testing (90% coverage required)
 pnpm test         # Run tests
@@ -115,60 +115,18 @@ pnpm sbom         # Generate SBOM
 
 ## 📊 Code Quality Dashboard
 
-Comprehensive quality metrics tracked automatically on every CI run:
-
-### Testing Metrics
-
-| Metric                 | Current | Threshold | Status     | Local Command        |
-| ---------------------- | ------- | --------- | ---------- | -------------------- |
-| **Line Coverage**      | 93.77%  | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
-| **Branch Coverage**    | 90.00%  | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
-| **Function Coverage**  | 100%    | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
-| **Statement Coverage** | 93.65%  | ≥90%      | ✅ Pass    | `pnpm test:coverage` |
-| **Mutation Score**     | N/A     | ≥90%      | ⏳ Pending | `pnpm mutation-test` |
-
-### Code Quality Metrics
-
-| Metric                      | Current | Threshold | Status  | Local Command        |
-| --------------------------- | ------- | --------- | ------- | -------------------- |
-| **Code Duplication**        | 0%      | <2%       | ✅ Pass | `pnpm duplication`   |
-| **Cyclomatic Complexity**   | Max 10  | ≤10       | ✅ Pass | `pnpm lint`          |
-| **Max Function Lines**      | Max 50  | ≤50       | ✅ Pass | `pnpm lint`          |
-| **Max Function Parameters** | Max 4   | ≤4        | ✅ Pass | `pnpm lint`          |
-| **Max Nesting Depth**       | Max 3   | ≤3        | ✅ Pass | `pnpm lint`          |
-| **Circular Dependencies**   | 0       | 0         | ✅ Pass | `pnpm deps:circular` |
-| **Dead Code**               | 0       | 0         | ✅ Pass | `pnpm dead-code`     |
-
-### Security Metrics
-
-| Metric                        | Status | Tool        | Local Command         |
-| ----------------------------- | ------ | ----------- | --------------------- |
-| **Critical Vulnerabilities**  | ✅ 0   | pnpm audit  | `pnpm audit`          |
-| **High Vulnerabilities**      | ✅ 0   | OSV Scanner | CI only               |
-| **CodeQL Findings**           | ✅ 0   | CodeQL      | CI only               |
-| **Container Vulnerabilities** | ✅ 0   | Trivy       | `pnpm scan:container` |
-
-### Build & Dependencies
-
-| Metric                     | Status  | Tool       | Local Command         |
-| -------------------------- | ------- | ---------- | --------------------- |
-| **TypeScript Compilation** | ✅ Pass | tsc        | `pnpm typecheck`      |
-| **ESLint Violations**      | ✅ 0    | ESLint     | `pnpm lint`           |
-| **Prettier Formatting**    | ✅ Pass | Prettier   | `pnpm format`         |
-| **Workflow Validation**    | ✅ Pass | actionlint | `pnpm lint:workflows` |
+Quality metrics are collected automatically on every push to `main` and published through the badges at the top of this README. The source of truth is `quality-metrics.json`, which the `update-metrics` job in `.github/workflows/main.yml` commits after validation completes. Run `pnpm metrics:update` to refresh it locally.
 
 ### Tools & Analyzers Used
 
-- **Coverage:** Vitest with V8 coverage provider
-- **Mutation Testing:** Stryker Mutator (JavaScript/TypeScript)
-- **Duplication:** jscpd (Copy/Paste Detector)
-- **Complexity:** ESLint with complexity rules
-- **Circular Deps:** madge (dependency graph analyzer)
-- **Dead Code:** Knip (unused exports, files, dependencies, types)
-- **Security:** pnpm audit, OSV Scanner, CodeQL, Trivy
-- **Type Safety:** TypeScript strict mode + type-aware ESLint rules
-
-> **Note:** Metrics are auto-updated on every push to main as part of the build workflow. The `quality-metrics.json` file is committed automatically after validation completes.
+- **Coverage:** Vitest with V8 coverage provider (`pnpm test:coverage`)
+- **Mutation Testing:** Stryker Mutator (`pnpm mutation-test`, weekly in CI)
+- **Duplication:** jscpd (`pnpm duplication`)
+- **Complexity:** ESLint with complexity rules (`pnpm lint`)
+- **Circular Deps:** madge (`pnpm deps:circular`) + dependency-cruiser (`pnpm deps:cruise`)
+- **Dead Code:** Knip (`pnpm dead-code`) + ts-prune (`pnpm ts-prune`)
+- **Security:** pnpm audit, OSV Scanner, CodeQL, Trivy (`pnpm scan:container`)
+- **Type Safety:** TypeScript strict mode + type-aware ESLint rules (`pnpm typecheck`)
 
 ## 🎯 Quality Standards
 
@@ -246,29 +204,33 @@ See [AGENTS.md](./AGENTS.md) for detailed OpenCode guidance.
 ├── .opencode/         # OpenCode configurations
 │   └── commands/      # Custom slash commands
 ├── .github/           # GitHub Actions workflows
+├── app/               # Next.js App Router (pages, layouts, API routes)
+│   ├── api/health/    # Example Route Handler: GET /api/health
+│   ├── layout.tsx     # Root layout
+│   └── page.tsx       # Home page
 ├── docs/              # Documentation
-├── src/               # Source code
 ├── tests/             # Test files
-│   ├── *.spec.ts      # Unit tests
+│   ├── *.spec.ts(x)   # Unit and component tests
 │   └── *.property.spec.ts # Property-based tests
+├── .next/             # Build output (gitignored)
 ├── mise.toml          # Tool version management
+├── next.config.ts     # Next.js configuration (standalone output, typed routes)
 ├── package.json       # Dependencies and scripts
 └── tsconfig.json      # TypeScript configuration
 ```
 
 ## 🔄 Features
 
-### Configuration & Environment
+### Framework & Configuration
 
-- 🔐 **Type-safe configuration** with Zod validation
-- 🔌 **Configurable logging output** - Redirect logs to stderr, files, syslog, or disable entirely (see [docs/LOGGING_OUTPUT.md](./docs/LOGGING_OUTPUT.md))
-- 🔐 **Environment validation** at startup with clear errors
-- 🔐 **Sensitive value masking** in error messages
-- 📝 See [docs/CONFIG.md](./docs/CONFIG.md) for configuration guide
+- ⚡ **Next.js 16 App Router** with React 19 Server Components and typed routes
+- 🔌 **Route Handlers** for backend endpoints (example: `GET /api/health`)
+- 🔐 **Environment variables** via `.env.local`; only `NEXT_PUBLIC_*` values reach the browser
+- 🐳 **Standalone build output** ready for the included Dockerfile
 
 ### Testing & Quality
 
-- ✅ **Vitest** with property-based testing (fast-check)
+- ✅ **Vitest** + React Testing Library with property-based testing (fast-check)
 - ✅ **90% coverage minimum** enforced
 - ✅ **Strict TypeScript** with type-aware linting
 - ✅ **Pre-commit hooks** with Husky & lint-staged
@@ -319,7 +281,7 @@ To enable npm publishing:
 
 ### Docker Publishing
 
-> **⚠️ Important**: The default Dockerfile includes a healthcheck that expects a web server with a `/health` endpoint on port 3000. See [Docker Configuration Guide](./docs/DOCKER.md) for detailed instructions on configuring healthchecks for different application types (web services, CLI tools, workers).
+> **Note**: The Dockerfile builds the Next.js standalone output and includes a healthcheck that polls `GET /api/health` on port 3000. See the [Docker Configuration Guide](./docs/DOCKER.md) if you rename the endpoint or change the port.
 
 To enable Docker builds:
 

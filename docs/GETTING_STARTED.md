@@ -1,6 +1,6 @@
 # Getting Started Guide
 
-Welcome to the Agentic Node + TypeScript Starter! This guide will walk you through transforming this template into your own project in under 10 minutes.
+Welcome to the Agentic Next.js + TypeScript Starter! This guide will walk you through transforming this template into your own project in under 10 minutes.
 
 > **What does "Agentic" mean?** This template is designed for AI-assisted development workflows. It includes configurations and commands specifically tailored for working with AI development tools like OpenCode. The template itself is not an AI agent - it's a foundation for building your own applications with the help of AI assistants. The comprehensive testing, documentation, and quality automation make it safe and efficient for AI tools to help you generate, refactor, and maintain code.
 
@@ -12,14 +12,14 @@ Follow these steps in order to customize the template for your project:
 
 ```bash
 # Clone the template (replace with your project name)
-git clone https://github.com/sapientpants/agentic-node-ts-starter.git your-project-name
+git clone https://github.com/sapientpants/agentic-nextjs-ts-starter.git your-project-name
 cd your-project-name
 
 # Remove template history and start fresh
 rm -rf .git
 git init
 git add .
-git commit -m "Initial commit from agentic-node-ts-starter template"
+git commit -m "Initial commit from agentic-nextjs-ts-starter template"
 ```
 
 ### 2. Install Development Environment
@@ -47,13 +47,13 @@ pnpm install       # Install dependencies
 
 ```bash
 # Using nvm
-nvm install 24
-nvm use 24
+nvm install 26
+nvm use 26
 npm install -g pnpm@12.16.1
 
 # OR using fnm
-fnm install 24
-fnm use 24
+fnm install 26
+fnm use 26
 npm install -g pnpm@12.16.1
 
 # Then install dependencies
@@ -62,26 +62,29 @@ pnpm install
 
 #### Option C: Manual Installation
 
-1. Install [Node.js 24+](https://nodejs.org/) directly
+1. Install [Node.js 26+](https://nodejs.org/) directly
 2. Install pnpm: `npm install -g pnpm@12.16.1`
 3. Install dependencies: `pnpm install`
 
 ⚠️ **Important**: This project requires:
 
-- Node.js >= 24.0.0
+- Node.js >= 26.0.0
 - pnpm 12.16.1 (exact version)
 
-### 3. Set Up Configuration (Required)
+### 3. Set Up Environment Variables (Optional)
 
-Configuration is mandatory. The application will not start without valid configuration:
+Next.js loads environment variables from `.env.local` automatically. The defaults work out of the box, so this step is only needed when you want to override them:
 
 ```bash
-# Copy the example configuration
-cp .env.example .env
+# Copy the example file
+cp .env.local.example .env.local
 
-# Edit .env with your configuration
-# Most defaults will work for development
+# Edit .env.local as needed
+# Variables prefixed with NEXT_PUBLIC_ are exposed to the browser.
+# Everything else is server-only. Never put secrets in NEXT_PUBLIC_ variables.
 ```
+
+`.env.local` is gitignored. See the [Next.js environment variables guide](https://nextjs.org/docs/app/guides/environment-variables) for load order and conventions.
 
 ### 4. Update Project Metadata
 
@@ -106,6 +109,8 @@ Edit `package.json`:
 }
 ```
 
+Also update the `title` and `description` in `app/layout.tsx` and the `NEXT_PUBLIC_APP_NAME` default in `.env.local.example`.
+
 ### 5. Clean Up Example Code
 
 > [!IMPORTANT]
@@ -113,41 +118,36 @@ Edit `package.json`:
 >
 > This template includes two types of files:
 >
-> - **📝 Example Code**: Demonstration files marked with header comments that should be removed:
->   - `src/index.ts` - Example add function with validation demos
->   - `src/health.example.ts` - Example health endpoint implementation (reference only)
->   - `tests/index.spec.ts` - Example unit tests
->   - `tests/add.property.spec.ts` - Example property-based tests
+> - **📝 Example Code**: Demonstration files that you will replace with your own application:
+>   - `app/page.tsx` - Example home page describing the template
+>   - `app/api/health/route.ts` - Example Route Handler (`GET /api/health`) used by the Docker healthcheck
+>   - `tests/page.spec.tsx` - Example component tests for the home page
+>   - `tests/health-route.spec.ts` - Example Route Handler unit tests
+>   - `tests/health-route.property.spec.ts` - Example property-based tests
 > - **🏗️ Template Infrastructure**: Production-ready code that you can keep and customize:
->   - `src/config.ts` - Type-safe environment configuration with Zod validation
->   - `src/logger.ts` - Structured logging with Pino
->   - `src/logger-validation.ts` - Logger security validation utilities
->   - `tests/config.spec.ts` - Configuration tests
->   - `tests/logger.spec.ts` - Logger tests
->   - `tests/logger-validation.spec.ts` - Logger validation tests
->   - `tests/logger-output.spec.ts` - Logger output configuration tests
->   - `tests/container-scan.spec.ts` - Container security tests
->   - `tests/documentation.spec.ts` - Documentation validation tests
->   - All configuration files (TypeScript, ESLint, Prettier, etc.)
->
-> All example files have clear header comments marked with "EXAMPLE CODE" to identify them.
+>   - `app/layout.tsx` - Root layout and site metadata
+>   - `app/globals.css` - Global styles
+>   - `tests/setup.ts` and `tests/vitest-jest-dom.ts` - Vitest + Testing Library setup
+>   - `tests/templates/` - Unit and property test templates to copy
+>   - All configuration files (Next.js, TypeScript, ESLint, Prettier, Vitest, etc.)
 
-Remove the example files with a single command:
+Replace the example page with your own:
 
 ```bash
-# Remove all example files at once
-rm src/index.ts \
-   src/health.example.ts \
-   tests/index.spec.ts \
-   tests/add.property.spec.ts
+# Replace the home page and its test
+cat > app/page.tsx << 'EOT'
+export default function HomePage() {
+  return <main>Hello from my app!</main>;
+}
+EOT
+rm tests/page.spec.tsx
 
-# Create your own entry point
-echo "console.log('Hello from my app!');" > src/index.ts
-
-# Note: Keep the infrastructure files (config.ts, logger.ts, etc.) unless you want to replace them
+# Keep app/api/health/route.ts unless you also update the Dockerfile HEALTHCHECK
 ```
 
-### 5. Update README
+Remember that coverage must stay at 90% or higher, so add a test for every file you add under `app/`.
+
+### 6. Update README
 
 Replace the template README with your project-specific content:
 
@@ -156,7 +156,7 @@ Replace the template README with your project-specific content:
 mv README.md TEMPLATE_README.md
 
 # Create your project README
-cat > README.md << 'EOF'
+cat > README.md << 'EOT'
 # Your Project Name
 
 Brief description of your project.
@@ -169,23 +169,25 @@ pnpm install
 
 ## Usage
 
-Describe how to use your project.
+\`\`\`bash
+pnpm dev         # http://localhost:3000
+\`\`\`
 
 ## Development
 
 \`\`\`bash
-pnpm build       # Build the project
+pnpm build       # Production build
 pnpm test        # Run tests
-pnpm verify      # Run all checks
+pnpm precommit   # Run all checks
 \`\`\`
 
 ## License
 
 Your license here.
-EOF
+EOT
 ```
 
-### 6. Configure GitHub Repository
+### 7. Configure GitHub Repository
 
 This template's CI/CD workflows require GitHub. Create your repository:
 
@@ -196,28 +198,24 @@ git branch -M main
 git push -u origin main
 ```
 
-### 7. Set Up CI/CD
+### 8. Set Up CI/CD
 
-The template includes comprehensive GitHub Actions workflows that handle PR validation, releases, and publishing:
+The template includes comprehensive GitHub Actions workflows that handle PR validation, releases, and publishing. See [.github/WORKFLOWS.md](../.github/WORKFLOWS.md) for the full list of secrets and variables.
 
 #### For npm publishing (optional):
 
 1. Generate an npm token at https://www.npmjs.com/
 2. Add it as `NPM_TOKEN` in your GitHub repository secrets
+3. Set repository variable `ENABLE_NPM_RELEASE` to `true`
 
 #### For Docker publishing (optional):
 
 1. Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets
 2. Set repository variable `ENABLE_DOCKER_RELEASE` to `true`
 
-#### For documentation deployment (optional):
+### 9. Start Building Your Project
 
-1. Configure your documentation hosting
-2. Set repository variable `ENABLE_DOCS_RELEASE` to `true`
-
-### 8. Start Building Your Project
-
-Now that your template is customized, you can start building your project. The template provides a solid foundation for any Node.js TypeScript project.
+Now that your template is customized, you can start building your project. The template provides a solid foundation for any Next.js + TypeScript application.
 
 ## Verify Your Setup
 
@@ -227,26 +225,28 @@ After customization, run through this checklist to ensure everything is properly
 
 ```bash
 # 1. Verify all quality checks pass
-pnpm verify
-# This runs: audit, typecheck, lint, format check, and tests
+pnpm precommit
+# This runs: audit, format, spelling, lint, typecheck, dependency analysis, tests, changeset status
 
 # 2. Check test coverage meets requirements (90% minimum)
 pnpm test:coverage
 # Should show coverage >= 90% for all metrics
 
-# 3. Ensure TypeScript builds successfully
+# 3. Ensure the Next.js production build succeeds
 pnpm build
-# Creates dist/ directory with compiled JavaScript
+# Creates .next/ (standalone output used by the Dockerfile)
 
 # 4. Verify pre-commit hooks are installed
-git add .
-git commit -m "test commit" --dry-run
-# Should trigger pre-commit validation
+ls .husky/
+# Should list pre-commit and commit-msg
 
 # 5. Check that your environment is configured
 node -e "console.log('Node:', process.version)"
 pnpm --version
 # Should show Node 26+ and pnpm 12.16.1
+
+# 6. Start the dev server and open http://localhost:3000
+pnpm dev
 ```
 
 If all checks pass, your project is ready for development!
@@ -259,35 +259,35 @@ If all checks pass, your project is ready for development!
    - [AGENTS.md](../AGENTS.md) - AI-assisted development with OpenCode
    - [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) - Common issues and solutions
    - [PROCESS.md](./PROCESS.md) - Development workflow
-   - [OBSERVABILITY.md](./OBSERVABILITY.md) - Logging and monitoring
+   - [OBSERVABILITY.md](./OBSERVABILITY.md) - Health checks, logging and monitoring
 
 ## Common Customizations
 
-### Change Test Framework
+### Add a Page
 
-The template uses Vitest. To switch to Jest:
+Create `app/about/page.tsx`:
 
-```bash
-pnpm remove vitest @vitest/coverage-v8
-pnpm add -D jest @types/jest ts-jest
-# Update test scripts in package.json
-# Create jest.config.js
+```tsx
+export default function AboutPage() {
+  return <main>About</main>;
+}
 ```
 
-### Add a Web Framework
+It is served at `/about`. With `typedRoutes` enabled in `next.config.ts`, `<Link href="/about">` is type-checked.
 
-For Express:
+### Add an API Endpoint
 
-```bash
-pnpm add express
-pnpm add -D @types/express
+Create `app/api/hello/route.ts`:
+
+```ts
+import { NextResponse } from 'next/server';
+
+export function GET() {
+  return NextResponse.json({ message: 'hello' });
+}
 ```
 
-For Fastify:
-
-```bash
-pnpm add fastify
-```
+See [docs/PATTERNS.md](./PATTERNS.md) for request validation and error handling patterns.
 
 ### Add a Database
 
@@ -298,6 +298,8 @@ pnpm add @prisma/client
 pnpm add -D prisma
 npx prisma init
 ```
+
+Keep database access in Server Components, Route Handlers or Server Actions so credentials never reach the browser.
 
 ### Change License
 
@@ -314,8 +316,8 @@ npx prisma init
    ```bash
    # Check that mise is managing versions correctly
    mise list          # Shows installed tools
-    node --version     # Should show v24.x.x
-    pnpm --version     # Should show 12.16.1
+   node --version     # Should show v26.x.x
+   pnpm --version     # Should show 12.16.1
    ```
 
 2. **Update project metadata**:
@@ -326,7 +328,7 @@ npx prisma init
 3. **Start developing**:
 
    ```bash
-   # Watch TypeScript changes
+   # Next.js dev server with hot reload
    pnpm dev
 
    # Watch tests
@@ -334,7 +336,7 @@ npx prisma init
    ```
 
 4. **Add your first feature**:
-   - Create source files in `src/`
+   - Create pages, layouts and Route Handlers in `app/`
    - Add tests in `tests/`
    - Follow patterns in [docs/PATTERNS.md](./PATTERNS.md)
 
@@ -342,7 +344,7 @@ npx prisma init
 
    ```bash
    # Run all quality checks
-   pnpm verify
+   pnpm precommit
 
    # Create a changeset
    pnpm changeset
@@ -359,7 +361,7 @@ npx prisma init
 
 **Customize These**:
 
-- `src/` - Replace with your code
+- `app/` - Replace with your pages and API routes
 - `tests/` - Replace with your tests
 - `README.md` - Your project description
 - `AGENTS.md` - Your AI instructions
@@ -380,7 +382,7 @@ npx prisma init
 ## Getting Help
 
 - Check [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for common issues
-- Review the [template documentation](https://github.com/sapientpants/agentic-node-ts-starter)
+- Review the [template documentation](https://github.com/sapientpants/agentic-nextjs-ts-starter)
 - Open an issue if you find bugs in the template
 
 ---

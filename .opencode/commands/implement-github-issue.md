@@ -47,7 +47,7 @@ git checkout -b <type>/<issue-number>-<description>
 
 - Follow patterns in AGENTS.md (validation, testing, imports)
 - Write clean, focused functions
-- Add TypeScript types and Zod validation
+- Add TypeScript types and input validation at trust boundaries
 - Document public APIs with JSDoc
 
 ### 6. Write Tests
