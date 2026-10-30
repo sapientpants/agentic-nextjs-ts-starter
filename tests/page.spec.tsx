@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import packageJson from '../package.json';
+import { toolVersions } from '../app/lib/versions';
 import HomePage from '../app/page';
 
 describe('HomePage', () => {
@@ -64,11 +66,21 @@ describe('HomePage', () => {
 
   it('displays a list of features', () => {
     render(<HomePage />);
-    expect(screen.getByText(/Next.js 16 with App Router/i)).toBeInTheDocument();
-    expect(screen.getByText(/React 19/i)).toBeInTheDocument();
-    expect(screen.getByText(/TypeScript 6\.0 strict mode/i)).toBeInTheDocument();
-    expect(screen.getByText(/Node\.js 24\+/i)).toBeInTheDocument();
-    expect(screen.getByText(/pnpm 10 package manager/i)).toBeInTheDocument();
+    expect(screen.getByText(`Next.js ${toolVersions.next} with App Router`)).toBeInTheDocument();
+    expect(screen.getByText(`React ${toolVersions.react}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`TypeScript ${toolVersions.typescript} strict mode`),
+    ).toBeInTheDocument();
+    expect(screen.getByText(`Node.js ${toolVersions.node}+`)).toBeInTheDocument();
+    expect(screen.getByText(`pnpm ${toolVersions.pnpm} package manager`)).toBeInTheDocument();
     expect(screen.getByText(/Comprehensive testing/i)).toBeInTheDocument();
+  });
+
+  it('renders tool versions that match package.json', () => {
+    render(<HomePage />);
+    const nodeMajor = packageJson.engines.node.replace(/^>=/, '').split('.')[0];
+    const pnpmVersion = packageJson.packageManager.replace(/^pnpm@/, '');
+    expect(screen.getByText(`Node.js ${nodeMajor}+`)).toBeInTheDocument();
+    expect(screen.getByText(`pnpm ${pnpmVersion} package manager`)).toBeInTheDocument();
   });
 });
