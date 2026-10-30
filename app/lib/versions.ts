@@ -6,8 +6,8 @@ import packageJson from '../../package.json';
  * @example
  * cleanVersion('^6.0.3') // '6.0.3'
  * cleanVersion('>=26.0.0') // '26.0.0'
- * cleanVersion('pnpm@12.16.1') // '12.16.1'
- * @param {string} spec - A version spec such as `^6.0.3`, `>=26.0.0` or `pnpm@12.16.1`.
+ * cleanVersion('tool@1.2.3') // '1.2.3'
+ * @param {string} spec - A version spec such as `^6.0.3`, `>=26.0.0` or `tool@1.2.3` (the `packageManager` form).
  * @returns {string} The dotted version number, or an empty string when none is present.
  */
 export function cleanVersion(spec: string): string {

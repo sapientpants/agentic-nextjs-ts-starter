@@ -96,14 +96,14 @@ check_pnpm() {
   return 0
 }
 
-# node references: node@X, "Node X", "Node.js X+", "node-version: X"
+# node references: node@X, "Node X", "Node.js X+", "node-version: X", "NODE_VERSION: X"
 check_node() {
   local file="$1" ref v
   while IFS= read -r ref; do
     [ -z "$ref" ] && continue
     v=$(echo "$ref" | grep -oE '[0-9]+(\.[0-9]+)*')
     version_matches "$v" "$NODE_VER" "$NODE_MAJOR" || report "$file" "$ref" "Node $NODE_VER"
-  done < <(grep -oE "(^|[^A-Za-z0-9_/.@-])([Nn]ode(\.js)?[ @]|node-version: *'?\"?)v?[0-9]+(\.[0-9]+)*" "$file" 2>/dev/null | sed -E 's/^[^Nn]*//' || true)
+  done < <(grep -oE "(^|[^A-Za-z0-9_/.@-])([Nn]ode(\.js)?[ @]|node-version: *'?\"?|NODE_VERSION: *'?\"?)v?[0-9]+(\.[0-9]+)*" "$file" 2>/dev/null | sed -E 's/^[^Nn]*//' || true)
   return 0
 }
 
@@ -194,7 +194,23 @@ if [ -f mise.toml ]; then
   [ -n "$v" ] && ! version_matches "$v" "$PNPM_VER" "$PNPM_MAJOR" && report mise.toml "pnpm = \"$v\"" "pnpm = \"$PNPM_VER\""
 fi
 
-# GitHub workflows pin pnpm via pnpm/action-setup `version: X.Y.Z`.
+# Reusable workflows carry the pin in a workflow_call input default:
+#   node-version:
+#     default: '26'
+# Usage: check_input_default <file> <input name> <full version> <major>
+check_input_default() {
+  local file="$1" input="$2" full="$3" major="$4" ref v expected
+  while IFS= read -r ref; do
+    [ -z "$ref" ] && continue
+    v=$(echo "$ref" | grep -oE '[0-9]+(\.[0-9]+)*')
+    case "$v" in *.*) expected="$full" ;; *) expected="$major" ;; esac
+    version_matches "$v" "$full" "$major" || report "$file" "$input $ref" "$input default: $expected"
+  done < <(grep -A3 -E "^[[:space:]]+${input}:[[:space:]]*$" "$file" 2>/dev/null | grep -oE "default: *'?\"?[0-9]+(\.[0-9]+)*" || true)
+  return 0
+}
+
+# GitHub workflows pin pnpm via pnpm/action-setup `version: X.Y.Z` and
+# node/pnpm via workflow_call input defaults.
 for f in .github/workflows/*.yml; do
   [ -f "$f" ] || continue
   while IFS= read -r ref; do
@@ -202,6 +218,8 @@ for f in .github/workflows/*.yml; do
     v=$(echo "$ref" | grep -oE '[0-9]+(\.[0-9]+)*')
     version_matches "$v" "$PNPM_VER" "$PNPM_MAJOR" || report "$f" "$ref" "version: $PNPM_VER"
   done < <(grep -A3 -E 'uses: pnpm/action-setup' "$f" | grep -oE "version: *'?\"?[0-9]+(\.[0-9]+)*" || true)
+  check_input_default "$f" node-version "$NODE_VER" "$NODE_MAJOR"
+  check_input_default "$f" pnpm-version "$PNPM_VER" "$PNPM_MAJOR"
 done
 
 # Stale-layout scan: top-level docs plus docs/ (ADRs under docs/architecture
