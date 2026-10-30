@@ -8,7 +8,7 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 
 ### Core Development
 
-- `pnpm install` - Install dependencies (use pnpm 10, Node 24 via mise)
+- `pnpm install` - Install dependencies (use pnpm 12, Node 26 via mise)
 - `pnpm build` - Build Next.js application (output: .next/)
 - `pnpm typecheck` - Type check without emitting files
 - `pnpm lint` - Run ESLint (fails on any violations)
@@ -337,7 +337,7 @@ Available slash commands in `.opencode/commands/`:
 ## Configuration
 
 - **Package Manager**: pnpm 12.16.1 (specified in package.json)
-- **Node Version**: >=24.0.0 (engines requirement)
+- **Node Version**: >=26.0.0 (engines requirement)
 - **TypeScript**: Strict mode with NodeNext module resolution
 - **Testing**: Vitest with V8 coverage provider + @vitest/ui for visual testing interface
 - **Linting**: ESLint 10 with comprehensive plugin ecosystem (12 plugins)

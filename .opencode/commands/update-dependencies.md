@@ -109,7 +109,7 @@ pnpm changeset
 # Examples:
 # patch: "Update zod to fix validation edge case"
 # minor: "Update Pino with new structured logging features"
-# major: "Update to Node 24 (drops Node 22 support)"
+# major: "Update to Node 26 (drops Node 24 support)"
 ```
 
 ### 6. Commit the Changes
