@@ -83,6 +83,11 @@ export default [
         },
         node: true,
       },
+      // Let eslint-plugin-n resolve TypeScript imports written without an extension
+      // (Turbopack and Vitest resolve them without an extension).
+      n: {
+        tryExtensions: ['.js', '.ts', '.tsx', '.json'],
+      },
     },
     rules: {
       ...tseslint.configs['recommended-type-checked'].rules,

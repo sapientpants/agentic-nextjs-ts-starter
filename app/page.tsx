@@ -1,3 +1,5 @@
+import { toolVersions } from './lib/versions';
+
 function IntroSection() {
   return (
     <section className="intro">
@@ -5,11 +7,11 @@ function IntroSection() {
         A <strong>batteries-included</strong> Next.js + TypeScript starter template with:
       </p>
       <ul>
-        <li>Next.js 16 with App Router</li>
-        <li>React 19</li>
-        <li>TypeScript 6.0 strict mode</li>
-        <li>Node.js 24+</li>
-        <li>pnpm 10 package manager</li>
+        <li>Next.js {toolVersions.next} with App Router</li>
+        <li>React {toolVersions.react}</li>
+        <li>TypeScript {toolVersions.typescript} strict mode</li>
+        <li>Node.js {toolVersions.node}+</li>
+        <li>pnpm {toolVersions.pnpm} package manager</li>
         <li>Comprehensive testing (Vitest + React Testing Library)</li>
         <li>Code quality automation (ESLint, Prettier, Husky)</li>
         <li>Security scanning (CodeQL, OSV, Trivy)</li>

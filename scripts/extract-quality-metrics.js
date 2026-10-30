@@ -166,7 +166,7 @@ function getPackageInfo() {
   const packageJson = readJsonFile(packagePath);
   return {
     version: packageJson?.version || '0.0.0',
-    nodeVersion: packageJson?.engines?.node || '>=22.0.0',
+    nodeVersion: packageJson?.engines?.node || 'unknown',
   };
 }
 

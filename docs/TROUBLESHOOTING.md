@@ -49,7 +49,7 @@ fnm use 26
 # Install exact version required
 npm install -g pnpm@12.16.1
 
-# Or use Corepack (Node 16.13+)
+# Or use Corepack (bundled with Node)
 corepack enable
 corepack prepare pnpm@12.16.1 --activate
 
