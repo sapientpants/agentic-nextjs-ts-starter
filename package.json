@@ -101,21 +101,28 @@
       "tmp": ">=0.2.4",
       "lodash": ">=4.18.0",
       "postcss": ">=8.5.23",
-      "qs": ">=6.15.2",
+      "qs": ">=6.16.1",
       "uuid": ">=11.1.1",
       "brace-expansion": ">=1.1.18",
       "esbuild": ">=0.28.1",
-      "fast-uri": ">=3.1.5",
+      "fast-uri": ">=4.2.3",
       "form-data": ">=4.0.6",
       "js-yaml": ">=3.15.0",
-      "undici": ">=7.29.0"
+      "undici": ">=8.12.2",
+      "katex": ">=0.18.2",
+      "launch-editor": ">=2.14.2",
+      "markdown-it@^14": ">=14.3.3 <15",
+      "smol-toml": ">=1.9.0",
+      "body-parser": ">=2.4.0",
+      "re2js": ">=2.8.7",
+      "zod": ">=4.6.6"
     },
     "ignoredBuiltDependencies": [
       "esbuild"
     ]
   },
   "dependencies": {
-    "next": "16.3.8",
+    "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -128,7 +135,7 @@
     "@eslint-community/eslint-plugin-eslint-comments": "4.8.1",
     "@fast-check/vitest": "^0.5.0",
     "@microsoft/api-extractor": "7.59.3",
-    "@next/eslint-plugin-next": "16.3.8",
+    "@next/eslint-plugin-next": "16.4.3",
     "@size-limit/preset-small-lib": "14.1.0",
     "@stryker-mutator/core": "10.0.0",
     "@stryker-mutator/typescript-checker": "10.0.0",
@@ -141,8 +148,8 @@
     "@typescript-eslint/eslint-plugin": "^8.71.0",
     "@typescript-eslint/parser": "^8.71.0",
     "@vitejs/plugin-react": "6.1.1",
-    "@vitest/coverage-v8": "^5.0.3",
-    "@vitest/ui": "5.0.3",
+    "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/ui": "5.0.5",
     "autocannon": "8.0.0",
     "changelog-github-custom": "1.2.7",
     "commitizen": "4.3.2",
@@ -172,7 +179,7 @@
     "license-checker": "25.0.1",
     "lint-staged": "^17.6.0",
     "madge": "8.0.0",
-    "markdownlint-cli2": "0.23.3",
+    "markdownlint-cli2": "0.24.0",
     "npm-check-updates": "23.1.0",
     "prettier": "^3.9.9",
     "publint": "0.3.25",
@@ -182,8 +189,8 @@
     "typedoc": "0.28.20",
     "typescript": "^6.0.3",
     "validate-branch-name": "1.3.2",
-    "vite": "8.3.2",
-    "vitest": "^5.0.3",
+    "vite": "8.3.5",
+    "vitest": "^5.0.5",
     "yaml-lint": "1.7.0"
   },
   "config": {
