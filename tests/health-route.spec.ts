@@ -1,18 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { GET } from '../app/api/health/route';
+import packageJson from '../package.json';
+import { GET, type HealthCheckResponse } from '../app/api/health/route';
 
-interface HealthCheckResponse {
-  status: string;
-  timestamp: string;
-  application: string;
-  version: string;
-  uptime: number;
-  environment: string | undefined;
-}
+const DEFAULT_APP_NAME = 'agentic-nextjs-ts-starter';
+
+const getHealth = async (): Promise<HealthCheckResponse> => {
+  const response = GET();
+  return (await response.json()) as HealthCheckResponse;
+};
 
 describe('Health Check API Route', () => {
   beforeEach(() => {
-    // Mock process.uptime()
+    // Restored automatically after each test via `restoreMocks: true`.
     vi.spyOn(process, 'uptime').mockReturnValue(123.45);
   });
 
@@ -22,8 +21,7 @@ describe('Health Check API Route', () => {
   });
 
   it('returns JSON with correct structure', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
     expect(data).toHaveProperty('status');
     expect(data).toHaveProperty('timestamp');
@@ -34,29 +32,28 @@ describe('Health Check API Route', () => {
   });
 
   it('returns healthy status', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
     expect(data.status).toBe('healthy');
   });
 
   it('returns the application name from environment', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
-    expect(data.application).toBe('agentic-nextjs-ts-starter');
+    // `tests/setup.ts` sets a value distinct from the hardcoded fallback.
+    expect(process.env.NEXT_PUBLIC_APP_NAME).toBe('test-app');
+    expect(data.application).toBe('test-app');
+    expect(data.application).not.toBe(DEFAULT_APP_NAME);
   });
 
   it('returns the version from package.json', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
-    expect(data.version).toBe('1.0.0');
+    expect(data.version).toBe(packageJson.version);
   });
 
   it('returns a valid ISO timestamp', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
     expect(data.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
 
@@ -67,16 +64,14 @@ describe('Health Check API Route', () => {
   });
 
   it('returns process uptime', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
     expect(data.uptime).toBe(123.45);
     expect(typeof data.uptime).toBe('number');
   });
 
   it('returns test environment', async () => {
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    const data = await getHealth();
 
     expect(data.environment).toBe('test');
   });
@@ -88,16 +83,20 @@ describe('Health Check API Route', () => {
     expect(contentType).toContain('application/json');
   });
 
-  it('uses default values when environment variables are not set', async () => {
-    const originalAppName = process.env.NEXT_PUBLIC_APP_NAME;
+  it('uses the default application name when NEXT_PUBLIC_APP_NAME is unset', async () => {
+    // Undone automatically after each test via `unstubEnvs: true`.
+    vi.stubEnv('NEXT_PUBLIC_APP_NAME', undefined);
 
-    delete process.env.NEXT_PUBLIC_APP_NAME;
+    const data = await getHealth();
 
-    const response = GET();
-    const data = (await response.json()) as HealthCheckResponse;
+    expect(data.application).toBe(DEFAULT_APP_NAME);
+  });
 
-    expect(data.application).toBe('agentic-nextjs-ts-starter');
+  it('uses the default application name when NEXT_PUBLIC_APP_NAME is empty', async () => {
+    vi.stubEnv('NEXT_PUBLIC_APP_NAME', '');
 
-    process.env.NEXT_PUBLIC_APP_NAME = originalAppName;
+    const data = await getHealth();
+
+    expect(data.application).toBe(DEFAULT_APP_NAME);
   });
 });

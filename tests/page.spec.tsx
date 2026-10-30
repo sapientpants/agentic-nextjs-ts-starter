@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import packageJson from '../package.json';
 import { toolVersions } from '../app/lib/versions';
 import HomePage from '../app/page';
@@ -15,18 +15,18 @@ describe('HomePage', () => {
   it('displays the app name from environment variable', () => {
     render(<HomePage />);
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent(/agentic-nextjs-ts-starter/i);
+    // `tests/setup.ts` sets a value distinct from the hardcoded fallback.
+    expect(heading).toHaveTextContent('test-app');
+    expect(heading).not.toHaveTextContent('agentic-nextjs-ts-starter');
   });
 
   it('uses default app name when environment variable is not set', () => {
-    const originalEnv = process.env.NEXT_PUBLIC_APP_NAME;
-    delete process.env.NEXT_PUBLIC_APP_NAME;
+    // Undone automatically after each test via `unstubEnvs: true`.
+    vi.stubEnv('NEXT_PUBLIC_APP_NAME', undefined);
 
     render(<HomePage />);
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveTextContent(/agentic-nextjs-ts-starter/i);
-
-    process.env.NEXT_PUBLIC_APP_NAME = originalEnv;
+    expect(heading).toHaveTextContent('agentic-nextjs-ts-starter');
   });
 
   it('displays the features section', () => {

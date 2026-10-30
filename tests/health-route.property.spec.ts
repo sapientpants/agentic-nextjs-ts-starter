@@ -1,15 +1,6 @@
-import { describe, expect, afterEach } from 'vitest';
+import { describe, expect, vi } from 'vitest';
 import { fc, it } from '@fast-check/vitest';
-import { GET } from '../app/api/health/route';
-
-interface HealthCheckResponse {
-  status: string;
-  timestamp: string;
-  application: string;
-  version: string;
-  uptime: number;
-  environment: string | undefined;
-}
+import { GET, type HealthCheckResponse } from '../app/api/health/route';
 
 const DEFAULT_APP_NAME = 'agentic-nextjs-ts-starter';
 const ISO_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
@@ -20,12 +11,12 @@ const appNameArb = fc.string({ minLength: 1 });
 /** Values that make `NEXT_PUBLIC_APP_NAME` falsy: unset or empty string. */
 const missingAppNameArb = fc.constantFrom<string | undefined>(undefined, '');
 
+/**
+ * Stub the env var for the current property run. Stubs are undone after each
+ * test by `unstubEnvs: true` in `vitest.config.ts`.
+ */
 const setAppName = (value: string | undefined): void => {
-  if (value === undefined) {
-    delete process.env.NEXT_PUBLIC_APP_NAME;
-  } else {
-    process.env.NEXT_PUBLIC_APP_NAME = value;
-  }
+  vi.stubEnv('NEXT_PUBLIC_APP_NAME', value);
 };
 
 const getHealth = async (): Promise<HealthCheckResponse> => {
@@ -35,12 +26,6 @@ const getHealth = async (): Promise<HealthCheckResponse> => {
 };
 
 describe('Health Check Property Tests', () => {
-  const originalAppName = process.env.NEXT_PUBLIC_APP_NAME;
-
-  afterEach(() => {
-    setAppName(originalAppName);
-  });
-
   it.prop([appNameArb])(
     'round-trips any non-empty NEXT_PUBLIC_APP_NAME into application',
     async (name) => {
