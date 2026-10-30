@@ -224,7 +224,7 @@ importers:
       '@next/eslint-plugin-next':
         specifier: 16.4.3
         version: 16.4.3(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))
-      '@size-limit/preset-small-lib':
+      '@size-limit/file':
         specifier: 14.3.0
         version: 14.3.0(size-limit@14.3.0)
       '@stryker-mutator/core':
@@ -2253,17 +2253,6 @@ packages:
 
   '@size-limit/file@14.3.0':
     resolution: {integrity: sha512-GWKOi0rorXPbYmwbT926Z91t28rg5gd5hv8ywY1FNcaYf8NbibgK5K5YabYbLkV6KpGwuuixBRtIzl3ZpPzUfw==}
-    engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
-    peerDependencies:
-      size-limit: 14.3.0
-
-  '@size-limit/preset-small-lib@14.3.0':
-    resolution: {integrity: sha512-nvCyY+o26aOIdZxm81nlebE9+9lVf9UMKi19hyjE5DjO5kSaOTtnrZSeHzV9JTN5djt/hqGserT1mecoGXLTNw==}
-    peerDependencies:
-      size-limit: 14.3.0
-
-  '@size-limit/rolldown@14.3.0':
-    resolution: {integrity: sha512-u4qTH1R5gAonGYYEBLb4UHOUpWhiwVOATpV/wvKCzGTcrwziYdWzvK2S4PuUKGSj9C8/NU2d1KqhFJZy5Mw3XA==}
     engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
     peerDependencies:
       size-limit: 14.3.0
@@ -8349,17 +8338,6 @@ snapshots:
 
   '@size-limit/file@14.3.0(size-limit@14.3.0)':
     dependencies:
-      size-limit: 14.3.0
-
-  '@size-limit/preset-small-lib@14.3.0(size-limit@14.3.0)':
-    dependencies:
-      '@size-limit/file': 14.3.0(size-limit@14.3.0)
-      '@size-limit/rolldown': 14.3.0(size-limit@14.3.0)
-      size-limit: 14.3.0
-
-  '@size-limit/rolldown@14.3.0(size-limit@14.3.0)':
-    dependencies:
-      rolldown: 1.2.15
       size-limit: 14.3.0
 
   '@sonarsource/analyzer-commons-configurations@2.31.0-5284': {}
