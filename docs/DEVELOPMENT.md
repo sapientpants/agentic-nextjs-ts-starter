@@ -221,7 +221,7 @@ The project uses Husky to enforce quality checks before each commit. The `precom
 5. **Type check** (`pnpm typecheck`)
 6. **Linting** (`pnpm lint`)
 7. **Dependency analysis** (`pnpm deps:circular`, `pnpm deps:cruise`)
-8. **Duplication and dead code** (`pnpm duplication`, `pnpm dead-code`, `pnpm ts-prune`)
+8. **Duplication and dead code** (`pnpm duplication`, `pnpm dead-code`)
 9. **Tests with coverage** (`pnpm test:coverage`)
 10. **Changeset status** (`pnpm changeset:status`)
 
@@ -319,7 +319,6 @@ Provide variables through your hosting platform or the container environment, fo
    - CHANGELOG.md generation
    - Git tags creation
    - GitHub release creation
-   - Optional: npm publishing (if NPM_TOKEN configured)
    - Optional: Docker publishing (if enabled)
 
 ### Required Secrets for Releases
@@ -327,16 +326,15 @@ Provide variables through your hosting platform or the container environment, fo
 | Secret               | Required    | Purpose                                                     |
 | -------------------- | ----------- | ----------------------------------------------------------- |
 | `RELEASE_TOKEN`      | Recommended | GitHub PAT with repo/workflow scopes for protected branches |
-| `NPM_TOKEN`          | Optional    | Required for npm publishing                                 |
 | `DOCKERHUB_USERNAME` | Optional    | Required for Docker Hub publishing                          |
 | `DOCKERHUB_TOKEN`    | Optional    | Required for Docker Hub publishing                          |
 
 ### Repository Variables
 
-| Variable                | Purpose                                |
-| ----------------------- | -------------------------------------- |
-| `ENABLE_NPM_RELEASE`    | Set to `true` to enable npm publishing |
-| `ENABLE_DOCKER_RELEASE` | Set to `true` to enable Docker builds  |
+| Variable                | Purpose                                           |
+| ----------------------- | ------------------------------------------------- |
+| `ENABLE_RELEASE`        | Set to `true` to enable versioning and releases   |
+| `ENABLE_DOCKER_RELEASE` | Set to `true` to enable Docker builds and publish |
 
 > **Note**: Without `RELEASE_TOKEN`, the workflow uses `GITHUB_TOKEN` but may fail on protected branches.
 

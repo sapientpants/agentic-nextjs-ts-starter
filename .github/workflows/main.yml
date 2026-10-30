@@ -2,7 +2,7 @@
 # WORKFLOW: Main Branch Release Pipeline
 # PURPOSE: Automate version management, releases, and security scanning on main
 # TRIGGERS: Push to main branch (merges, direct commits)
-# OUTPUTS: GitHub release with artifacts, NPM package, Docker image
+# OUTPUTS: GitHub release with SBOM, Docker image
 # =============================================================================
 
 name: Main
@@ -127,7 +127,6 @@ jobs:
     if: ${{ vars.ENABLE_RELEASE == 'true' }} # Disabled by default for starter templates - no releases needed
     runs-on: ubuntu-latest
     outputs:
-      artifact-name: dist-${{ github.sha }}
       changed: ${{ steps.version.outputs.changed }}
       version: ${{ steps.version.outputs.version }}
       tag_sha: ${{ steps.tag.outputs.sha }}
@@ -206,43 +205,16 @@ jobs:
           echo "sha=${TAG_SHA}" >> $GITHUB_OUTPUT
           echo "📌 Tag SHA for artifacts: ${TAG_SHA}"
 
-      - name: Build TypeScript
+      - name: Build Next.js application
+        # Verifies the tagged commit builds; the Docker job rebuilds from source
         if: steps.version.outputs.changed == 'true'
         run: |
           pnpm build
-          echo "✅ Built TypeScript once for entire workflow"
-
-      - name: Generate artifact manifest
-        if: steps.version.outputs.changed == 'true'
-        run: |
-          # Create a manifest of what's been built
-          cat > build-manifest.json <<EOF
-          {
-              "build_sha": "${{ github.sha }}",
-              "build_time": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-              "node_version": "$(node --version)",
-              "pnpm_version": "$(pnpm --version)",
-              "typescript_version": "$(pnpm list typescript --json | jq -r '.dependencies.typescript.version')",
-              "files": $(find dist -type f -name "*.js" | jq -R . | jq -s .)
-          }
-          EOF
-          echo "📋 Generated build manifest with $(find dist -type f -name "*.js" | wc -l) JavaScript files"
-
-      - name: Upload build artifact
-        if: steps.version.outputs.changed == 'true'
-        uses: actions/upload-artifact@v6
-        with:
-          name: dist-${{ github.sha }}
-          path: |
-            dist/
-            package.json
-            pnpm-lock.yaml
-            build-manifest.json
-          retention-days: 1 # Only needed for this workflow run
+          echo "✅ Next.js build succeeded for v${{ steps.version.outputs.version }}"
 
   # =============================================================================
   # PREPARE RELEASE ASSETS PHASE
-  # Centralized job for preparing all release artifacts (Docker, binaries, etc.)
+  # Builds and scans the Docker image for the release
   # DISABLED: Build job is disabled, so these depend on a skipped job
   # To enable: Remove 'if: false' from build job above
   # =============================================================================
@@ -259,79 +231,6 @@ jobs:
       image-name: 'agentic-nextjs-ts-starter'
       version: ${{ needs.build.outputs.version }}
       tag_sha: ${{ github.sha }}
-      build_artifact: ${{ needs.build.outputs.artifact-name }}
-
-  npm:
-    name: Prepare NPM Package
-    needs: [validate, security, build]
-    # DISABLED: Package is private and build job is disabled
-    if: vars.ENABLE_NPM_RELEASE == 'true' && needs.build.outputs.changed == 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      built: ${{ steps.pack.outputs.built }}
-      artifact_name: ${{ steps.pack.outputs.artifact_name }}
-      tarball_name: ${{ steps.pack.outputs.tarball_name }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: ${{ needs.build.outputs.artifact-name }}
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 12.16.1
-          run_install: false
-          standalone: true
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 26
-          cache: pnpm
-
-      - name: Install dependencies
-        # Install all dependencies for packaging (dev and prod)
-        run: pnpm install --frozen-lockfile
-
-      - name: Create NPM package
-        id: pack
-        run: |
-          # Create the NPM package tarball
-          # Use tail -1 to get just the filename, as npm pack may output additional text
-          NPM_PACKAGE=$(npm pack 2>/dev/null | tail -1)
-          echo "📦 Created NPM package: $NPM_PACKAGE"
-
-          # Generate metadata using github.sha for consistent naming with publish workflow
-          ARTIFACT_NAME="npm-package-${{ needs.build.outputs.version }}-${{ github.sha }}"
-          {
-            echo "artifact_name=$ARTIFACT_NAME"
-            echo "tarball_name=$NPM_PACKAGE"
-            echo "built=true"
-          } >> $GITHUB_OUTPUT
-
-          # Create manifest of included files for verification
-          npm pack --dry-run --json 2>/dev/null | jq -r '.[0].files[].path' > npm-package-manifest.txt
-          echo "📋 Package contains $(wc -l < npm-package-manifest.txt) files"
-
-      - name: Upload NPM package artifact
-        uses: actions/upload-artifact@v6
-        with:
-          name: npm-package-${{ needs.build.outputs.version }}-${{ github.sha }}
-          path: |
-            *.tgz
-            npm-package-manifest.txt
-          retention-days: 7
-
-      - name: Generate attestations for NPM package
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: '*.tgz'
 
   # =============================================================================
   # GITHUB RELEASE CREATION PHASE
@@ -342,14 +241,13 @@ jobs:
 
   create-release:
     name: Create GitHub Release
-    needs: [build, docker, npm]
+    needs: [build, docker]
     # DISABLED: Build job is disabled (needs.build.outputs.changed will always be empty)
-    # Run if build succeeded AND docker/npm either succeeded or were skipped
+    # Run if build succeeded AND docker either succeeded or was skipped
     if: |
       needs.build.outputs.changed == 'true' &&
       !cancelled() &&
-      (needs.docker.result == 'success' || needs.docker.result == 'skipped') &&
-      (needs.npm.result == 'success' || needs.npm.result == 'skipped')
+      (needs.docker.result == 'success' || needs.docker.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       released: ${{ steps.release.outputs.released }}
@@ -360,11 +258,6 @@ jobs:
         with:
           # Checkout the newly created tag
           ref: v${{ needs.build.outputs.version }}
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: ${{ needs.build.outputs.artifact-name }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v5
@@ -386,13 +279,6 @@ jobs:
 
       - name: Generate SBOM
         run: pnpm sbom
-
-      - name: Create release artifacts
-        run: |
-          VERSION="${{ needs.build.outputs.version }}"
-          TAG_SHA="${{ needs.build.outputs.tag_sha }}"
-          tar -czf dist-${VERSION}-${TAG_SHA:0:7}.tar.gz dist/
-          zip -r dist-${VERSION}-${TAG_SHA:0:7}.zip dist/
 
       - name: Extract release notes
         run: |
@@ -418,11 +304,7 @@ jobs:
         # Requires id-token: write permission
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: |
-            dist/**/*.js
-            sbom.cdx.json
-            dist-*-*.tar.gz
-            dist-*-*.zip
+          subject-path: sbom.cdx.json
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -433,10 +315,7 @@ jobs:
           draft: false
           prerelease: false
           make_latest: true
-          files: |
-            sbom.cdx.json
-            dist-${{ needs.build.outputs.version }}-*.tar.gz
-            dist-${{ needs.build.outputs.version }}-*.zip
+          files: sbom.cdx.json
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 

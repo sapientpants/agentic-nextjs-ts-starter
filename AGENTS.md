@@ -31,14 +31,12 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 10. `pnpm deps:cruise` - Architectural dependency validation (dependency-cruiser)
 11. `pnpm duplication` - Code duplication analysis (jscpd)
 12. `pnpm dead-code` - Unused exports/files/deps/types (Knip)
-13. `pnpm ts-prune` - Unused TypeScript exports (ts-prune)
-14. `pnpm test:coverage` - Slowest check, runs last (90% minimum threshold)
+13. `pnpm test:coverage` - Slowest check, runs last (90% minimum threshold)
 
 **Note:** The following tools are excluded from precommit due to performance/use-case:
 
 - `pnpm mutation-test` - Runs weekly in CI (`weekly-mutation-test.yml`); run locally for debugging
 - `pnpm scan:secrets` - Run manually or in CI (can use `scan:secrets:protect` for staged changes)
-- `pnpm publint` / `pnpm attw` - Run before publishing, not every commit
 - `pnpm license:check` - Run when adding dependencies or before release
 - `pnpm size` - Runs in CI after the build (`reusable-validate.yml`); run locally after `pnpm build`
 - `pnpm deps:unused` - Too many false positives, use Knip instead (already in precommit)
@@ -186,21 +184,6 @@ https://img.shields.io/badge/dynamic/json
 - **Allowlist**: `.gitleaksignore` for false positives (document reasons)
 - **Integration**: Can be added to pre-commit hooks or run manually/in CI
 
-### Package Publishing & Validation
-
-- `pnpm publint` - Validate package.json for npm publishing (checks exports, files field)
-- `pnpm attw` - Check TypeScript types exports with arethetypeswrong
-- `pnpm ts-prune` - Find unused TypeScript exports (complements Knip)
-- `pnpm pkg:validate` - Run both publint and attw together
-- **Note**: publint and attw are for pre-release validation, ts-prune runs in precommit
-
-### Documentation Generation
-
-- `pnpm docs:generate` - Generate API documentation with TypeDoc (output: reports/api-docs/, gitignored)
-- `pnpm docs:api` - Build project and extract API surface with Microsoft API Extractor
-- **Configuration**: `typedoc.json` and `api-extractor.json`
-- **Output**: TypeDoc generates HTML docs, API Extractor creates API reports and .d.ts rollups
-
 ### Advanced Dependency Analysis
 
 - `pnpm deps:cruise` - Validate dependencies against architectural rules (dependency-cruiser)
@@ -240,7 +223,6 @@ https://img.shields.io/badge/dynamic/json
 - `pnpm changeset:status` - Check status of changesets
 - `pnpm sbom` - Generate SBOM file in CycloneDX format (sbom.cdx.json)
 - `pnpm release` - Version packages with Changesets and build
-- `pnpm release:publish` - Build and publish packages
 - `pnpm release:tag` - Commit changes and create git tag for release
 - `pnpm lint-staged` - Run lint-staged (formats and lints staged files only)
 
@@ -359,8 +341,6 @@ Available slash commands in `.opencode/commands/`:
   - Performance: ~2-3s for full project lint (enhanced coverage)
 - **Formatting**: Prettier 3 with ESLint integration
 - **Versioning**: Changesets for automated version management
-- **Documentation**: TypeDoc (API docs) + Microsoft API Extractor (API surface analysis)
-- **Package Publishing**: publint + arethetypeswrong + ts-prune
 - **Dependency Analysis**: madge + dependency-cruiser + depcheck
 - **Secret Scanning**: Gitleaks (configuration in .gitleaks.toml)
 - **License Compliance**: license-checker
@@ -550,14 +530,12 @@ The workflow automatically handles releases when PRs with changesets are merged 
 2. **Checks for changesets** - Determines if a release is needed
 3. **Versions and tags automatically** - Updates version, generates CHANGELOG.md
 4. **Creates GitHub release** - With changelog, build artifacts, and SBOM
-5. **Publishes to npm** - If NPM_TOKEN is configured
-6. **Uses [skip actions]** - Prevents release commits from triggering duplicate workflows
+5. **Uses [skip actions]** - Prevents release commits from triggering duplicate workflows
 
 Key principle: **No duplicate builds** - The workflow checks out code at the release tag and builds only what's needed for each distribution channel.
 
 Required secrets for distribution:
 
-- `NPM_TOKEN` - For npm publishing
 - `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` - For Docker Hub (optional)
 - `SLACK_WEBHOOK` - For Slack notifications (optional)
 

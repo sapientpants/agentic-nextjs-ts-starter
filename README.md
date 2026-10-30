@@ -124,7 +124,7 @@ Quality metrics are collected automatically on every push to `main` and publishe
 - **Duplication:** jscpd (`pnpm duplication`)
 - **Complexity:** ESLint with complexity rules (`pnpm lint`)
 - **Circular Deps:** madge (`pnpm deps:circular`) + dependency-cruiser (`pnpm deps:cruise`)
-- **Dead Code:** Knip (`pnpm dead-code`) + ts-prune (`pnpm ts-prune`)
+- **Dead Code:** Knip (`pnpm dead-code`)
 - **Security:** pnpm audit, OSV Scanner, CodeQL, Trivy (`pnpm scan:container`)
 - **Type Safety:** TypeScript strict mode + type-aware ESLint rules (`pnpm typecheck`)
 
@@ -267,17 +267,10 @@ See [AGENTS.md](./AGENTS.md) for detailed OpenCode guidance.
 **For automated releases**, add secrets:
 
 - `RELEASE_TOKEN` - GitHub PAT with repo/workflow scopes (triggers publish workflow)
-- `NPM_TOKEN` - For npm publishing (optional)
 
 ## 📦 Release Distribution Setup
 
-### NPM Publishing
-
-To enable npm publishing:
-
-1. Add `NPM_TOKEN` secret in repository settings
-2. Remove `"private": true` from package.json
-3. Use a scoped package name: `@yourorg/package-name`
+This template is a Next.js application, not an npm library, so the package stays `private` and releases are distributed as Docker images.
 
 ### Docker Publishing
 
