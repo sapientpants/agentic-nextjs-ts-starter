@@ -1,8 +1,8 @@
-# Solo Agentic Delivery Process (Node + TypeScript)
+# Solo Agentic Delivery Process (Next.js + TypeScript)
 
 ## 0) Prepare
 
-- Node 22 LTS via **mise** (`mise.toml`), package manager **pnpm 10**, strict TypeScript, ESLint (flat), Prettier, Vitest, fast-check, Zod.
+- Node 26 via **mise** (`mise.toml`), package manager **pnpm 12**, Next.js 16 (App Router), React 19, strict TypeScript, ESLint (flat), Prettier, Vitest, React Testing Library, fast-check.
 - Turn on branch protection + required status checks in GitHub. Enforce PRs, linear history, required reviews (self-review allowed but deliberate).
 
 ## 1) Specify (SPEC-first)
@@ -23,7 +23,7 @@
 
 ## 4) Verify automatically
 
-- Run: typecheck → lint → unit + property tests → contract validation (Zod/OpenAPI) → OSV scan → SBOM generation.
+- Run `pnpm precommit`: audit → format → lint → typecheck → dependency analysis → unit + property tests with coverage. CI adds OSV scan, CodeQL, container scan and SBOM generation.
 - CI enforces gates; artifacts include coverage report, SBOM, and SLSA provenance.
 
 ## 5) Review
@@ -41,4 +41,4 @@
 
 ## 8) Operate & learn
 
-- Instrument with OpenTelemetry; use structured logging (Pino). Track DORA-ish solo metrics: lead time, deploy frequency, MTTR.
+- Instrument with OpenTelemetry via `instrumentation.ts`; use structured logging (see [OBSERVABILITY.md](./OBSERVABILITY.md)). Track DORA-ish solo metrics: lead time, deploy frequency, MTTR.

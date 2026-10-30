@@ -275,7 +275,7 @@ pnpm coverage:report # Generate detailed HTML report
 pnpm coverage:open  # Open HTML report in browser
 
 # Quick verification
-pnpm verify         # Run all checks including tests
+pnpm precommit      # Run all checks including tests
 ```
 
 ### Understanding Coverage Output
@@ -402,7 +402,7 @@ pnpm test:coverage
 pnpm quick-check
 
 # Full verification
-pnpm verify
+pnpm precommit
 ```
 
 ## Best Practices

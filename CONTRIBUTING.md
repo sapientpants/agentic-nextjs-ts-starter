@@ -1,11 +1,11 @@
-# Contributing to Agentic Node TypeScript Starter
+# Contributing to Agentic Next.js + TypeScript Starter
 
 Thank you for your interest in contributing! This guide will help you get started with contributing to this project.
 
 ## 📋 Prerequisites
 
-- Node.js 22+ (managed via [mise](https://mise.jdx.dev/))
-- pnpm 10+ (managed via mise)
+- Node.js 26+ (managed via [mise](https://mise.jdx.dev/))
+- pnpm 12.16.1 (managed via mise)
 - Git
 
 ## 🚀 Getting Started
@@ -13,8 +13,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 1. **Fork and clone the repository**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/agentic-node-ts-starter.git
-   cd agentic-node-ts-starter
+   git clone https://github.com/YOUR_USERNAME/agentic-nextjs-ts-starter.git
+   cd agentic-nextjs-ts-starter
    ```
 
 2. **Install tools via mise**
@@ -30,8 +30,15 @@ Thank you for your interest in contributing! This guide will help you get starte
    ```
 
 4. **Run tests to verify setup**
+
    ```bash
    pnpm test
+   ```
+
+5. **Start the dev server**
+
+   ```bash
+   pnpm dev   # http://localhost:3000
    ```
 
 ## 🔄 Development Workflow
@@ -39,61 +46,44 @@ Thank you for your interest in contributing! This guide will help you get starte
 ### 1. Create a Feature Branch
 
 ```bash
-git checkout -b feature/your-feature-name
+git checkout -b feat/your-feature-name
 # or
 git checkout -b fix/your-fix-name
 ```
 
+Branch names are validated: `<type>/<description>` where type is one of `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `revert`.
+
 ### 2. Make Your Changes
 
-- Write your code following the existing patterns
-- Add tests for new functionality
+- Write your code following the existing patterns in `app/`
+- Add tests for new functionality in `tests/`
 - Update documentation as needed
 
-### 3. Use Structured Logging
+### 3. Where Code Lives
 
-When adding logging to your code:
+- **Pages and layouts**: `app/**/page.tsx`, `app/**/layout.tsx` (Server Components by default)
+- **API endpoints**: `app/api/**/route.ts` (Route Handlers)
+- **Shared logic**: colocate under `app/` or add a top-level folder such as `lib/` and import it with the `@/` alias
 
-```typescript
-import { logger, createChildLogger } from './logger.js';
-
-// Use module-specific loggers
-const log = createChildLogger('module-name');
-
-// Include context in logs
-log.info({ userId, action }, 'User action performed');
-
-// Handle errors properly
-log.error({ err: error, context }, 'Operation failed');
-
-// Never log sensitive data directly
-// These fields are automatically redacted: password, token, api_key, etc.
-```
-
-**Logging Guidelines:**
-
-- Use appropriate log levels (debug, info, warn, error, fatal)
-- Include relevant context as structured data (first parameter)
-- Keep log messages descriptive but concise (second parameter)
-- Use child loggers for module-specific logging
-- Never use console.log in production code
+Validate everything that crosses a trust boundary (request bodies, search params, environment variables) at the edge, inside the Route Handler or Server Action. See [docs/PATTERNS.md](./docs/PATTERNS.md) for copy-paste examples.
 
 ### 4. Run Quality Checks
 
 Before committing, you can manually run all checks:
 
 ```bash
-pnpm verify  # Runs all checks: audit, typecheck, lint, format, test
+pnpm quick-check  # Fast: typecheck + lint + test
+pnpm precommit    # Everything the pre-commit hook runs
 ```
 
-Note: The pre-commit hook will automatically run all these checks when you commit.
+Note: The pre-commit hook runs `pnpm precommit` automatically when you commit.
 
 Individual checks:
 
 - `pnpm typecheck` - Type checking
 - `pnpm lint` - ESLint
 - `pnpm format` - Prettier formatting check
-- `pnpm test` - Run tests with coverage
+- `pnpm test:coverage` - Run tests with coverage (90% minimum)
 
 ### 5. Add a Changeset
 
@@ -148,16 +138,19 @@ git add .
 git commit -m "feat: add new validation for user input"
 ```
 
-Pre-commit hooks will automatically:
+Pre-commit hooks will automatically run `pnpm precommit`, which includes:
 
-- Run security audit
-- Type check your code
-- Run ESLint checks
-- Run Prettier format checks
-- Run all tests
-- Validate commit message format (via commit-msg hook)
+- Security audit
+- Formatting, spelling, YAML, Markdown and workflow linting
+- Documentation version-drift check
+- Type checking and ESLint
+- Circular dependency, duplication and dead-code analysis
+- All tests with coverage
+- Changeset validation
 
-Note: The pre-commit hook runs `pnpm precommit` which executes ALL quality checks. This ensures code quality but may take longer than typical pre-commit hooks.
+The `commit-msg` hook validates the commit message format with commitlint.
+
+Note: `pnpm precommit` executes ALL quality checks. This ensures code quality but may take longer than typical pre-commit hooks.
 
 ### 7. Push and Create a Pull Request
 
@@ -198,7 +191,7 @@ Changesets are stored in `.changeset/` as markdown files:
 
 ```markdown
 ---
-'agentic-node-ts-starter': patch
+'agentic-nextjs-ts-starter': patch
 ---
 
 Fixed issue with validation logic in user input handler
@@ -250,18 +243,36 @@ pnpm coverage:report
 
 ### Writing Tests
 
-- Unit tests: `tests/*.spec.ts`
+- Unit and component tests: `tests/*.spec.ts` / `tests/*.spec.tsx`
 - Property-based tests: `tests/*.property.spec.ts`
 
-Example test:
+Example Route Handler test:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { myFunction } from '../src/myModule.js';
+import { GET } from '../app/api/health/route';
 
-describe('myFunction', () => {
-  it('should return expected value', () => {
-    expect(myFunction(input)).toBe(expected);
+describe('GET /api/health', () => {
+  it('returns a healthy status', async () => {
+    const response = GET();
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.status).toBe('healthy');
+  });
+});
+```
+
+Example component test:
+
+```tsx
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import HomePage from '../app/page';
+
+describe('HomePage', () => {
+  it('renders the main heading', () => {
+    render(<HomePage />);
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
   });
 });
 ```
@@ -269,20 +280,22 @@ describe('myFunction', () => {
 ## 🏗️ Project Structure
 
 ```
-src/          # Source code
+app/          # Next.js App Router (pages, layouts, API routes)
 tests/        # Test files
   *.spec.ts   # Unit tests
+  *.spec.tsx  # Component tests
   *.property.spec.ts # Property-based tests
 docs/         # Documentation
 .changeset/   # Changeset files
+.next/        # Build output (gitignored)
 ```
 
 ## 📝 Code Style
 
 - TypeScript with strict mode
-- ESLint for linting
+- ESLint for linting (type-aware rules for `app/` and `tests/`)
 - Prettier for formatting
-- ES modules with `.js` extensions in imports
+- ES modules; Turbopack resolves imports without `.js` extensions
 
 ## 🔍 PR Review Process
 

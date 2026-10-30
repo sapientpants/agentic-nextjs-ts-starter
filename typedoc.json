@@ -1,7 +1,7 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["src/index.ts"],
-  "out": "docs",
+  "entryPoints": ["app/api/health/route.ts"],
+  "out": "reports/api-docs",
   "plugin": [],
   "excludeExternals": true,
   "excludePrivate": true,

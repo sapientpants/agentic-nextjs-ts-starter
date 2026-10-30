@@ -6,6 +6,10 @@
 # then greps docs/ and AGENTS.md for version strings and fails if any drift
 # is detected.
 #
+# Also fails on references to the predecessor Node starter layout (src/,
+# dist/, `pnpm verify`, agentic-node-ts-starter) so the docs cannot drift
+# back to describing a project structure that no longer exists.
+#
 # Exit codes:
 #   0 — no drift found
 #   1 — drift detected or script error
@@ -85,6 +89,33 @@ check_docs() {
   return 0
 }
 
+# Stale references to the predecessor project (agentic-node-ts-starter).
+# Each entry is "<extended regex>@@<human description>". The leading
+# character class keeps e.g. "app/src/" or "distinct/" from matching.
+STALE_PATTERNS=(
+  '(^|[^A-Za-z0-9_./-])src/@@src/ directory (code lives in app/)'
+  '(^|[^A-Za-z0-9_./-])dist/@@dist/ output (Next.js builds to .next/)'
+  'pnpm verify@@pnpm verify (use pnpm precommit or pnpm quick-check)'
+  'agentic-node-ts-starter@@old project name (now agentic-nextjs-ts-starter)'
+  'docs/CONFIG\.md@@docs/CONFIG.md (file does not exist)'
+)
+
+check_stale() {
+  local file="$1"
+  local entry pattern desc hits
+  for entry in "${STALE_PATTERNS[@]}"; do
+    pattern="${entry%%@@*}"
+    desc="${entry#*@@}"
+    hits=$(grep -nE "$pattern" "$file" 2>/dev/null || true)
+    [ -z "$hits" ] && continue
+    while IFS= read -r hit; do
+      echo "  $file:${hit%%:*}: stale reference to $desc"
+    done <<< "$hits"
+    FOUND_DRIFT=1
+  done
+  return 0
+}
+
 # Scan all docs and AGENTS.md (skip node_modules)
 for f in AGENTS.md docs/*.md; do
   [ -f "$f" ] && check_docs "$f"
@@ -93,8 +124,14 @@ done
 # Also scan package.json itself for consistency (packageManager field)
 check_docs "$PACKAGE_JSON"
 
+# Stale-layout scan: top-level docs plus docs/ (ADRs under docs/architecture
+# are historical records and intentionally excluded).
+for f in README.md CONTRIBUTING.md SECURITY.md AGENTS.md .github/WORKFLOWS.md docs/*.md; do
+  [ -f "$f" ] && check_stale "$f"
+done
+
 if [ "$FOUND_DRIFT" -eq 1 ]; then
-  die "Version drift detected — please align documentation with package.json"
+  die "Drift detected — please align documentation with package.json and the Next.js layout (app/, .next/, pnpm precommit)"
 fi
 
 echo "  No version drift detected." >&2

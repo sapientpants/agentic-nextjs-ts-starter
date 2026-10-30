@@ -129,7 +129,7 @@ fi
 log "Checking changesets..."
 if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
     # Check if we have any commits to compare
-    if git diff --name-only HEAD~1 | grep -E '(src/|tests/)' > /dev/null; then
+    if git diff --name-only HEAD~1 | grep -E '(app/|tests/)' > /dev/null; then
         # We have code changes, check for changesets
         if ! pnpm changeset:status > /dev/null 2>&1; then
             warn "Code changes detected but no changesets found"

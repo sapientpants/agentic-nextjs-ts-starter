@@ -1,7 +1,7 @@
 # Gitleaks configuration file
 # For full configuration options, see: https://github.com/gitleaks/gitleaks
 
-title = "Gitleaks Config for agentic-node-ts-starter"
+title = "Gitleaks Config for agentic-nextjs-ts-starter"
 
 [extend]
 # Use the default gitleaks rules

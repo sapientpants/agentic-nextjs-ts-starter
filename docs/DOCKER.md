@@ -1,16 +1,12 @@
 # Docker Configuration Guide
 
-This guide provides comprehensive instructions for configuring Docker builds in your project, with special attention to healthcheck requirements for different application types.
+This guide explains how the included Dockerfile packages the Next.js application and how to adapt its healthcheck when you change the port or the health endpoint.
 
 ## Table of Contents
 
 - [Understanding the Default Configuration](#understanding-the-default-configuration)
 - [Healthcheck Requirements](#healthcheck-requirements)
-- [Configuration for Different Application Types](#configuration-for-different-application-types)
-  - [Web Services](#web-services)
-  - [CLI Tools](#cli-tools)
-  - [Worker/Daemon Applications](#workerdaemon-applications)
-  - [API Services](#api-services)
+- [Customizing the Health Endpoint](#customizing-the-health-endpoint)
 - [Building and Running](#building-and-running)
 - [Container Orchestration](#container-orchestration)
 - [Troubleshooting](#troubleshooting)
@@ -19,252 +15,83 @@ This guide provides comprehensive instructions for configuring Docker builds in 
 
 The template includes a production-ready Dockerfile with:
 
-- **Multi-stage build**: Reduces final image size
-- **Non-root user**: Improves security
+- **Multi-stage build**: `pnpm build` runs in a builder stage; only the [standalone output](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) is copied into the final image
+- **Non-root user**: The server runs as `nodejs` (uid 1001)
 - **Signal handling**: Proper shutdown via dumb-init
-- **Health check**: Default configuration expects a web server
+- **Health check**: Polls the `/api/health` Route Handler
 
-### ⚠️ Important: Default Healthcheck Assumption
+`next.config.ts` sets `output: 'standalone'`, which makes `next build` emit a self-contained `server.js` plus the minimal `node_modules` it needs under `.next/standalone`. The final image starts it with `node server.js` on port 3000.
 
-The Dockerfile includes a healthcheck that **expects a web server with a `/health` endpoint on port 3000**. If your application:
+### ⚠️ Important: Build-Time Environment Variables
 
-- ✅ **Is a web service**: Implement a `/health` endpoint (see examples below)
-- ❌ **Is NOT a web service**: Modify or remove the healthcheck (see configuration options)
+`NEXT_PUBLIC_*` variables are inlined into the client bundle during `pnpm build`, which runs inside the builder stage. Pass them as build arguments (or bake an `.env.production` into the image) rather than at `docker run` time. Server-only variables can be supplied at runtime as usual.
 
 ## Healthcheck Requirements
 
 The default healthcheck configuration:
 
 ```dockerfile
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 ```
 
 This healthcheck:
 
 - Runs every 30 seconds
 - Times out after 3 seconds
-- Allows 5 seconds for startup
+- Allows 10 seconds for startup
 - Retries 3 times before marking unhealthy
-- Expects HTTP 200 response from `http://localhost:3000/health`
+- Expects HTTP 200 response from `http://localhost:3000/api/health`
 
-## Configuration for Different Application Types
-
-### Web Services
-
-For web applications (Express, Fastify, Koa, etc.), implement a health endpoint:
-
-#### Basic HTTP Server Example
+The endpoint is implemented in `app/api/health/route.ts`:
 
 ```typescript
-// src/health.example.ts
-import http from 'node:http';
-import { createChildLogger } from './logger.js';
+import { NextResponse } from 'next/server';
 
-const logger = createChildLogger('health');
-
-const server = http.createServer((req, res) => {
-  // Health endpoint
-  if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('OK');
-    return;
-  }
-
-  // Your application routes here
-  // ...
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
-```
-
-#### Express Example
-
-```typescript
-// src/server.ts (Express example - Simple version)
-import express from 'express';
-
-const app = express();
-
-// Simple health check
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
-});
-
-app.listen(3000);
-```
-
-Or with dependency verification:
-
-```typescript
-// src/server.ts (Express example - With dependency checks)
-import express from 'express';
-
-const app = express();
-
-// Health check with dependency verification
-app.get('/health', async (req, res) => {
-  try {
-    // Check database connection
-    // await db.ping();
-
-    // Check external services
-    // await redis.ping();
-
-    res.status(200).json({
+export function GET() {
+  return NextResponse.json(
+    {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-    });
-  } catch (error) {
-    res.status(503).json({
-      status: 'unhealthy',
-      error: error.message,
-    });
-  }
-});
-
-app.listen(3000);
-```
-
-#### Fastify Example
-
-```typescript
-// src/server.ts (Fastify example)
-import Fastify from 'fastify';
-
-const fastify = Fastify({ logger: true });
-
-// Register health route
-fastify.get('/health', async (request, reply) => {
-  return { status: 'OK' };
-});
-
-await fastify.listen({ port: 3000, host: '0.0.0.0' });
-```
-
-### CLI Tools
-
-For command-line tools that don't run a server, remove the healthcheck:
-
-```dockerfile
-# In your Dockerfile, replace the HEALTHCHECK line with:
-# No healthcheck needed for CLI tools
-# HEALTHCHECK NONE
-```
-
-Or remove the healthcheck section entirely:
-
-```dockerfile
-# Production stage
-FROM node:26-alpine
-
-# ... other configuration ...
-
-# Expose port (remove this line for CLI tools)
-# EXPOSE 3000
-
-# No healthcheck for CLI applications
-# The container will be considered healthy as long as it's running
-
-# Start the application
-CMD ["node", "dist/cli.js"]
-```
-
-### Worker/Daemon Applications
-
-For long-running workers or daemons, use alternative healthcheck strategies:
-
-#### Option 1: File-based Healthcheck
-
-```dockerfile
-# Create a healthcheck that verifies the worker is processing
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD test -f /tmp/worker-healthy || exit 1
-```
-
-In your worker code:
-
-```typescript
-// src/worker.ts
-import { writeFileSync, unlinkSync } from 'fs';
-
-// Write health file on successful processing
-function markHealthy() {
-  writeFileSync('/tmp/worker-healthy', Date.now().toString());
-}
-
-// Remove health file on errors
-function markUnhealthy() {
-  try {
-    unlinkSync('/tmp/worker-healthy');
-  } catch {
-    // File might not exist
-  }
-}
-
-// Update health status in your worker loop
-async function processWork() {
-  try {
-    // Do work...
-    markHealthy();
-  } catch (error) {
-    markUnhealthy();
-    throw error;
-  }
+    },
+    { status: 200 },
+  );
 }
 ```
 
-#### Option 2: Process-based Healthcheck
+## Customizing the Health Endpoint
 
-```dockerfile
-# Check if the Node.js process is running
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD pgrep -x node || exit 1
-```
+### Adding Dependency Checks
 
-#### Option 3: Custom Script Healthcheck
-
-```dockerfile
-# Copy a custom health check script
-COPY healthcheck.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/healthcheck.sh
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD /usr/local/bin/healthcheck.sh
-```
-
-### API Services
-
-For API services with external dependencies:
+Return `503` when a critical dependency is down so the orchestrator stops routing traffic:
 
 ```typescript
-// src/health.ts
-import express from 'express';
-import { Pool } from 'pg'; // Example: PostgreSQL
-import Redis from 'ioredis'; // Example: Redis
-
-const app = express();
-const db = new Pool(/* config */);
-const redis = new Redis(/* config */);
+// app/api/health/route.ts
+import { NextResponse } from 'next/server';
 
 interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
-  checks: {
-    [key: string]: {
-      status: 'up' | 'down';
-      responseTime?: number;
-      error?: string;
-    };
-  };
+  checks: Record<string, { status: 'up' | 'down'; responseTime?: number; error?: string }>;
   timestamp: string;
   uptime: number;
 }
 
-app.get('/health', async (req, res) => {
+async function check(name: string, probe: () => Promise<unknown>, health: HealthStatus) {
+  const start = Date.now();
+  try {
+    await probe();
+    health.checks[name] = { status: 'up', responseTime: Date.now() - start };
+  } catch (error) {
+    health.status = 'unhealthy';
+    health.checks[name] = {
+      status: 'down',
+      error: error instanceof Error ? error.message : 'unknown',
+    };
+  }
+}
+
+export async function GET() {
   const health: HealthStatus = {
     status: 'healthy',
     checks: {},
@@ -272,42 +99,34 @@ app.get('/health', async (req, res) => {
     uptime: process.uptime(),
   };
 
-  // Check database
-  try {
-    const start = Date.now();
-    await db.query('SELECT 1');
-    health.checks.database = {
-      status: 'up',
-      responseTime: Date.now() - start,
-    };
-  } catch (error) {
-    health.status = 'unhealthy';
-    health.checks.database = {
-      status: 'down',
-      error: error.message,
-    };
-  }
+  // await check('database', () => db.query('SELECT 1'), health);
+  // await check('cache', () => redis.ping(), health);
 
-  // Check Redis
-  try {
-    const start = Date.now();
-    await redis.ping();
-    health.checks.redis = {
-      status: 'up',
-      responseTime: Date.now() - start,
-    };
-  } catch (error) {
-    health.status = health.status === 'unhealthy' ? 'unhealthy' : 'degraded';
-    health.checks.redis = {
-      status: 'down',
-      error: error.message,
-    };
-  }
-
-  const statusCode = health.status === 'healthy' ? 200 : 503;
-  res.status(statusCode).json(health);
-});
+  return NextResponse.json(health, { status: health.status === 'healthy' ? 200 : 503 });
+}
 ```
+
+Keep the endpoint cheap: it is polled every 30 seconds by Docker and more often by Kubernetes probes.
+
+### Renaming or Moving the Endpoint
+
+If you move the handler (for example to `app/healthz/route.ts`), update both the Dockerfile `HEALTHCHECK` URL and any orchestrator probe paths shown below.
+
+### Changing the Port
+
+Next.js standalone reads `PORT` and `HOSTNAME` from the environment:
+
+```dockerfile
+ENV PORT=8080
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:8080/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
+```
+
+### Disabling the Healthcheck
+
+If your platform runs its own probes, remove the `HEALTHCHECK` instruction or add `HEALTHCHECK NONE` after it.
 
 ## Building and Running
 
@@ -317,8 +136,11 @@ app.get('/health', async (req, res) => {
 # Build the image
 docker build -t my-app .
 
-# Run with default healthcheck (for web services)
+# Run the production server
 docker run -p 3000:3000 my-app
+
+# Pass server-only environment variables at runtime
+docker run -p 3000:3000 -e DATABASE_URL=postgres://... my-app
 
 # Run without healthcheck (override at runtime)
 docker run --no-healthcheck -p 3000:3000 my-app
@@ -327,24 +149,36 @@ docker run --no-healthcheck -p 3000:3000 my-app
 docker inspect --format='{{.State.Health.Status}}' <container-id>
 ```
 
+### Local Security Scan
+
+```bash
+pnpm scan:container   # Builds the image and scans it with Trivy
+```
+
 ### Docker Compose Configuration
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
-
 services:
   app:
     build: .
     ports:
       - '3000:3000'
+    environment:
+      - DATABASE_URL=postgres://db:5432/app
     # Override healthcheck if needed
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 5s
+      start_period: 10s
     # Or disable healthcheck
     # healthcheck:
     #   disable: true
@@ -372,14 +206,14 @@ spec:
           # Liveness probe (restarts container if unhealthy)
           livenessProbe:
             httpGet:
-              path: /health
+              path: /api/health
               port: 3000
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 30
           # Readiness probe (removes from load balancer if not ready)
           readinessProbe:
             httpGet:
-              path: /health
+              path: /api/health
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -402,36 +236,37 @@ For ECS task definitions:
         }
       ],
       "healthCheck": {
-        "command": ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"],
+        "command": [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\" || exit 1"
+        ],
         "interval": 30,
         "timeout": 3,
         "retries": 3,
-        "startPeriod": 5
+        "startPeriod": 10
       }
     }
   ]
 }
 ```
 
+The Alpine base image does not ship `curl`, so probes use `node -e` instead.
+
 ## Troubleshooting
 
 ### Common Issues
 
-#### Container Exits Immediately
+#### Build Fails with "Cannot find module"
 
-If your container exits immediately, it might be due to:
-
-1. **Missing health endpoint**: Implement `/health` endpoint if using default config
-2. **Wrong port**: Ensure your app listens on port 3000 or update the healthcheck
-3. **Startup time**: Increase `--start-period` if your app needs more time to start
+The standalone output only includes files that Next.js' file tracer detects. If a dependency is loaded dynamically, add it to `outputFileTracingIncludes` in `next.config.ts` or copy it explicitly in the Dockerfile (see the `@swc/helpers` workaround already present).
 
 #### Container Never Becomes Healthy
 
 Check these common causes:
 
-1. **Port mismatch**: Verify your app listens on the expected port
-2. **Path mismatch**: Ensure health endpoint path matches the healthcheck
-3. **Network issues**: Container might not be able to reach localhost
+1. **Port mismatch**: Verify `PORT` matches the healthcheck URL
+2. **Path mismatch**: Ensure the Route Handler path matches the healthcheck
+3. **Slow startup**: Increase `--start-period` if the server needs longer to boot
 
 Debug with:
 
@@ -440,24 +275,15 @@ Debug with:
 docker logs <container-id>
 
 # Execute healthcheck manually
-docker exec <container-id> node -e "require('http').get('http://localhost:3000/health', (r) => {console.log('Status:', r.statusCode)})"
+docker exec <container-id> node -e "require('http').get('http://localhost:3000/api/health', (r) => {console.log('Status:', r.statusCode)})"
 
 # Inspect health status
 docker inspect <container-id> | jq '.[0].State.Health'
 ```
 
-#### Custom Port Configuration
+#### Static Assets Return 404
 
-If your app uses a different port:
-
-```dockerfile
-# Update EXPOSE directive
-EXPOSE 8080
-
-# Update healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
-```
+The Dockerfile copies `.next/static` and `public/` next to the standalone server. If you add a custom `assetPrefix` or `basePath`, make sure those paths still line up.
 
 ### Testing Healthchecks Locally
 
@@ -482,13 +308,14 @@ docker rm test-health-container
 1. **Keep health endpoints simple**: Avoid expensive operations in health checks
 2. **Use appropriate timeouts**: Balance between quick failure detection and false positives
 3. **Consider dependencies**: Only check critical dependencies in health endpoints
-4. **Log health checks**: Help with debugging but avoid log spam
-5. **Secure health endpoints**: Consider authentication for detailed health information
-6. **Version your health API**: Include version information in health responses
+4. **Log health checks sparingly**: Help with debugging but avoid log spam
+5. **Secure detailed health information**: Return only `status` publicly if the response reveals internals
+6. **Version your health API**: The default response already includes the package version
 7. **Monitor trends**: Track health check failures over time
 
 ## Additional Resources
 
+- [Next.js: Deploying with Docker](https://nextjs.org/docs/app/getting-started/deploying#docker)
 - [Docker HEALTHCHECK documentation](https://docs.docker.com/engine/reference/builder/#healthcheck)
 - [Kubernetes Probes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 - [The Twelve-Factor App: Disposability](https://12factor.net/disposability)

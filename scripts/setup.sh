@@ -51,16 +51,16 @@ if ! command -v pnpm &> /dev/null; then
         log "Installing pnpm via mise..."
         mise install pnpm@12.16.1
     else
-        error "pnpm not found. Please install pnpm 10.15.0 or install mise first."
+        error "pnpm not found. Please install pnpm 12.16.1 or install mise first."
     fi
 fi
 
 if ! command -v node &> /dev/null; then
     if command -v mise &> /dev/null; then
         log "Installing Node.js via mise..."
-        mise install node@22
+        mise install node@26
     else
-        error "Node.js not found. Please install Node.js 22+ or install mise first."
+        error "Node.js not found. Please install Node.js 26+ or install mise first."
     fi
 fi
 
@@ -76,7 +76,7 @@ if [[ -n "$PROJECT_NAME" ]]; then
     pnpm pkg set name="$PROJECT_NAME"
     
     # Update README.md title
-    sed -i.bak "s/# Agentic Node + TypeScript Starter/# $PROJECT_NAME/" README.md && rm README.md.bak
+    sed -i.bak "s/# Agentic Next.js + TypeScript Starter/# $PROJECT_NAME/" README.md && rm README.md.bak
     
     info "Project renamed to '$PROJECT_NAME'. Update other references manually as needed."
 fi
@@ -87,7 +87,7 @@ pnpm prepare
 
 # 5. Run initial verification
 log "Running initial verification..."
-if pnpm verify; then
+if pnpm precommit; then
     log "✅ All checks passed!"
 else
     warn "Some checks failed. Fix issues before committing."
@@ -108,7 +108,7 @@ echo "3. Start developing with: pnpm test:watch"
 echo "4. Create your first feature with: pnpm changeset"
 echo
 info "Available commands:"
-echo "  pnpm dev           # Start development mode"
+echo "  pnpm dev           # Start the Next.js dev server"
 echo "  pnpm test:watch    # Run tests in watch mode"
 echo "  pnpm precommit     # Run all quality checks"
 echo "  pnpm changeset     # Create a changeset for your changes"
