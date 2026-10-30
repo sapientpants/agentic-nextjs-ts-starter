@@ -180,6 +180,9 @@ jobs:
       - name: Check code duplication
         run: pnpm duplication
 
+      - name: Check test code duplication
+        run: pnpm duplication:tests
+
       - name: Build application
         run: pnpm build
 

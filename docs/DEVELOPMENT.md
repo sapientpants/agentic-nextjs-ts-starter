@@ -221,7 +221,7 @@ The project uses Husky to enforce quality checks before each commit. The `precom
 5. **Type check** (`pnpm typecheck`)
 6. **Linting** (`pnpm lint`)
 7. **Dependency analysis** (`pnpm deps:circular`, `pnpm deps:cruise`)
-8. **Duplication and dead code** (`pnpm duplication`, `pnpm dead-code`)
+8. **Duplication and dead code** (`pnpm duplication`, `pnpm duplication:tests`, `pnpm dead-code`)
 9. **Tests with coverage** (`pnpm test:coverage`)
 10. **Changeset status** (`pnpm changeset:status`)
 

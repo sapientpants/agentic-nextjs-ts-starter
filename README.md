@@ -121,7 +121,7 @@ Quality metrics are collected automatically on every push to `main` and publishe
 
 - **Coverage:** Vitest with V8 coverage provider (`pnpm test:coverage`)
 - **Mutation Testing:** Stryker Mutator (`pnpm mutation-test`, weekly in CI)
-- **Duplication:** jscpd (`pnpm duplication`)
+- **Duplication:** jscpd (`pnpm duplication` for `app/`, `pnpm duplication:tests` for `tests/`)
 - **Complexity:** ESLint with complexity rules (`pnpm lint`)
 - **Circular Deps:** madge (`pnpm deps:circular`) + dependency-cruiser (`pnpm deps:cruise`)
 - **Dead Code:** Knip (`pnpm dead-code`)
@@ -148,15 +148,16 @@ This project enforces strict quality standards to ensure maintainability, securi
 
 ### Complexity Rationale
 
-| Limit                     | Rationale                                                         |
-| ------------------------- | ----------------------------------------------------------------- |
-| Cyclomatic Complexity ≤10 | Industry standard for maintainable code (NIST, IEEE)              |
-| Max 50 Lines/Function     | Single screen view improves comprehension                         |
-| Max 4 Parameters          | Reduces cognitive load, encourages better abstractions            |
-| Max 3 Nesting Depth       | Prevents deeply nested code that's hard to reason about           |
-| Max 15 Statements         | Forces function decomposition, improves testability               |
-| Code Duplication <2%      | Minimal threshold allowing for small necessary repetition         |
-| Mutation Score ≥90%       | Ensures tests actually verify behavior, not just achieve coverage |
+| Limit                     | Rationale                                                          |
+| ------------------------- | ------------------------------------------------------------------ |
+| Cyclomatic Complexity ≤10 | Industry standard for maintainable code (NIST, IEEE)               |
+| Max 50 Lines/Function     | Single screen view improves comprehension                          |
+| Max 4 Parameters          | Reduces cognitive load, encourages better abstractions             |
+| Max 3 Nesting Depth       | Prevents deeply nested code that's hard to reason about            |
+| Max 15 Statements         | Forces function decomposition, improves testability                |
+| Code Duplication <2%      | Minimal threshold allowing for small necessary repetition          |
+| Test Duplication <5%      | Looser limit for `tests/`, where some setup repetition is expected |
+| Mutation Score ≥90%       | Ensures tests actually verify behavior, not just achieve coverage  |
 
 ### Test File Exceptions
 
