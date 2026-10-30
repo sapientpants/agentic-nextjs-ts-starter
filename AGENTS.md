@@ -39,8 +39,8 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 - `pnpm mutation-test` - Runs weekly in CI (`weekly-mutation-test.yml`); run locally for debugging
 - `pnpm scan:secrets` - Run manually or in CI (can use `scan:secrets:protect` for staged changes)
 - `pnpm publint` / `pnpm attw` - Run before publishing, not every commit
-- `pnpm size` - Run before release or when concerned about bundle size
 - `pnpm license:check` - Run when adding dependencies or before release
+- `pnpm size` - Runs in CI after the build (`reusable-validate.yml`); run locally after `pnpm build`
 - `pnpm deps:unused` - Too many false positives, use Knip instead (already in precommit)
 
 ### Testing
@@ -218,9 +218,10 @@ https://img.shields.io/badge/dynamic/json
 
 ### Performance & Size Monitoring
 
-- `pnpm size` - Check bundle size against limits (fails if exceeded)
+- `pnpm size` - Check built file sizes against limits (fails if exceeded; requires `pnpm build` first)
 - `pnpm perf:bench` - HTTP benchmark with autocannon (100 concurrent, 10s duration)
-- **Configuration**: `.size-limit.json` defines size limits per bundle
+- **Configuration**: `.size-limit.json` defines size limits per file glob (uses `@size-limit/file`, which measures on-disk size without re-bundling)
+- **CI**: Runs in the `code-quality` job of the validate workflow after `pnpm build`
 - **Use**: Prevent bundle bloat, establish performance baselines
 
 ### Developer Experience

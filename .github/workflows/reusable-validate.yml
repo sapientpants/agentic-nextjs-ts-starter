@@ -180,6 +180,12 @@ jobs:
       - name: Check code duplication
         run: pnpm duplication
 
+      - name: Build application
+        run: pnpm build
+
+      - name: Check bundle size
+        run: pnpm size
+
       - name: Generate full metrics report
         if: always()
         run: |
