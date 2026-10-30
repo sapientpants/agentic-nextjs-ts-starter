@@ -49,7 +49,7 @@ log "Checking prerequisites..."
 if ! command -v pnpm &> /dev/null; then
     if command -v mise &> /dev/null; then
         log "Installing pnpm via mise..."
-        mise install pnpm@10.15.0
+        mise install pnpm@12.16.1
     else
         error "pnpm not found. Please install pnpm 10.15.0 or install mise first."
     fi
