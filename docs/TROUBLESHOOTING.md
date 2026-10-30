@@ -28,7 +28,7 @@ node --version
 # Must be >= 24.0.0
 # If using mise:
 mise install
-mise use node@24
+mise use node@26
 
 # If using nvm:
 nvm install 24
@@ -355,7 +355,7 @@ trivy --version
 
 ```bash
 # Update base image in Dockerfile
-FROM node:24-alpine  # Use latest patch version
+FROM node:26-alpine  # Use latest patch version
 
 # Rebuild and scan
 pnpm scan:container

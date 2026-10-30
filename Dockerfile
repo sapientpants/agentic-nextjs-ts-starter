@@ -1,5 +1,5 @@
 # Build stage
-FROM node:24-alpine AS builder
+FROM node:26-alpine AS builder
 
 # Install pnpm
 RUN corepack enable
@@ -20,7 +20,7 @@ COPY . .
 RUN pnpm build
 
 # Production stage
-FROM node:24-alpine
+FROM node:26-alpine
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init

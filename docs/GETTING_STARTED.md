@@ -39,7 +39,7 @@ The project includes a `mise.toml` file to automatically manage Node.js and pnpm
 eval "$(mise activate bash)"  # or zsh
 
 # Install the exact versions specified in mise.toml
-mise install        # Installs Node 24 and pnpm 12.16.1
+mise install        # Installs Node 26 and pnpm 12.16.1
 pnpm install       # Install dependencies
 ```
 
@@ -246,7 +246,7 @@ git commit -m "test commit" --dry-run
 # 5. Check that your environment is configured
 node -e "console.log('Node:', process.version)"
 pnpm --version
-# Should show Node 24+ and pnpm 12.16.1
+# Should show Node 26+ and pnpm 12.16.1
 ```
 
 If all checks pass, your project is ready for development!
