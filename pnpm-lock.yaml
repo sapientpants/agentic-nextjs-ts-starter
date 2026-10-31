@@ -198,7 +198,7 @@ importers:
         version: 19.3.1(react@19.3.1)
     devDependencies:
       '@changesets/cli':
-        specifier: ^3.0.3
+        specifier: 3.0.3
         version: 3.0.3
       '@commitlint/cli':
         specifier: 21.2.4
@@ -213,7 +213,7 @@ importers:
         specifier: 4.8.1
         version: 4.8.1(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))
       '@fast-check/vitest':
-        specifier: ^0.5.0
+        specifier: 0.5.0
         version: 0.5.0(vitest@5.0.5)
       '@next/eslint-plugin-next':
         specifier: 16.4.3
@@ -237,7 +237,7 @@ importers:
         specifier: 16.3.3
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@types/node':
-        specifier: ^26.6.6
+        specifier: 26.6.6
         version: 26.6.6
       '@types/react':
         specifier: 19.3.0
@@ -246,16 +246,16 @@ importers:
         specifier: 19.3.0
         version: 19.3.0(@types/react@19.3.0)
       '@typescript-eslint/eslint-plugin':
-        specifier: ^8.72.1
+        specifier: 8.72.1
         version: 8.72.1(@typescript-eslint/parser@8.72.1(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3))(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       '@typescript-eslint/parser':
-        specifier: ^8.72.1
+        specifier: 8.72.1
         version: 8.72.1(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       '@vitejs/plugin-react':
         specifier: 6.1.2
         version: 6.1.2(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)(yaml@2.9.1))
       '@vitest/coverage-v8':
-        specifier: ^5.0.5
+        specifier: 5.0.5
         version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 5.0.5
@@ -282,10 +282,10 @@ importers:
         specifier: 18.7.0
         version: 18.7.0
       eslint:
-        specifier: ^10.13.0
+        specifier: 10.13.0
         version: 10.13.0(jiti@2.7.0)(supports-color@8.1.1)
       eslint-config-prettier:
-        specifier: ^10.1.8
+        specifier: 10.1.8
         version: 10.1.8(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))
       eslint-import-resolver-typescript:
         specifier: 4.4.5
@@ -321,7 +321,7 @@ importers:
         specifier: 79.0.0
         version: 79.0.0(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       husky:
-        specifier: ^9.1.7
+        specifier: 9.1.7
         version: 9.1.7
       jscpd:
         specifier: 5.4.2
@@ -339,7 +339,7 @@ importers:
         specifier: 25.0.1
         version: 25.0.1(supports-color@8.1.1)
       lint-staged:
-        specifier: ^17.6.0
+        specifier: 17.6.0
         version: 17.6.0
       madge:
         specifier: 8.0.0
@@ -351,16 +351,16 @@ importers:
         specifier: 23.1.1
         version: 23.1.1
       prettier:
-        specifier: ^3.9.10
+        specifier: 3.9.10
         version: 3.9.10
       rimraf:
-        specifier: ^6.1.3
+        specifier: 6.1.3
         version: 6.1.3
       size-limit:
         specifier: 14.3.0
         version: 14.3.0
       typescript:
-        specifier: ^6.0.3
+        specifier: 6.0.3
         version: 6.0.3
       validate-branch-name:
         specifier: 1.3.2
@@ -369,7 +369,7 @@ importers:
         specifier: 8.3.5
         version: 8.3.5(@types/node@26.6.6)(jiti@2.7.0)(yaml@2.9.1)
       vitest:
-        specifier: ^5.0.5
+        specifier: 5.0.5
         version: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(jsdom@30.1.3)(vite@8.3.5(@types/node@26.6.6)(jiti@2.7.0)(yaml@2.9.1))
       yaml-lint:
         specifier: 1.7.0

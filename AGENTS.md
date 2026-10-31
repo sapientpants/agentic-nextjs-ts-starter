@@ -55,7 +55,7 @@ Order inside `pnpm precommit` is optimized for fast feedback and fail-fast:
 - `pnpm test` - Run tests without coverage
 - `pnpm test:watch` - Run tests in watch mode
 - `pnpm test:coverage` - Run tests with coverage report and **90% minimum threshold enforcement**
-- `pnpm coverage:report` - Generate detailed coverage report
+- `pnpm coverage:open` - Open the HTML coverage report written by `test:coverage`
 - `vitest run tests/specific.spec.ts` - Run a single test file
 - `vitest -t "test name"` - Run tests matching a pattern
 - Test files: `tests/*.spec.ts` for unit tests, `tests/*.property.spec.ts` for property-based tests

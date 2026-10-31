@@ -54,7 +54,7 @@ pnpm start
 
 ### 📦 Available Scripts
 
-Run `pnpm help` to see all available scripts, or check these key commands:
+Run `pnpm run help` to see all available scripts, or check these key commands:
 
 | Command              | Description                    | What it runs                                  |
 | -------------------- | ------------------------------ | --------------------------------------------- |
@@ -72,7 +72,7 @@ Run `pnpm help` to see all available scripts, or check these key commands:
 | `pnpm check:static`  | Static gates                   | format + spelling + yaml + md + workflows + … |
 | `pnpm check:deps`    | Dependency/structure gates     | circular + cruise + duplication + dead code   |
 | `pnpm ci:local`      | Simulate full CI locally       | Complete CI pipeline simulation               |
-| `pnpm doctor`        | Check environment health       | Node/pnpm version check                       |
+| `pnpm run doctor`    | Check environment health       | Node/pnpm version check                       |
 
 ## IDE Setup
 
@@ -285,7 +285,7 @@ node --max-old-space-size=4096 ./node_modules/.bin/vitest
 ### Getting Help
 
 1. **Check documentation**: All guides are in `docs/`
-2. **Run diagnostics**: `pnpm doctor`
+2. **Run diagnostics**: `pnpm run doctor` (plain `pnpm doctor` is a pnpm built-in)
 3. **View available commands**: Check package.json scripts or this documentation
 4. **Check CI logs**: Compare local vs CI behavior with `pnpm ci:local`
 

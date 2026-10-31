@@ -237,8 +237,8 @@ pnpm test:watch
 # Run tests with coverage
 pnpm test:coverage
 
-# Generate coverage report
-pnpm coverage:report
+# Open the HTML coverage report written by test:coverage
+pnpm coverage:open
 ```
 
 ### Writing Tests

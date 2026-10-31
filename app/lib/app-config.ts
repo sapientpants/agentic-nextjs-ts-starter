@@ -6,7 +6,7 @@ const DEFAULT_APP_NAME = 'agentic-nextjs-ts-starter';
  *
  * The environment is read on every call rather than at module load so that
  * runtime changes (for example `vi.stubEnv` in tests) are honoured.
- * @returns {string} `NEXT_PUBLIC_APP_NAME` when set to a non-empty string, otherwise the default name.
+ * @returns `NEXT_PUBLIC_APP_NAME` when set to a non-empty string, otherwise the default name.
  */
 export function getAppName(): string {
   return process.env.NEXT_PUBLIC_APP_NAME || DEFAULT_APP_NAME;

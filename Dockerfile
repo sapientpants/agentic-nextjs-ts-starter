@@ -1,8 +1,11 @@
 # Build stage
 FROM node:26-alpine AS builder
 
-# Install pnpm
-RUN corepack enable
+# Install pnpm via Corepack, which reads the exact version from the
+# `packageManager` field in package.json. Node.js 25+ images no longer bundle
+# Corepack, so it has to be installed first. The version is pinned like every
+# other dependency in this project; bump it deliberately.
+RUN npm install -g corepack@0.36.0 && corepack enable
 
 # Set working directory
 WORKDIR /app
@@ -18,6 +21,26 @@ COPY . .
 
 # Build Next.js application (output mode: standalone)
 RUN pnpm build
+
+# Workaround: the Next.js file tracer (@vercel/nft) drops most of
+# @swc/helpers/esm/ when it traces pnpm's isolated node_modules layout into
+# the standalone output (with Next.js 16.4.3 the esm/ directory holds 108
+# files in node_modules but only 2 in .next/standalone), so `node server.js`
+# crashes with MODULE_NOT_FOUND. Copy the complete package into the standalone
+# tree for whichever version pnpm installed, so a Next.js or @swc/helpers bump
+# cannot silently break this step. Closest upstream report:
+# https://github.com/vercel/next.js/issues/65636
+#
+# Remove this step once both commands print the same number after `pnpm build`:
+#   find node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers/esm -type f | wc -l
+#   find .next/standalone/node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers/esm -type f | wc -l
+RUN set -eu; \
+    for dir in node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers; do \
+      [ -d "$dir" ] || continue; \
+      mkdir -p ".next/standalone/$(dirname "$dir")"; \
+      rm -rf ".next/standalone/$dir"; \
+      cp -R "$dir" ".next/standalone/$dir"; \
+    done
 
 # Production stage
 FROM node:26-alpine
@@ -38,11 +61,6 @@ ENV NODE_ENV=production
 # Copy standalone output from builder
 # Next.js standalone output includes minimal dependencies
 COPY --from=builder --chown=nodejs:nodejs /app/.next/standalone ./
-
-# Copy the complete @swc/helpers package from the builder's pnpm store
-# to fix the missing esm/ subpath files (Next.js nft file tracer silently
-# drops ESM variants when resolving transitive dependencies in pnpm mode)
-COPY --from=builder /app/node_modules/.pnpm/@swc+helpers@0.5.23/node_modules/@swc/helpers /app/node_modules/.pnpm/@swc+helpers@0.5.23/node_modules/@swc/helpers
 
 # Copy static assets and public directory
 COPY --from=builder --chown=nodejs:nodejs /app/.next/static ./.next/static

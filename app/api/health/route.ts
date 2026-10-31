@@ -1,14 +1,6 @@
-import { createRequire } from 'node:module';
 import { NextResponse } from 'next/server';
+import packageJson from '../../../package.json' with { type: 'json' };
 import { getAppName } from '../../lib/app-config';
-
-const require = createRequire(import.meta.url);
-
-interface PackageJson {
-  version: string;
-}
-
-const packageJson = require('../../../package.json') as PackageJson;
 
 /**
  * Shape of the JSON body returned by the health check endpoint.
@@ -25,7 +17,7 @@ export interface HealthCheckResponse {
 /**
  * Health check endpoint
  * Returns the health status of the application
- * @returns {NextResponse} JSON response with health status
+ * @returns JSON response with health status
  */
 export function GET() {
   const body: HealthCheckResponse = {
