@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
 ### Basic Property Test
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { fc } from '@fast-check/vitest';
+import { describe, expect } from 'vitest';
+import { fc, it } from '@fast-check/vitest';
 
 // Function to test
 function reverseString(s: string): string {
@@ -159,8 +159,8 @@ describe('reverseString', () => {
 ### Testing Business Logic
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { fc } from '@fast-check/vitest';
+import { describe, expect } from 'vitest';
+import { fc, it } from '@fast-check/vitest';
 
 // Business logic: Calculate discount
 function calculateDiscount(price: number, discountPercent: number): number {
@@ -195,8 +195,8 @@ describe('calculateDiscount', () => {
 ### Property Test for a Route Handler
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { fc } from '@fast-check/vitest';
+import { describe, expect, vi } from 'vitest';
+import { fc, it } from '@fast-check/vitest';
 import { GET } from '../app/api/health/route';
 
 describe('GET /api/health', () => {
@@ -204,7 +204,7 @@ describe('GET /api/health', () => {
     vi.stubEnv('NEXT_PUBLIC_APP_NAME', appName);
     const body = await GET().json();
     expect(body.application).toBe(appName);
-    vi.unstubAllEnvs();
+    // Stubs are undone after each test by `unstubEnvs: true` in vitest.config.ts
   });
 });
 ```

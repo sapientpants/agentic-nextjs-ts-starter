@@ -320,9 +320,6 @@ importers:
       eslint-plugin-unicorn:
         specifier: 79.0.0
         version: 79.0.0(eslint@10.13.0(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
-      fast-check:
-        specifier: ^4.10.2
-        version: 4.10.2
       husky:
         specifier: ^9.1.7
         version: 9.1.7
