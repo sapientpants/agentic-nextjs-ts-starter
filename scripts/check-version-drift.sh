@@ -9,8 +9,9 @@
 # fails if any drift is detected.
 #
 # Also fails on references to the predecessor Node starter layout (src/,
-# dist/, `pnpm verify`, agentic-node-ts-starter) so the docs cannot drift
-# back to describing a project structure that no longer exists.
+# dist/, `pnpm verify`, agentic-node-ts-starter) in the docs and in every
+# top-level config file, script, workflow and hook, so neither the docs nor
+# the tooling can drift back to a project structure that no longer exists.
 #
 # Exit codes:
 #   0 — no drift found
@@ -222,10 +223,29 @@ for f in .github/workflows/*.yml; do
   check_input_default "$f" pnpm-version "$PNPM_VER" "$PNPM_MAJOR"
 done
 
-# Stale-layout scan: top-level docs plus docs/ (ADRs under docs/architecture
-# are historical records and intentionally excluded).
-for f in README.md CONTRIBUTING.md SECURITY.md AGENTS.md .github/WORKFLOWS.md docs/*.md; do
-  [ -f "$f" ] && check_stale "$f"
+# Stale-layout scan: every top-level file (docs and tool configs alike), docs/,
+# scripts/, .github/, .husky/ and .opencode/. The file list comes from git
+# (tracked plus untracked-but-not-ignored) rather than the filesystem, so
+# gitignored local artifacts such as sbom.cdx.json, .env, *.tsbuildinfo,
+# .opencode/node_modules or husky's generated .husky/_ cannot fail the gate on
+# one machine and pass on another. Historical files are excluded too: the
+# lockfile, CHANGELOG.md, LICENSE, .changeset/, ADRs under docs/architecture,
+# quality-metrics.json and this script (its comments quote the stale names).
+command -v git >/dev/null 2>&1 || die "git is required for the stale-layout scan"
+STALE_SCAN_FILES=()
+while IFS= read -r -d '' f; do
+  case "$f" in
+    pnpm-lock.yaml|CHANGELOG.md|LICENSE|quality-metrics.json|*.tsbuildinfo) continue ;;
+    scripts/check-version-drift.sh) continue ;;
+    docs/*/*) continue ;;
+    docs/*.md|scripts/*|.github/*|.husky/*|.opencode/*) ;;
+    */*) continue ;;
+  esac
+  STALE_SCAN_FILES+=("$f")
+done < <(git ls-files -z --cached --others --exclude-standard)
+
+for f in "${STALE_SCAN_FILES[@]}"; do
+  check_stale "$f"
 done
 
 if [ "$FOUND_DRIFT" -eq 1 ]; then

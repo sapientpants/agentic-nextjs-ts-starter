@@ -399,7 +399,7 @@ echo "CVE-2024-XXXXX # False positive: reason" >> .trivyignore
 **Solution**:
 
 - Point to AGENTS.md: code lives in `app/`, builds go to `.next/`, and `pnpm precommit` runs all checks
-- `scripts/check-version-drift.sh` fails the pre-commit hook if those stale names land in the docs
+- `scripts/check-version-drift.sh` fails `pnpm check:static` (and CI) if those stale names land in the docs or in any top-level config file, script, workflow or hook
 
 ## Common Error Messages
 

@@ -176,14 +176,7 @@ const typeAwareRules = {
 export default [
   // Ignore patterns
   {
-    ignores: [
-      'dist/**',
-      'coverage/**',
-      'node_modules/**',
-      'sbom.cdx.json',
-      'reports/**',
-      '.next/**',
-    ],
+    ignores: ['coverage/**', 'node_modules/**', 'sbom.cdx.json', 'reports/**', '.next/**'],
   },
   // Base configuration for all JS/TS files
   {

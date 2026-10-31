@@ -76,7 +76,6 @@
   ],
   "ignorePaths": [
     "node_modules/**",
-    "dist/**",
     "coverage/**",
     "reports/**",
     ".next/**",

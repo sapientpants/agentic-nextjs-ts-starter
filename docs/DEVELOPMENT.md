@@ -136,7 +136,7 @@ function processUser(user) {
 
 - **Markdown linting** with markdownlint-cli2 ensures consistent documentation
 - **YAML validation** with yamllint catches config file issues early
-- **Version drift check** (`scripts/check-version-drift.sh`) keeps Node/pnpm/TypeScript versions and project names in docs aligned with `package.json`
+- **Version drift check** (`scripts/check-version-drift.sh`) keeps Node/pnpm/TypeScript versions in docs aligned with `package.json`, and fails on predecessor-layout names (the old source and build folders, the old verify script) in docs, config files, scripts, workflows and hooks
 - Run `pnpm format:fix` to automatically fix markdown and YAML formatting issues
 - `pnpm precommit` and CI enforce these standards; the pre-commit hook fixes formatting and Markdown/YAML lint on staged files
 
