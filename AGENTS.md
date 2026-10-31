@@ -262,11 +262,13 @@ tests/            # Test files - *.spec.ts (unit), *.property.spec.ts (property-
 
 #### 1. Property Testing Pattern
 
-Use fast-check for testing invariants:
+Use `it.prop` from `@fast-check/vitest` for testing invariants. Import `it` from `@fast-check/vitest`, not from
+`vitest`: only that `it` carries the `.prop` helper. `fc` is the full fast-check API re-exported by the same package,
+so `fast-check` itself is not a direct dependency.
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { fc } from '@fast-check/vitest';
+import { describe, expect } from 'vitest';
+import { fc, it } from '@fast-check/vitest';
 
 describe('myFunction', () => {
   it.prop([fc.integer(), fc.integer()])('should be commutative', (a, b) => {
@@ -283,7 +285,7 @@ Common properties to test:
 - Idempotence: `f(f(a)) === f(a)`
 - Round-trip: `decode(encode(a)) === a`
 
-#### 3. Import Extensions
+#### 2. Import Extensions
 
 Next.js 16's Turbopack resolves imports without `.js` extensions automatically:
 

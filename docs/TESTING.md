@@ -84,51 +84,43 @@ describe('Async Operations', () => {
 
 Property-based testing helps find edge cases you might not think of by testing properties that should always hold true.
 
-#### Basic Example with fast-check
+#### Basic Example with `it.prop`
+
+This project uses `@fast-check/vitest`, which wraps fast-check in a Vitest-native `it.prop` helper. Import `it` from
+`@fast-check/vitest` rather than from `vitest`: only that `it` has `.prop`. The `fc` export is the full fast-check API,
+so `fast-check` itself is not a direct dependency.
 
 ```typescript
-import { describe, it } from 'vitest';
-import fc from 'fast-check';
+import { describe, expect } from 'vitest';
+import { fc, it } from '@fast-check/vitest';
 
 // Simple property test for an add function
 describe('add function (property tests)', () => {
   // Test commutativity: a + b should always equal b + a
-  it('is commutative', () => {
-    fc.assert(
-      fc.property(fc.integer(), fc.integer(), (a, b) => {
-        return add(a, b) === add(b, a);
-      }),
-    );
+  it.prop([fc.integer(), fc.integer()])('is commutative', (a, b) => {
+    expect(add(a, b)).toBe(add(b, a));
   });
 
   // Test identity: adding 0 should not change the value
-  it('has identity element 0', () => {
-    fc.assert(
-      fc.property(fc.integer(), (a) => {
-        return add(a, 0) === a;
-      }),
-    );
+  it.prop([fc.integer()])('has identity element 0', (a) => {
+    expect(add(a, 0)).toBe(a);
   });
 
   // Test associativity with three numbers
-  it('is associative', () => {
-    fc.assert(
-      fc.property(fc.integer(), fc.integer(), fc.integer(), (a, b, c) => {
-        return add(add(a, b), c) === add(a, add(b, c));
-      }),
-    );
+  it.prop([fc.integer(), fc.integer(), fc.integer()])('is associative', (a, b, c) => {
+    expect(add(add(a, b), c)).toBe(add(a, add(b, c)));
   });
 });
 ```
 
-#### Using Vitest's Built-in Integration
+#### More Examples
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { fc } from '@fast-check/vitest';
+import { describe, expect } from 'vitest';
+import { fc, it } from '@fast-check/vitest';
 
 describe('String utilities (property tests)', () => {
-  // Vitest's it.prop() provides cleaner syntax
+  // Arbitraries go in the array; generated values arrive as callback arguments
   it.prop([fc.string()])('trim removes only leading/trailing whitespace', (str) => {
     const trimmed = str.trim();
     expect(trimmed).not.toMatch(/^\s|\s$/);
@@ -142,6 +134,10 @@ describe('String utilities (property tests)', () => {
   });
 });
 ```
+
+Pass fast-check run options as a second argument, for example `it.prop([fc.integer()], { numRuns: 1000 })` or
+`{ seed: 42 }` to reproduce a failure. A real example lives in `tests/versions.property.spec.ts`, and
+`tests/templates/property-test.template.ts` is a ready-to-copy scaffold.
 
 #### When to Use Property-Based vs Example-Based Tests
 
