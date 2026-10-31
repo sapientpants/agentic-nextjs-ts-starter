@@ -27,6 +27,18 @@ if ! command -v gitleaks &> /dev/null; then
   exit 1
 fi
 
+# .gitleaks.toml uses the [[allowlists]] syntax introduced in gitleaks 8.25.
+# Older releases silently ignore that key, so every allowlisted finding would
+# be reported as a leak. Fail early with a clear message instead.
+MIN_GITLEAKS_VERSION="8.25.0"
+INSTALLED_GITLEAKS_VERSION="$(gitleaks version 2>/dev/null | tr -d 'v' | head -n1)"
+if [ -z "$INSTALLED_GITLEAKS_VERSION" ] || \
+   [ "$(printf '%s\n' "$MIN_GITLEAKS_VERSION" "$INSTALLED_GITLEAKS_VERSION" | sort -V | head -n1)" != "$MIN_GITLEAKS_VERSION" ]; then
+  echo -e "${RED}Error: gitleaks >= ${MIN_GITLEAKS_VERSION} is required (found: ${INSTALLED_GITLEAKS_VERSION:-unknown})${NC}"
+  echo "The project's .gitleaks.toml uses the [[allowlists]] syntax from 8.25+. Upgrade gitleaks (brew upgrade gitleaks)."
+  exit 1
+fi
+
 # gitleaks parses `git log -p` output. A user-level `color.ui = always` (or any
 # forced diff coloring) injects ANSI escapes into that stream and gitleaks then
 # silently scans 0 commits. These env entries override every git config file
@@ -53,7 +65,9 @@ run_git_scan() {
   if [ "$status" -ne 0 ]; then
     return "$status"
   fi
-  if echo "$output" | grep -q "0 commits scanned" && [ "$(git rev-list --count HEAD)" -gt 0 ]; then
+  # Match "0 commits scanned" only as a whole number: gitleaks wraps the count
+  # in ANSI bold, and a plain substring test would also match 10, 20, 100, ...
+  if echo "$output" | grep -qE '(^|[^0-9])0 commits scanned' && [ "$(git rev-list --count HEAD)" -gt 0 ]; then
     echo -e "${RED}Error: gitleaks scanned 0 commits in a repository with history${NC}"
     echo "The git log could not be parsed. Check for git config that alters 'git log -p' output."
     return 1
