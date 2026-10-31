@@ -15,31 +15,40 @@ This file provides guidance to AI agents (such as OpenCode) when working with co
 - `pnpm lint:fix` - Auto-fix linting issues
 - `pnpm format` - Check Prettier formatting
 - `pnpm format:fix` - Apply Prettier formatting
-- `pnpm precommit` - Run all quality checks in optimized order (see below, includes changeset validation)
+- `pnpm precommit` - Run every quality gate serially (see below, includes changeset validation)
+- `pnpm check:static` - Static gates only: format, spelling, YAML, Markdown, workflows, version drift, typecheck, lint
+- `pnpm check:deps` - Dependency and structure gates only: circular deps, dependency-cruiser, duplication, dead code
 
-**Pre-commit Check Order (optimized for fast feedback and fail-fast):**
+**Quality Gates (single source of truth):**
+
+The gate list is defined once, in the `check:*` scripts in `package.json`. Three places consume it and must never
+grow their own list:
+
+| Where                        | What runs                                                                                                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm precommit` (local)     | `pnpm audit` → `check:static` → `check:deps` → `test:coverage` → `changeset:status`, serially, fail-fast                                                                                                     |
+| CI (`reusable-validate.yml`) | Same scripts in parallel jobs: `lint` → `check:static` (+ `changeset:status` on PRs), `code-quality` → `check:deps` + build + `size`, `test` → `test:coverage`; `pnpm audit` runs in `reusable-security.yml` |
+| Husky `pre-commit` hook      | `pnpm lint-staged` only (Prettier, ESLint, markdownlint, yamllint on staged files) so commits stay fast                                                                                                      |
+
+Run `pnpm precommit` before pushing; CI runs the identical gates on every pull request, so a commit that skips the hook
+cannot merge code the gates would reject. To add a gate, add it to `check:static` or `check:deps`, not to a workflow.
+
+Order inside `pnpm precommit` is optimized for fast feedback and fail-fast:
 
 1. `pnpm audit` - Security first (critical vulnerabilities block commits)
-2. `pnpm format` - Instant feedback, easy to fix
-3. `pnpm lint:spelling` - Fast spell checking
-4. `pnpm lint:yaml` - Fast file linting
-5. `pnpm lint:markdown` - Fast file linting
-6. `pnpm lint:workflows` - Fast workflow validation
-7. `pnpm typecheck` - Required for type-aware lint rules
-8. `pnpm lint` - Comprehensive quality checks (12 ESLint plugins, depends on typecheck)
-9. `pnpm deps:circular` - Circular dependency detection (madge)
-10. `pnpm deps:cruise` - Architectural dependency validation (dependency-cruiser)
-11. `pnpm duplication` + `pnpm duplication:tests` - Code duplication analysis (jscpd; 2% for `app/`, 5% for `tests/`)
-12. `pnpm dead-code` - Unused exports/files/deps/types (Knip)
-13. `pnpm test:coverage` - Slowest check, runs last (90% minimum threshold)
+2. `check:static` - `pnpm format` → `pnpm lint:spelling` → `pnpm lint:yaml` → `pnpm lint:markdown` → `pnpm lint:workflows` → `scripts/check-version-drift.sh` → `pnpm typecheck` → `pnpm lint` (12 ESLint plugins, depends on typecheck)
+3. `check:deps` - `pnpm deps:circular` (madge) → `pnpm deps:cruise` (dependency-cruiser) → `pnpm duplication` + `pnpm duplication:tests` (jscpd; 2% for `app/`, 5% for `tests/`) → `pnpm dead-code` (Knip)
+4. `pnpm test:coverage` - Slowest check, runs last (90% minimum threshold)
+5. `pnpm changeset:status` - A changeset must exist for the branch
 
-**Note:** The following tools are excluded from precommit due to performance/use-case:
+**Note:** The following tools are not part of the shared gate list:
 
 - `pnpm mutation-test` - Runs weekly in CI (`weekly-mutation-test.yml`); run locally for debugging
-- `pnpm scan:secrets` - Run manually or in CI (can use `scan:secrets:protect` for staged changes)
+- `pnpm scan:secrets` - Runs in CI on every PR and push to main (`reusable-security.yml`, pinned gitleaks); run locally when gitleaks is installed, or `scan:secrets:protect` for staged changes
 - `pnpm license:check` - Run when adding dependencies or before release
-- `pnpm size` - Runs in CI after the build (`reusable-validate.yml`); run locally after `pnpm build`
-- `pnpm deps:unused` - Too many false positives, use Knip instead (already in precommit)
+- `pnpm size` - Runs in CI after the build (`reusable-validate.yml`, `code-quality` job); run locally after `pnpm build`
+- `pnpm deps:unused` - Too many false positives, use Knip instead (already in `check:deps`)
+- `pnpm ci:local` - Runs the gates above plus the CI-only steps (build, size, secret/OSV/container scans) on your machine
 
 ### Testing
 
@@ -117,7 +126,8 @@ All violations trigger **errors** and cause `pnpm lint` to fail. These rules app
 
 - Cyclomatic complexity: 15 (vs 10 for app)
 - Max function lines: 600 (vs 50 for app) - allows large describe blocks with many test cases
-- All other rules: same as app files
+- All other rules: same as app files (the full plugin set is shared between `app/**` and `tests/**` in `eslint.config.js`)
+- `tests/templates/**` additionally switches off the SonarJS "assertion in every test" and unused-placeholder rules, because the templates are scaffolds to copy and fill in
 
 ### Quality Metrics Dashboard
 
@@ -237,7 +247,7 @@ https://img.shields.io/badge/dynamic/json
 - **Advanced linting**: TypeScript ESLint with type-aware rules for catching subtle type-safety issues
 - **Module system**: ES modules (`"type": "module"`) with Next.js Turbopack resolution (no `.js` extensions required)
 - **OpenCode Commands**: Custom commands in `.opencode/commands/` for common workflows
-- **Git Hooks**: Husky pre-commit hooks (`.husky/`) run the full verification suite; `--no-verify` is blocked by an OpenCode permission rule
+- **Git Hooks**: The Husky `pre-commit` hook (`.husky/`) runs `lint-staged` on staged files; `commit-msg` runs commitlint. The full gate suite is `pnpm precommit` (run it before pushing) and CI runs the same gates on every PR. `--no-verify` is blocked by an OpenCode permission rule
 
 ### Project Layout
 
@@ -284,10 +294,10 @@ import { myFunction } from './module.js'; // Also valid
 
 ### CI/CD Pipeline
 
-- **GitHub Actions** enforces: audit → typecheck → lint → format → test → OSV scan → container scan → SBOM generation
+- **GitHub Actions** enforces the same gates as `pnpm precommit` (`check:static`, `check:deps`, `test:coverage`, audit) in parallel jobs, then build + bundle size → secret scan → OSV scan → container scan → SBOM generation
 - **Security scanning**: CodeQL analysis, OSV vulnerability scanning, and Trivy container image scanning
 - **Container security**: Automatic vulnerability scanning of Docker images with configurable severity thresholds
-- **Pre-commit hooks** via Husky run lint-staged (Prettier and ESLint)
+- **Pre-commit hooks** via Husky run lint-staged (Prettier, ESLint, markdownlint, yamllint on staged files); the full suite is `pnpm precommit` and CI
 - **Attestations**: SLSA provenance and SBOM attestations for build artifacts, including container scan results
 - **Single-user workflow**: Simplified for individual developers without branch protection
 - **Release automation**: Automatically creates version PRs and manages releases
@@ -486,7 +496,7 @@ Closes #42"
 
 ### Before Committing
 
-1. **Always run `pnpm precommit`** - Ensures all checks pass in optimized order (see Development Commands section for details)
+1. **Always run `pnpm precommit` before pushing** - The hook only runs lint-staged; `pnpm precommit` runs every gate CI will run (see Development Commands section for details)
 2. **Use conventional commits** - Format: `type(scope): description` (e.g., `feat: add dark mode`)
 3. **Add changesets** - Run `pnpm changeset` to document your changes for the release notes
 4. **Use the correct import syntax** - Next.js 16's Turbopack resolves imports without `.js` extensions automatically (`.js` extension also valid)

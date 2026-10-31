@@ -73,10 +73,11 @@ Before committing, you can manually run all checks:
 
 ```bash
 pnpm quick-check  # Fast: typecheck + lint + test
-pnpm precommit    # Everything the pre-commit hook runs
+pnpm precommit    # Every gate CI runs, serially
 ```
 
-Note: The pre-commit hook runs `pnpm precommit` automatically when you commit.
+Note: The pre-commit hook only runs `lint-staged` (fast checks on staged files). Run `pnpm precommit` yourself before
+pushing; CI runs the identical gates on the pull request.
 
 Individual checks:
 
@@ -138,19 +139,18 @@ git add .
 git commit -m "feat: add new validation for user input"
 ```
 
-Pre-commit hooks will automatically run `pnpm precommit`, which includes:
+The `pre-commit` hook runs `lint-staged`: Prettier, ESLint, markdownlint and yamllint on the files you staged. The
+`commit-msg` hook validates the commit message format with commitlint.
+
+Before pushing, run `pnpm precommit`. It executes the full gate list, which CI runs as well:
 
 - Security audit
-- Formatting, spelling, YAML, Markdown and workflow linting
-- Documentation version-drift check
-- Type checking and ESLint
-- Circular dependency, duplication and dead-code analysis
+- `check:static`: formatting, spelling, YAML, Markdown and workflow linting, documentation version-drift check, type checking and ESLint
+- `check:deps`: circular dependency, dependency-cruiser, duplication and dead-code analysis
 - All tests with coverage
 - Changeset validation
 
-The `commit-msg` hook validates the commit message format with commitlint.
-
-Note: `pnpm precommit` executes ALL quality checks. This ensures code quality but may take longer than typical pre-commit hooks.
+Note: `pnpm precommit` executes ALL quality checks and takes a few minutes; that is why it is not wired into the hook.
 
 ### 7. Push and Create a Pull Request
 

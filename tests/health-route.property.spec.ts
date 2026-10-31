@@ -14,6 +14,7 @@ const missingAppNameArb = fc.constantFrom<string | undefined>(undefined, '');
 /**
  * Stub the env var for the current property run. Stubs are undone after each
  * test by `unstubEnvs: true` in `vitest.config.ts`.
+ * @param {string | undefined} value - App name to expose, or `undefined` to unset the variable
  */
 const setAppName = (value: string | undefined): void => {
   vi.stubEnv('NEXT_PUBLIC_APP_NAME', value);

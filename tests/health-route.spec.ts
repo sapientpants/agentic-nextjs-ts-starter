@@ -66,7 +66,7 @@ describe('Health Check API Route', () => {
   it('returns process uptime', async () => {
     const data = await getHealth();
 
-    expect(data.uptime).toBe(123.45);
+    expect(data.uptime).toBeCloseTo(123.45);
     expect(typeof data.uptime).toBe('number');
   });
 

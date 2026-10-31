@@ -23,7 +23,7 @@
 
 ## 4) Verify automatically
 
-- Run `pnpm precommit`: audit → format → lint → typecheck → dependency analysis → unit + property tests with coverage. CI adds OSV scan, CodeQL, container scan and SBOM generation.
+- Run `pnpm precommit`: audit → `check:static` (format, spelling, YAML/Markdown/workflow lint, version drift, typecheck, lint) → `check:deps` (dependency analysis, duplication, dead code) → unit + property tests with coverage → changeset status. CI runs the same `check:*` scripts and adds build + bundle size, secret scan, OSV scan, CodeQL, container scan and SBOM generation.
 - CI enforces gates; artifacts include coverage report, SBOM, and SLSA provenance.
 
 ## 5) Review

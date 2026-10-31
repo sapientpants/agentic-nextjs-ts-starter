@@ -1,3 +1,6 @@
 #!/usr/bin/env sh
 
-pnpm precommit
+# Fast, staged-files-only checks (Prettier, ESLint, markdownlint, yamllint).
+# The full gate suite is `pnpm precommit`; run it before pushing. CI runs the
+# same gates on every pull request, so nothing the hook skips can be merged.
+pnpm lint-staged
