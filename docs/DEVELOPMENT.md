@@ -18,7 +18,7 @@ pnpm test:watch # Test watch mode
 # Fast check before committing
 pnpm quick-check  # typecheck + lint + test
 
-# Full verification (what the pre-commit hook runs)
+# Full verification (what CI runs; run before pushing)
 pnpm precommit    # All quality gates including audit, format, linting and coverage
 ```
 
@@ -68,7 +68,9 @@ Run `pnpm help` to see all available scripts, or check these key commands:
 | `pnpm lint`          | Check linting                  | `eslint .`                                    |
 | `pnpm format`        | Check formatting               | `prettier --check .`                          |
 | `pnpm quick-check`   | Fast quality check             | typecheck + lint + test                       |
-| `pnpm precommit`     | Full verification (pre-commit) | audit + format + lint + typecheck + tests + … |
+| `pnpm precommit`     | Full verification (same as CI) | audit + check:static + check:deps + tests + … |
+| `pnpm check:static`  | Static gates                   | format + spelling + yaml + md + workflows + … |
+| `pnpm check:deps`    | Dependency/structure gates     | circular + cruise + duplication + dead code   |
 | `pnpm ci:local`      | Simulate full CI locally       | Complete CI pipeline simulation               |
 | `pnpm doctor`        | Check environment health       | Node/pnpm version check                       |
 
@@ -136,7 +138,7 @@ function processUser(user) {
 - **YAML validation** with yamllint catches config file issues early
 - **Version drift check** (`scripts/check-version-drift.sh`) keeps Node/pnpm/TypeScript versions and project names in docs aligned with `package.json`
 - Run `pnpm format:fix` to automatically fix markdown and YAML formatting issues
-- Pre-commit hooks enforce these standards automatically
+- `pnpm precommit` and CI enforce these standards; the pre-commit hook fixes formatting and Markdown/YAML lint on staged files
 
 ### Code Organization
 
@@ -208,28 +210,35 @@ pnpm precommit    # Full verification
 pnpm quick-check  # Fast quality check
 ```
 
-### Pre-commit Hooks
+### Quality Gates and Git Hooks
 
 #### What Runs on Every Commit
 
-The project uses Husky to enforce quality checks before each commit. The `precommit` script runs, in order:
+The Husky `pre-commit` hook runs `lint-staged`: Prettier, ESLint, markdownlint and yamllint on the staged files only,
+so commits take seconds. The `commit-msg` hook runs commitlint.
+
+#### What Runs Before Pushing and in CI
+
+The full gate list is defined once in the `check:*` scripts in `package.json`. `pnpm precommit` runs it serially; CI
+(`.github/workflows/reusable-validate.yml`) runs the same scripts in parallel jobs on every pull request and push to
+main. In `pnpm precommit` order:
 
 1. **Security audit** (`pnpm audit --audit-level critical`)
-2. **Format check** (`pnpm format`)
-3. **Spelling, YAML, Markdown and workflow linting**
-4. **Version drift check** (`scripts/check-version-drift.sh`)
-5. **Type check** (`pnpm typecheck`)
-6. **Linting** (`pnpm lint`)
-7. **Dependency analysis** (`pnpm deps:circular`, `pnpm deps:cruise`)
-8. **Duplication and dead code** (`pnpm duplication`, `pnpm duplication:tests`, `pnpm dead-code`)
-9. **Tests with coverage** (`pnpm test:coverage`)
-10. **Changeset status** (`pnpm changeset:status`)
+2. **`pnpm check:static`**: format check, spelling, YAML, Markdown and workflow linting, version drift check
+   (`scripts/check-version-drift.sh`), type check, ESLint
+3. **`pnpm check:deps`**: circular dependencies, dependency-cruiser rules, duplication in `app/` and `tests/`, dead code
+4. **Tests with coverage** (`pnpm test:coverage`)
+5. **Changeset status** (`pnpm changeset:status`)
 
-See [AGENTS.md](../AGENTS.md#development-commands) for the rationale behind the order.
+CI additionally builds the app and checks bundle size, scans for secrets with gitleaks, runs the OSV scanner and, when
+Docker releases are enabled, scans the container image. `pnpm ci:local` reproduces that sequence locally.
+
+See [AGENTS.md](../AGENTS.md#development-commands) for the rationale behind the order. To add a gate, add it to
+`check:static` or `check:deps` so the hook docs, `pnpm precommit` and CI cannot drift apart.
 
 #### Important: No Bypass Allowed
 
-> **🔒 Security Feature**: This project blocks the `--no-verify` flag via an OpenCode permission rule, so the AI agent cannot skip verification with `git commit --no-verify`. Husky pre-commit hooks ensure all commits meet quality standards.
+> **🔒 Security Feature**: This project blocks the `--no-verify` flag via an OpenCode permission rule, so the AI agent cannot skip the commit hooks with `git commit --no-verify`. Because CI runs the same gates as `pnpm precommit`, skipping the hook can never get unchecked code merged.
 
 If you encounter issues:
 

@@ -46,14 +46,21 @@ The Main workflow creates GitHub releases that should trigger the Publish workfl
 
 **Jobs**:
 
-- **validate**: Checks changeset status
-- **security-audit**: Runs security audit
-- **type-checking**: TypeScript type checking
-- **linting**: ESLint checks
-- **format-checking**: Prettier formatting checks
-- **test**: Runs test suite with coverage
-- **codeql**: Security analysis
-- **osv-scan**: Vulnerability scanning
+- **validate** (`reusable-validate.yml`): runs the same gate scripts as `pnpm precommit`, in parallel jobs
+  - `lint`: `pnpm check:static` (format, spelling, YAML/Markdown/workflow lint with a pinned actionlint, version drift,
+    typecheck, ESLint) and `pnpm changeset:status`
+  - `code-quality`: `pnpm check:deps` (circular deps, dependency-cruiser, duplication, dead code), then build and
+    `pnpm size`
+  - `test`: `pnpm test:coverage` (90% threshold) and coverage upload
+- **security** (`reusable-security.yml`): `audit` (`pnpm audit`), `secrets` (pinned gitleaks via
+  `pnpm scan:secrets`), `osv-scan`
+- **docker** (`reusable-docker.yml`): builds and scans the image when `ENABLE_DOCKER_RELEASE` is `true`
+- **pr-status**: aggregates the jobs above into one required status check
+
+CodeQL runs from its own workflow (`codeql.yml`).
+
+The gate list is defined once in the `check:*` scripts in `package.json`; add new gates there, not to the workflow,
+so `pnpm precommit`, the docs and CI stay in sync.
 
 ### 2. Main Workflow (`main.yml`)
 

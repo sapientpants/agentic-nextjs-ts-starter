@@ -35,7 +35,7 @@ jobs:
   # All checks run simultaneously for faster feedback
   # =============================================================================
 
-  # Core validation: audit, typecheck, lint, format, tests
+  # Core validation: the same gates as `pnpm precommit`, run in parallel jobs
   # upload-coverage: true generates coverage reports for visibility
   # FAILS IF: Any check fails or coverage drops below 90%
   validate:

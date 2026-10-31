@@ -51,7 +51,10 @@ describe('toolVersions', () => {
 
   it('never contains range operators or empty values', () => {
     for (const value of Object.values(toolVersions)) {
-      expect(value).toMatch(/^\d+(\.\d+)*$/);
+      // Every dot-separated segment must be a plain integer (no ^, ~, >=, or blanks)
+      for (const segment of value.split('.')) {
+        expect(segment).toMatch(/^\d+$/);
+      }
     }
   });
 });

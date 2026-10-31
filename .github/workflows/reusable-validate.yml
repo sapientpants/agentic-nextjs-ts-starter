@@ -1,8 +1,17 @@
 # =============================================================================
 # REUSABLE WORKFLOW: Code Validation Suite
-# PURPOSE: Run all quality checks (audit, typecheck, lint, format, test)
+# PURPOSE: Run the project's quality gates in parallel jobs
 # USAGE: Called by PR and main workflows for consistent validation
 # OUTPUTS: Coverage reports when requested
+#
+# SINGLE SOURCE OF TRUTH: the gate list lives in package.json. `pnpm precommit`
+# runs it serially (audit → check:static → check:deps → test:coverage →
+# changeset:status); the jobs below run the same named scripts in parallel:
+#   test          → pnpm test:coverage
+#   lint          → pnpm check:static (+ changeset:status on PRs)
+#   code-quality  → pnpm check:deps, then build + size (needs the build output)
+# `pnpm audit` runs in reusable-security.yml. Add a new gate to one of the
+# check:* scripts, never to this file alone, so hook, docs and CI stay aligned.
 # =============================================================================
 
 name: Reusable Validate
@@ -104,37 +113,32 @@ jobs:
       # All checks run in sequence to provide clear failure messages
       # =============================================================================
 
-      - name: Type checking
-        # Validate TypeScript types without emitting files
-        # FAILS IF: Type errors in any .ts file
-        # To debug: Run 'pnpm typecheck' locally for detailed errors
-        run: pnpm typecheck
-
-      - name: Linting
-        # Run ESLint with type-aware rules
-        # FAILS IF: Any linting errors (complexity, code quality violations)
-        # To fix: Run 'pnpm lint:fix' for auto-fixable issues
-        run: pnpm lint
-
-      - name: Format checking
-        # Verify code follows Prettier formatting
-        # FAILS IF: Any file not formatted
-        # To fix: Run 'pnpm format:fix' to auto-format
-        run: pnpm format
-
       - name: Install actionlint
-        # Install actionlint for workflow validation
-        # Uses the official installer script from rhysd/actionlint
+        # Pinned release binary with SHA-256 verification (no curl | bash from
+        # a moving branch). UPDATE: bump both the version and the checksum
+        # together; checksums are published alongside each release at
+        # https://github.com/rhysd/actionlint/releases
+        env:
+          ACTIONLINT_VERSION: '1.7.12'
+          ACTIONLINT_SHA256: '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8'
         run: |
-          echo "Installing actionlint..."
-          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-          echo "${PWD}" >> $GITHUB_PATH
+          set -euo pipefail
+          archive="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL -o "/tmp/${archive}" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${archive}"
+          echo "${ACTIONLINT_SHA256}  /tmp/${archive}" | sha256sum -c -
+          mkdir -p "${RUNNER_TEMP}/actionlint"
+          tar -xzf "/tmp/${archive}" -C "${RUNNER_TEMP}/actionlint" actionlint
+          echo "${RUNNER_TEMP}/actionlint" >> "$GITHUB_PATH"
+          "${RUNNER_TEMP}/actionlint/actionlint" -version
 
-      - name: Workflow linting
-        # Validate GitHub Actions workflow files
-        # FAILS IF: Workflow syntax errors or issues found
-        # To debug: Run 'pnpm lint:workflows' locally
-        run: pnpm lint:workflows
+      - name: Static checks
+        # Same list as `pnpm precommit`: format, spelling, YAML, Markdown and
+        # workflow linting, version-drift check, typecheck and ESLint.
+        # FAILS IF: Any of those gates fails
+        # To fix: 'pnpm format:fix', 'pnpm lint:fix', 'pnpm lint:markdown:fix';
+        #         run 'pnpm check:static' locally to reproduce
+        run: pnpm check:static
 
       - name: Fetch main branch for changesets
         if: inputs.validate-changesets
@@ -173,15 +177,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check circular dependencies
-        run: pnpm deps:circular
-        continue-on-error: false
-
-      - name: Check code duplication
-        run: pnpm duplication
-
-      - name: Check test code duplication
-        run: pnpm duplication:tests
+      - name: Dependency and structure checks
+        # Same list as `pnpm precommit`: circular dependencies (madge),
+        # architectural rules (dependency-cruiser), duplication in app/ and
+        # tests/ (jscpd) and dead code (Knip).
+        # FAILS IF: Any of those gates fails
+        # To debug: Run 'pnpm check:deps' locally
+        run: pnpm check:deps
 
       - name: Build application
         run: pnpm build

@@ -166,20 +166,23 @@ Test files (`tests/**/*.ts`) have relaxed limits:
 - Cyclomatic complexity: ≤15 (vs 10)
 - Max lines per function: ≤600 (vs 50) - allows large describe blocks with many test cases
 
-### Pre-commit Quality Gates
+### Quality Gates
 
-The `pnpm precommit` command runs checks in optimized order for fast feedback:
+The gate list lives in one place, the `check:*` scripts in `package.json`, and is shared by three consumers:
 
-1. **Security** (`pnpm audit`) - Blocks commits with critical vulnerabilities
-2. **Formatting** (`pnpm format`) - Fast, easy to fix
-3. **YAML/Markdown Linting** - Fast file validation
-4. **Workflow Validation** - Prevents broken GitHub Actions
-5. **Type Checking** (`pnpm typecheck`) - Required for type-aware lint rules
-6. **Linting** (`pnpm lint`) - Comprehensive quality checks
-7. **Structural Analysis** - Circular deps, duplication, dead code
-8. **Tests with Coverage** (`pnpm test:coverage`) - Slowest check runs last
+- **`pnpm precommit`** runs everything serially in fail-fast order: `pnpm audit` → `check:static` → `check:deps` → `test:coverage` → `changeset:status`
+- **CI** (`reusable-validate.yml`) runs the same scripts in parallel jobs on every PR and push to main
+- **Husky `pre-commit` hook** runs only `lint-staged` (Prettier, ESLint, markdownlint, yamllint on staged files) so commits stay fast
 
-**Mutation testing** is excluded from pre-commit due to performance - run it periodically (weekly/monthly).
+What the groups contain:
+
+1. **Security** (`pnpm audit`) - Blocks on critical vulnerabilities
+2. **`check:static`** - Formatting, spelling, YAML/Markdown linting, workflow validation (actionlint), docs version-drift check, type checking, ESLint
+3. **`check:deps`** - Circular deps, dependency-cruiser rules, duplication, dead code
+4. **Tests with Coverage** (`pnpm test:coverage`) - Slowest check runs last
+5. **Changeset status** - Every branch needs a changeset
+
+Run `pnpm precommit` before pushing. **Mutation testing** runs weekly in CI; **secret scanning** (gitleaks) and **bundle size** run in CI on every PR.
 
 ## 🤖 OpenCode Integration
 
@@ -193,8 +196,8 @@ This project includes special configurations for [OpenCode](https://opencode.ai)
 
 ### Verification Guardrails
 
-- Blocks `git --no-verify` so the AI agent can't skip quality checks
-- Husky pre-commit hooks run the full verification suite
+- Blocks `git --no-verify` so the AI agent can't skip the commit hooks
+- Husky hooks run `lint-staged` and commitlint; `pnpm precommit` runs the full gate suite and CI enforces the same gates on every PR
 
 See [AGENTS.md](./AGENTS.md) for detailed OpenCode guidance.
 

@@ -14,12 +14,15 @@ NC='\033[0m' # No Color
 
 # Check if actionlint is installed
 if ! command -v actionlint &> /dev/null; then
-    # In CI environments during release, skip actionlint since workflows were already validated in PR
+    # In CI the gate must run, never be skipped silently: the workflow is
+    # expected to install a pinned actionlint before calling this script
+    # (see .github/workflows/reusable-validate.yml).
     if [ "${CI:-false}" = "true" ] || [ "${GITHUB_ACTIONS:-false}" = "true" ]; then
-        echo -e "${YELLOW}Skipping actionlint in CI (already validated in PR workflow)${NC}"
-        exit 0
+        echo -e "${RED}Error: actionlint is not installed in CI${NC}"
+        echo "Add the 'Install actionlint' step before running 'pnpm lint:workflows'."
+        exit 1
     fi
-    
+
     # In local development, provide installation instructions
     echo -e "${RED}Error: actionlint is not installed${NC}"
     echo ""

@@ -39,7 +39,7 @@ jobs:
   # =============================================================================
 
   validate:
-    # Reusable workflow handles: audit, typecheck, lint, format, tests
+    # Reusable workflow runs the same gates as `pnpm precommit` in parallel jobs
     # FAILS IF: Any check fails, tests don't meet 90% coverage threshold
     uses: ./.github/workflows/reusable-validate.yml
 

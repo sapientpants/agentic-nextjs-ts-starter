@@ -1,5 +1,9 @@
 # Gitleaks configuration file
 # For full configuration options, see: https://github.com/gitleaks/gitleaks
+#
+# Runs locally via `pnpm scan:secrets` (scripts/scan-secrets.sh) and in CI via
+# the `secrets` job in .github/workflows/reusable-security.yml (pinned release).
+# Add a new allowlist entry only with a comment saying why it is not a secret.
 
 title = "Gitleaks Config for agentic-nextjs-ts-starter"
 
@@ -7,10 +11,12 @@ title = "Gitleaks Config for agentic-nextjs-ts-starter"
 # Use the default gitleaks rules
 useDefault = true
 
-[allowlist]
-description = "Allowlist for false positives"
+# Global allowlists (v8.25+ syntax). A finding is ignored if ANY block matches.
+# Within one block the conditions (paths, regexes, ...) are ANDed, so keep
+# unrelated exemptions in separate blocks.
 
-# Ignore common test/example patterns
+[[allowlists]]
+description = "Example and fixture files that document dummy credentials"
 paths = [
   '''\.env\.example$''',
   '''\.env\.template$''',
@@ -18,8 +24,18 @@ paths = [
   '''/tests/fixtures/''',
 ]
 
-# Ignore specific strings that are not secrets
+[[allowlists]]
+description = "Next.js build output committed by mistake in 6692cd7e and removed since (now gitignored); the flagged values are per-build random preview-mode and server-action keys from a local dev build, regenerated on every `next build`"
+paths = [
+  '''(^|/)\.next/''',
+]
+
+[[allowlists]]
+description = "Placeholder tokens used in deleted docs/tests examples (docs/LOGGING_OUTPUT.md, tests/config.spec.ts) that still exist in history"
+# regexTarget defaults to the detected secret itself
 regexes = [
-  '''test-api-key-12345''',  # Example test key pattern
-  '''dummy-secret''',        # Example dummy secret
+  '''^sk-abc123xyz$''',
+  '''^sk-1234567890abcdef$''',
+  '''^test-api-key-12345$''',
+  '''^dummy-secret$''',
 ]

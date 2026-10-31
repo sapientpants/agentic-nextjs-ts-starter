@@ -256,7 +256,7 @@ pnpm changeset --empty
 
 ### Pre-commit Hook Failures
 
-**Problem**: Commit blocked by pre-commit hooks.
+**Problem**: Commit blocked by the pre-commit hook (`lint-staged`: Prettier, ESLint, markdownlint, yamllint on staged files).
 
 **Solution**:
 
@@ -266,13 +266,16 @@ pnpm format:fix
 
 # Fix linting issues
 pnpm lint:fix
+pnpm lint:markdown:fix
 
-# Run all checks
+# Re-stage the fixed files and commit again
+git add -u
+
+# Before pushing, run the full gate suite (what CI runs)
 pnpm precommit
-
-# Emergency bypass (not recommended)
-git commit --no-verify -m "message"
 ```
+
+`--no-verify` is blocked for the AI agent by an OpenCode permission rule, and CI runs the same gates as `pnpm precommit`, so bypassing the hook only moves the failure to the pull request.
 
 ### Conventional Commit Errors
 

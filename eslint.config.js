@@ -20,6 +20,157 @@ import { dirname } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// =============================================================================
+// Shared type-aware configuration for app/ and tests/
+// Both directories get the same parser, plugin set, resolver settings and
+// rules. Test files only relax the complexity limits (see the tests/ block).
+// =============================================================================
+
+const typeAwareLanguageOptions = {
+  parser: tsParser,
+  parserOptions: {
+    ecmaVersion: 2024,
+    sourceType: 'module',
+    project: true,
+    tsconfigRootDir: __dirname,
+  },
+};
+
+const typeAwarePlugins = {
+  '@typescript-eslint': tseslint,
+  unicorn,
+  promise: promisePlugin,
+  import: importPlugin,
+  'no-barrel-files': noBarrelFiles,
+  sonarjs,
+  security,
+  '@eslint-community/eslint-comments': eslintComments,
+  n,
+  regexp,
+  jsdoc,
+  '@next/next': nextPlugin,
+};
+
+const typeAwareSettings = {
+  'import/resolver': {
+    typescript: {
+      project: __dirname,
+    },
+    node: true,
+  },
+  // Let eslint-plugin-n resolve TypeScript imports written without an extension
+  // (Turbopack and Vitest resolve them without an extension).
+  n: {
+    tryExtensions: ['.js', '.ts', '.tsx', '.json'],
+  },
+};
+
+const typeAwareRules = {
+  ...tseslint.configs['recommended-type-checked'].rules,
+
+  // Core ESLint complexity rules
+  complexity: ['error', { max: 10 }],
+  'max-depth': ['error', 3],
+  'max-lines-per-function': [
+    'error',
+    {
+      max: 50,
+      skipBlankLines: true,
+      skipComments: true,
+    },
+  ],
+  'max-params': ['error', { max: 4 }],
+  'max-statements': ['error', 15],
+  'max-nested-callbacks': ['error', 3],
+
+  // Strict TypeScript rules
+  '@typescript-eslint/no-floating-promises': 'error',
+  '@typescript-eslint/no-misused-promises': [
+    'error',
+    {
+      checksVoidReturn: true,
+      checksConditionals: true,
+    },
+  ],
+  '@typescript-eslint/await-thenable': 'error',
+  '@typescript-eslint/require-await': 'error',
+  '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+  '@typescript-eslint/no-unnecessary-condition': 'error',
+  '@typescript-eslint/strict-boolean-expressions': [
+    'error',
+    {
+      allowString: true,
+      allowNumber: true,
+      allowNullableObject: true,
+      allowNullableBoolean: true,
+      allowNullableString: true,
+      allowNullableNumber: true,
+      allowAny: false,
+    },
+  ],
+  '@typescript-eslint/no-confusing-void-expression': 'error',
+  '@typescript-eslint/no-meaningless-void-operator': 'error',
+  '@typescript-eslint/switch-exhaustiveness-check': 'error',
+  '@typescript-eslint/promise-function-async': 'error',
+
+  // Promise best practices
+  'promise/always-return': 'error',
+  'promise/catch-or-return': 'error',
+  'promise/no-nesting': 'error',
+  'promise/prefer-await-to-then': 'error',
+
+  // Import organization
+  'import/no-cycle': ['error', { maxDepth: Infinity }],
+  'import/no-self-import': 'error',
+  'import/no-useless-path-segments': 'error',
+  'import/no-duplicates': 'error',
+  'import/first': 'error',
+  'import/no-mutable-exports': 'error',
+  'import/no-absolute-path': 'error',
+
+  // Barrel files
+  'no-barrel-files/no-barrel-files': 'error',
+
+  // Unicorn rules - selective modern patterns
+  'unicorn/no-nested-ternary': 'error',
+  'unicorn/prefer-modern-math-apis': 'error',
+  'unicorn/throw-new-error': 'error',
+  'unicorn/prefer-node-protocol': 'error',
+  'unicorn/prefer-string-slice': 'error',
+  'unicorn/prefer-array-flat-map': 'error',
+  'unicorn/no-array-reduce': 'error',
+  'unicorn/prefer-ternary': 'error',
+
+  // SonarJS - Code quality and bug detection
+  ...sonarjs.configs.recommended.rules,
+
+  // Security - Security-focused linting
+  ...security.configs.recommended.rules,
+
+  // ESLint Comments - Validate ESLint directive comments
+  ...eslintComments.configs.recommended.rules,
+  // A file-level `/* eslint-disable rule */` at the top is a deliberate, visible
+  // choice and does not need a matching `eslint-enable`.
+  '@eslint-community/eslint-comments/disable-enable-pair': ['error', { allowWholeFile: true }],
+
+  // Node.js - Node.js best practices
+  ...n.configs['recommended-module'].rules,
+
+  // RegExp - Advanced regex validation and optimization
+  ...regexp.configs['flat/recommended'].rules,
+
+  // JSDoc - Documentation quality and validation
+  ...jsdoc.configs['flat/recommended-typescript-flavor'].rules,
+  'jsdoc/require-jsdoc': 'off', // Don't require JSDoc everywhere, use selectively
+  'jsdoc/require-param-description': 'warn',
+  'jsdoc/require-returns-description': 'warn',
+
+  // Next.js - App Router and React Server Components
+  ...nextPlugin.configs.recommended.rules,
+  ...nextPlugin.configs['core-web-vitals'].rules,
+  'no-console': 'warn', // Allow console in server components but warn
+};
+
 /** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
   // Ignore patterns
@@ -53,144 +204,10 @@ export default [
   // Type-aware rules for TypeScript source files (Next.js app directory)
   {
     files: ['app/**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ecmaVersion: 2024,
-        sourceType: 'module',
-        project: true,
-        tsconfigRootDir: __dirname,
-      },
-    },
-    plugins: {
-      '@typescript-eslint': tseslint,
-      unicorn,
-      promise: promisePlugin,
-      import: importPlugin,
-      'no-barrel-files': noBarrelFiles,
-      sonarjs,
-      security,
-      '@eslint-community/eslint-comments': eslintComments,
-      n,
-      regexp,
-      jsdoc,
-      '@next/next': nextPlugin,
-    },
-    settings: {
-      'import/resolver': {
-        typescript: {
-          project: __dirname,
-        },
-        node: true,
-      },
-      // Let eslint-plugin-n resolve TypeScript imports written without an extension
-      // (Turbopack and Vitest resolve them without an extension).
-      n: {
-        tryExtensions: ['.js', '.ts', '.tsx', '.json'],
-      },
-    },
-    rules: {
-      ...tseslint.configs['recommended-type-checked'].rules,
-
-      // Core ESLint complexity rules
-      complexity: ['error', { max: 10 }],
-      'max-depth': ['error', 3],
-      'max-lines-per-function': [
-        'error',
-        {
-          max: 50,
-          skipBlankLines: true,
-          skipComments: true,
-        },
-      ],
-      'max-params': ['error', { max: 4 }],
-      'max-statements': ['error', 15],
-      'max-nested-callbacks': ['error', 3],
-
-      // Strict TypeScript rules
-      '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-misused-promises': [
-        'error',
-        {
-          checksVoidReturn: true,
-          checksConditionals: true,
-        },
-      ],
-      '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/require-await': 'error',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'error',
-      '@typescript-eslint/no-unnecessary-condition': 'error',
-      '@typescript-eslint/strict-boolean-expressions': [
-        'error',
-        {
-          allowString: true,
-          allowNumber: true,
-          allowNullableObject: true,
-          allowNullableBoolean: true,
-          allowNullableString: true,
-          allowNullableNumber: true,
-          allowAny: false,
-        },
-      ],
-      '@typescript-eslint/no-confusing-void-expression': 'error',
-      '@typescript-eslint/no-meaningless-void-operator': 'error',
-      '@typescript-eslint/switch-exhaustiveness-check': 'error',
-      '@typescript-eslint/promise-function-async': 'error',
-
-      // Promise best practices
-      'promise/always-return': 'error',
-      'promise/catch-or-return': 'error',
-      'promise/no-nesting': 'error',
-      'promise/prefer-await-to-then': 'error',
-
-      // Import organization
-      'import/no-cycle': ['error', { maxDepth: Infinity }],
-      'import/no-self-import': 'error',
-      'import/no-useless-path-segments': 'error',
-      'import/no-duplicates': 'error',
-      'import/first': 'error',
-      'import/no-mutable-exports': 'error',
-      'import/no-absolute-path': 'error',
-
-      // Barrel files
-      'no-barrel-files/no-barrel-files': 'error',
-
-      // Unicorn rules - selective modern patterns
-      'unicorn/no-nested-ternary': 'error',
-      'unicorn/prefer-modern-math-apis': 'error',
-      'unicorn/throw-new-error': 'error',
-      'unicorn/prefer-node-protocol': 'error',
-      'unicorn/prefer-string-slice': 'error',
-      'unicorn/prefer-array-flat-map': 'error',
-      'unicorn/no-array-reduce': 'error',
-      'unicorn/prefer-ternary': 'error',
-
-      // SonarJS - Code quality and bug detection
-      ...sonarjs.configs.recommended.rules,
-
-      // Security - Security-focused linting
-      ...security.configs.recommended.rules,
-
-      // ESLint Comments - Validate ESLint directive comments
-      ...eslintComments.configs.recommended.rules,
-
-      // Node.js - Node.js best practices
-      ...n.configs['recommended-module'].rules,
-
-      // RegExp - Advanced regex validation and optimization
-      ...regexp.configs['flat/recommended'].rules,
-
-      // JSDoc - Documentation quality and validation
-      ...jsdoc.configs['flat/recommended-typescript-flavor'].rules,
-      'jsdoc/require-jsdoc': 'off', // Don't require JSDoc everywhere, use selectively
-      'jsdoc/require-param-description': 'warn',
-      'jsdoc/require-returns-description': 'warn',
-
-      // Next.js - App Router and React Server Components
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs['core-web-vitals'].rules,
-      'no-console': 'warn', // Allow console in server components but warn
-    },
+    languageOptions: typeAwareLanguageOptions,
+    plugins: typeAwarePlugins,
+    settings: typeAwareSettings,
+    rules: typeAwareRules,
   },
   // Allow barrel files for index.ts entry points and legitimate re-exports
   {
@@ -199,28 +216,32 @@ export default [
       'no-barrel-files/no-barrel-files': 'off',
     },
   },
-  // Relaxed complexity rules for test files
+  // Test files: same plugin set and rules as app/, with relaxed complexity limits
   {
     files: ['tests/**/*.{ts,tsx}'],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ecmaVersion: 2024,
-        sourceType: 'module',
-        project: true,
-        tsconfigRootDir: __dirname,
-      },
-    },
-    plugins: {
-      '@typescript-eslint': tseslint,
-    },
+    languageOptions: typeAwareLanguageOptions,
+    plugins: typeAwarePlugins,
+    settings: typeAwareSettings,
     rules: {
-      ...tseslint.configs['recommended-type-checked'].rules,
+      ...typeAwareRules,
 
       // Relaxed complexity rules for tests
       // Test files can have larger describe blocks with many test cases
       complexity: ['error', 15],
       'max-lines-per-function': ['error', { max: 600, skipComments: true, skipBlankLines: true }],
+    },
+  },
+  // Test templates are copied and filled in by developers: placeholders have
+  // no assertions and intentionally unused variables, so only those scaffold
+  // rules are relaxed here. Everything else (types, imports, security, regex,
+  // complexity) is still enforced so the templates stay valid starting points.
+  {
+    files: ['tests/templates/**/*.{ts,tsx}'],
+    rules: {
+      'sonarjs/assertions-in-tests': 'off',
+      'sonarjs/no-unused-vars': 'off',
+      'sonarjs/no-dead-store': 'off',
+      'sonarjs/unused-import': 'off',
     },
   },
   // Script files - allow console.log for CLI output

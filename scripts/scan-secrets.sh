@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #
 # Secret scanning with gitleaks
-# Scans git history and current files for secrets and credentials
+# Scans git history and current files for secrets and credentials.
+# Used locally (`pnpm scan:secrets*`) and by the `secrets` job in
+# .github/workflows/reusable-security.yml, so both run the same command.
 #
 
 set -euo pipefail
@@ -21,40 +23,73 @@ if ! command -v gitleaks &> /dev/null; then
   echo "  Linux:   See https://github.com/gitleaks/gitleaks#installation"
   echo "  Docker:  docker pull zricethezav/gitleaks"
   echo ""
-  echo "Or run in CI with GitHub Actions (configured in .github/workflows)"
+  echo "In CI a pinned release is installed by .github/workflows/reusable-security.yml"
   exit 1
 fi
+
+# gitleaks parses `git log -p` output. A user-level `color.ui = always` (or any
+# forced diff coloring) injects ANSI escapes into that stream and gitleaks then
+# silently scans 0 commits. These env entries override every git config file
+# for the gitleaks process only (git >= 2.31).
+export GIT_CONFIG_COUNT=2
+export GIT_CONFIG_KEY_0=color.ui
+export GIT_CONFIG_VALUE_0=never
+export GIT_CONFIG_KEY_1=color.diff
+export GIT_CONFIG_VALUE_1=never
+
+# Common flags: project config, redact secret values in logs, print findings.
+COMMON=(--config .gitleaks.toml --redact --verbose)
+
+# Run a gitleaks git scan and refuse to report success if nothing was scanned.
+# gitleaks exits 0 with "0 commits scanned" when it cannot parse the log, which
+# would turn the gate into a no-op.
+run_git_scan() {
+  local output status
+  set +e
+  output=$(gitleaks git "${COMMON[@]}" "$@" . 2>&1)
+  status=$?
+  set -e
+  echo "$output"
+  if [ "$status" -ne 0 ]; then
+    return "$status"
+  fi
+  if echo "$output" | grep -q "0 commits scanned" && [ "$(git rev-list --count HEAD)" -gt 0 ]; then
+    echo -e "${RED}Error: gitleaks scanned 0 commits in a repository with history${NC}"
+    echo "The git log could not be parsed. Check for git config that alters 'git log -p' output."
+    return 1
+  fi
+}
 
 # Default mode is to scan
 MODE="${1:-scan}"
 
 case "$MODE" in
   scan)
-    echo -e "${GREEN}Scanning repository for secrets...${NC}"
-    gitleaks detect --config .gitleaks.toml --verbose
+    echo -e "${GREEN}Scanning repository history for secrets...${NC}"
+    run_git_scan
     ;;
   protect)
     echo -e "${GREEN}Scanning staged changes for secrets...${NC}"
-    gitleaks protect --config .gitleaks.toml --staged --verbose
+    gitleaks git "${COMMON[@]}" --pre-commit --staged .
     ;;
   history)
-    echo -e "${YELLOW}Scanning full git history for secrets...${NC}"
+    echo -e "${YELLOW}Scanning full git history (all refs) for secrets...${NC}"
     echo -e "${YELLOW}This may take a while for large repositories${NC}"
-    gitleaks detect --config .gitleaks.toml --log-opts="--all" --verbose
+    run_git_scan --log-opts="--all"
     ;;
   report)
     echo -e "${GREEN}Generating secret scan report...${NC}"
     mkdir -p reports
-    gitleaks detect --config .gitleaks.toml --report-format json --report-path reports/gitleaks-report.json --verbose
+    run_git_scan --report-format json --report-path reports/gitleaks-report.json
     echo -e "${GREEN}Report saved to reports/gitleaks-report.json${NC}"
     ;;
   *)
     echo "Usage: $0 {scan|protect|history|report}"
     echo ""
     echo "Modes:"
-    echo "  scan     - Scan current repository state (default)"
+    echo "  scan     - Scan repository history (default; what CI runs)"
     echo "  protect  - Scan staged changes only (pre-commit)"
-    echo "  history  - Scan full git history"
+    echo "  history  - Scan all refs, not just the current branch"
     echo "  report   - Generate JSON report"
     exit 1
     ;;
