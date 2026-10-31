@@ -8,7 +8,6 @@ schema: 'FAILSAFE_SCHEMA'
 ignore:
   - node_modules/**
   - .github/workflows/**
-  - dist/**
   - coverage/**
   - pnpm-lock.yaml
   - yarn.lock

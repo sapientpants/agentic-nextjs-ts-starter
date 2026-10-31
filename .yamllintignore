@@ -5,7 +5,6 @@ node_modules/
 .github/workflows/
 
 # Ignore build output
-dist/
 coverage/
 
 # Ignore lock files (auto-generated)

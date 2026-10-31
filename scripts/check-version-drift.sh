@@ -9,8 +9,9 @@
 # fails if any drift is detected.
 #
 # Also fails on references to the predecessor Node starter layout (src/,
-# dist/, `pnpm verify`, agentic-node-ts-starter) so the docs cannot drift
-# back to describing a project structure that no longer exists.
+# dist/, `pnpm verify`, agentic-node-ts-starter) in the docs and in every
+# top-level config file, script, workflow and hook, so neither the docs nor
+# the tooling can drift back to a project structure that no longer exists.
 #
 # Exit codes:
 #   0 — no drift found
@@ -222,10 +223,29 @@ for f in .github/workflows/*.yml; do
   check_input_default "$f" pnpm-version "$PNPM_VER" "$PNPM_MAJOR"
 done
 
-# Stale-layout scan: top-level docs plus docs/ (ADRs under docs/architecture
-# are historical records and intentionally excluded).
-for f in README.md CONTRIBUTING.md SECURITY.md AGENTS.md .github/WORKFLOWS.md docs/*.md; do
-  [ -f "$f" ] && check_stale "$f"
+# Stale-layout scan: every top-level file (docs and tool configs alike), docs/,
+# scripts/, .github/, .husky/ and .opencode/. Generated or historical files are
+# excluded: the lockfile, CHANGELOG.md, .changeset/, ADRs under
+# docs/architecture, quality-metrics.json, husky's generated .husky/_ and this
+# script (its comments quote the stale names).
+STALE_SCAN_FILES=()
+for f in .[!.]* *; do
+  [ -f "$f" ] || continue
+  case "$f" in
+    pnpm-lock.yaml|CHANGELOG.md|LICENSE|quality-metrics.json|*.tsbuildinfo) continue ;;
+  esac
+  STALE_SCAN_FILES+=("$f")
+done
+for f in docs/*.md; do
+  [ -f "$f" ] && STALE_SCAN_FILES+=("$f")
+done
+while IFS= read -r f; do
+  [ "$f" = "scripts/check-version-drift.sh" ] && continue
+  STALE_SCAN_FILES+=("$f")
+done < <(find scripts .github .husky .opencode -type f -not -path '.husky/_/*' 2>/dev/null | sort)
+
+for f in "${STALE_SCAN_FILES[@]}"; do
+  check_stale "$f"
 done
 
 if [ "$FOUND_DRIFT" -eq 1 ]; then
