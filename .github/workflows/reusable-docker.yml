@@ -34,10 +34,6 @@ on:
         description: 'Docker image name (without registry)'
         type: string
         default: 'agentic-nextjs-ts-starter'
-      tag_sha:
-        description: 'SHA of the version tag for consistent naming'
-        type: string
-        default: ''
     outputs:
       image-digest:
         description: 'Docker image digest'
@@ -145,8 +141,7 @@ jobs:
           else
             # Single-platform artifact build: save to tar
             CAN_LOAD="false"
-            SHA_TO_USE="${{ inputs.tag_sha || github.sha }}"
-            OUTPUT_TYPE="type=docker,dest=${{ inputs.artifact-name }}-${SHA_TO_USE}.tar"
+            OUTPUT_TYPE="type=docker,dest=${{ inputs.artifact-name }}-${{ github.sha }}.tar"
           fi
 
           {
@@ -200,12 +195,11 @@ jobs:
             echo "Using image reference for scanning: $FIRST_TAG"
           else
             # For multi-platform or artifact builds, scan the tar file
-            SHA_TO_USE="${{ inputs.tag_sha || github.sha }}"
             {
-              echo "scan_input=${{ inputs.artifact-name }}-${SHA_TO_USE}.tar"
+              echo "scan_input=${{ inputs.artifact-name }}-${{ github.sha }}.tar"
               echo "scan_image_ref="
             } >> $GITHUB_OUTPUT
-            echo "Using tar file for scanning: ${{ inputs.artifact-name }}-${SHA_TO_USE}.tar"
+            echo "Using tar file for scanning: ${{ inputs.artifact-name }}-${{ github.sha }}.tar"
           fi
 
       - name: Run Trivy vulnerability scanner
@@ -275,10 +269,9 @@ jobs:
         # Only for single-platform builds (multi-platform builds pushed to GHCR)
         if: inputs.save-artifact && !contains(inputs.platforms, ',')
         run: |
-          SHA_TO_USE="${{ inputs.tag_sha || github.sha }}"
           echo "Compressing Docker image artifact..."
-          gzip -9 ${{ inputs.artifact-name }}-${SHA_TO_USE}.tar
-          ls -lh ${{ inputs.artifact-name }}-${SHA_TO_USE}.tar.gz
+          gzip -9 ${{ inputs.artifact-name }}-${{ github.sha }}.tar
+          ls -lh ${{ inputs.artifact-name }}-${{ github.sha }}.tar.gz
 
       - name: Upload Docker image artifact
         # Store single-platform image tar for deterministic publishing
@@ -286,8 +279,8 @@ jobs:
         if: inputs.save-artifact && !contains(inputs.platforms, ',')
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ inputs.artifact-name }}-${{ inputs.tag_sha || github.sha }}
-          path: ${{ inputs.artifact-name }}-${{ inputs.tag_sha || github.sha }}.tar.gz
+          name: ${{ inputs.artifact-name }}-${{ github.sha }}
+          path: ${{ inputs.artifact-name }}-${{ github.sha }}.tar.gz
           retention-days: 7 # Keep for a week (enough for release cycle)
           compression-level: 0 # Already compressed with gzip
 
@@ -311,4 +304,4 @@ jobs:
         if: inputs.save-artifact && !contains(inputs.platforms, ',') && inputs.version != '' && env.ACTIONS_ID_TOKEN_REQUEST_URL != ''
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: ${{ inputs.artifact-name }}-${{ inputs.tag_sha || github.sha }}.tar.gz
+          subject-path: ${{ inputs.artifact-name }}-${{ github.sha }}.tar.gz
