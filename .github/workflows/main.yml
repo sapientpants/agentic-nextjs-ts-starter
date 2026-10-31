@@ -129,7 +129,6 @@ jobs:
     outputs:
       changed: ${{ steps.version.outputs.changed }}
       version: ${{ steps.version.outputs.version }}
-      tag_sha: ${{ steps.tag.outputs.sha }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -182,7 +181,7 @@ jobs:
           echo "✅ Version changes committed and pushed"
 
       - name: Create and push tag
-        # Create tag BEFORE building artifacts so they're associated with the tag
+        # Create tag BEFORE the build so a failed build never leaves a release without its tag
         id: tag
         if: steps.version.outputs.changed == 'true'
         env:
@@ -199,11 +198,7 @@ jobs:
 
           # Push tag to origin
           git push origin "v${VERSION}"
-
-          # Get the tag SHA for artifact naming
-          TAG_SHA=$(git rev-list -n 1 "v${VERSION}")
-          echo "sha=${TAG_SHA}" >> $GITHUB_OUTPUT
-          echo "📌 Tag SHA for artifacts: ${TAG_SHA}"
+          echo "📌 Created and pushed tag v${VERSION}"
 
       - name: Build Next.js application
         # Verifies the tagged commit builds; the Docker job rebuilds from source
@@ -230,7 +225,6 @@ jobs:
       artifact-name: 'docker-image-${{ needs.build.outputs.version }}'
       image-name: 'agentic-nextjs-ts-starter'
       version: ${{ needs.build.outputs.version }}
-      tag_sha: ${{ github.sha }}
 
   # =============================================================================
   # GITHUB RELEASE CREATION PHASE
