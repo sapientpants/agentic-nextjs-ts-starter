@@ -208,6 +208,8 @@ function extractMetrics() {
     },
     mutation: {
       score: mutation.mutationScore,
+      // Badge-friendly label: shields.io would otherwise render `null%`.
+      display: mutation.mutationScore === null ? 'N/A' : `${mutation.mutationScore}%`,
       killed: mutation.killed,
       survived: mutation.survived,
       timeout: mutation.timeout,
@@ -255,9 +257,7 @@ function main() {
   console.log(
     `  Duplication: ${metrics.duplication.percentage}% (${metrics.duplication.clones} clones)`,
   );
-  console.log(
-    `  Mutation Score: ${metrics.mutation.score !== null ? `${metrics.mutation.score}%` : 'N/A'}`,
-  );
+  console.log(`  Mutation Score: ${metrics.mutation.display}`);
 }
 
 main();

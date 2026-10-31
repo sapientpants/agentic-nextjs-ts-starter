@@ -160,7 +160,8 @@ const typeAwareRules = {
   ...regexp.configs['flat/recommended'].rules,
 
   // JSDoc - Documentation quality and validation
-  ...jsdoc.configs['flat/recommended-typescript-flavor'].rules,
+  // TypeScript preset: types live in the signatures, so `{Type}` annotations are not required.
+  ...jsdoc.configs['flat/recommended-typescript'].rules,
   'jsdoc/require-jsdoc': 'off', // Don't require JSDoc everywhere, use selectively
   'jsdoc/require-param-description': 'warn',
   'jsdoc/require-returns-description': 'warn',
@@ -171,7 +172,7 @@ const typeAwareRules = {
   'no-console': 'warn', // Allow console in server components but warn
 };
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
+/** @type {import('eslint').Linter.Config[]} */
 export default [
   // Ignore patterns
   {

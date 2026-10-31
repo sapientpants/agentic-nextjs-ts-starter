@@ -26,6 +26,7 @@
   },
   "mutation": {
     "score": null,
+    "display": "N/A",
     "killed": 0,
     "survived": 0,
     "timeout": 0,

@@ -1,6 +1,6 @@
 # Testing Guide
 
-Comprehensive guide to testing in the Agentic Node + TypeScript Starter template.
+Comprehensive guide to testing in the Agentic Next.js + TypeScript Starter template.
 
 ## Test Setup
 
@@ -267,7 +267,6 @@ pnpm test           # Run tests once
 
 # Coverage commands
 pnpm test:coverage  # Run tests with coverage report (enforces 90% threshold)
-pnpm coverage:report # Generate detailed HTML report
 pnpm coverage:open  # Open HTML report in browser
 
 # Quick verification

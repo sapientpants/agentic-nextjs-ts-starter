@@ -172,8 +172,8 @@ echo "declare module 'module-name';" > types/module-name.d.ts
 **Solution**:
 
 ```bash
-# Run coverage report to see what's missing
-pnpm coverage:report
+# Run coverage to see what's missing
+pnpm test:coverage
 
 # Open detailed HTML report
 open coverage/index.html

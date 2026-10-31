@@ -7,8 +7,8 @@ import packageJson from '../../package.json';
  * cleanVersion('^6.0.3') // '6.0.3'
  * cleanVersion('>=26.0.0') // '26.0.0'
  * cleanVersion('tool@1.2.3') // '1.2.3'
- * @param {string} spec - A version spec such as `^6.0.3`, `>=26.0.0` or `tool@1.2.3` (the `packageManager` form).
- * @returns {string} The dotted version number, or an empty string when none is present.
+ * @param spec - A version spec such as `^6.0.3`, `>=26.0.0` or `tool@1.2.3` (the `packageManager` form).
+ * @returns The dotted version number, or an empty string when none is present.
  */
 export function cleanVersion(spec: string): string {
   const afterAt = spec.includes('@') ? spec.slice(spec.lastIndexOf('@') + 1) : spec;
@@ -24,8 +24,8 @@ export function cleanVersion(spec: string): string {
  * Return only the major component of a semver spec.
  * @example
  * majorVersion('>=26.0.0') // '26'
- * @param {string} spec - A version spec accepted by {@link cleanVersion}.
- * @returns {string} The major version, or an empty string when none is present.
+ * @param spec - A version spec accepted by {@link cleanVersion}.
+ * @returns The major version, or an empty string when none is present.
  */
 export function majorVersion(spec: string): string {
   return cleanVersion(spec).split('.').slice(0, 1).join('.');
@@ -35,8 +35,8 @@ export function majorVersion(spec: string): string {
  * Return the major.minor components of a semver spec.
  * @example
  * minorVersion('^6.0.3') // '6.0'
- * @param {string} spec - A version spec accepted by {@link cleanVersion}.
- * @returns {string} The major.minor version (or just the major when no minor exists).
+ * @param spec - A version spec accepted by {@link cleanVersion}.
+ * @returns The major.minor version (or just the major when no minor exists).
  */
 export function minorVersion(spec: string): string {
   return cleanVersion(spec).split('.').slice(0, 2).join('.');
