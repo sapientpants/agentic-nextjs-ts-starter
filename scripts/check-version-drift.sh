@@ -224,25 +224,25 @@ for f in .github/workflows/*.yml; do
 done
 
 # Stale-layout scan: every top-level file (docs and tool configs alike), docs/,
-# scripts/, .github/, .husky/ and .opencode/. Generated or historical files are
-# excluded: the lockfile, CHANGELOG.md, .changeset/, ADRs under
-# docs/architecture, quality-metrics.json, husky's generated .husky/_ and this
-# script (its comments quote the stale names).
+# scripts/, .github/, .husky/ and .opencode/. The file list comes from git
+# (tracked plus untracked-but-not-ignored) rather than the filesystem, so
+# gitignored local artifacts such as sbom.cdx.json, .env, *.tsbuildinfo,
+# .opencode/node_modules or husky's generated .husky/_ cannot fail the gate on
+# one machine and pass on another. Historical files are excluded too: the
+# lockfile, CHANGELOG.md, LICENSE, .changeset/, ADRs under docs/architecture,
+# quality-metrics.json and this script (its comments quote the stale names).
+command -v git >/dev/null 2>&1 || die "git is required for the stale-layout scan"
 STALE_SCAN_FILES=()
-for f in .[!.]* *; do
-  [ -f "$f" ] || continue
+while IFS= read -r -d '' f; do
   case "$f" in
     pnpm-lock.yaml|CHANGELOG.md|LICENSE|quality-metrics.json|*.tsbuildinfo) continue ;;
+    scripts/check-version-drift.sh) continue ;;
+    docs/*/*) continue ;;
+    docs/*.md|scripts/*|.github/*|.husky/*|.opencode/*) ;;
+    */*) continue ;;
   esac
   STALE_SCAN_FILES+=("$f")
-done
-for f in docs/*.md; do
-  [ -f "$f" ] && STALE_SCAN_FILES+=("$f")
-done
-while IFS= read -r f; do
-  [ "$f" = "scripts/check-version-drift.sh" ] && continue
-  STALE_SCAN_FILES+=("$f")
-done < <(find scripts .github .husky .opencode -type f -not -path '.husky/_/*' 2>/dev/null | sort)
+done < <(git ls-files -z --cached --others --exclude-standard)
 
 for f in "${STALE_SCAN_FILES[@]}"; do
   check_stale "$f"
