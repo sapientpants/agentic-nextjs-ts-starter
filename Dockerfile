@@ -3,8 +3,9 @@ FROM node:26-alpine AS builder
 
 # Install pnpm via Corepack, which reads the exact version from the
 # `packageManager` field in package.json. Node.js 25+ images no longer bundle
-# Corepack, so it has to be installed first.
-RUN npm install -g corepack@latest && corepack enable
+# Corepack, so it has to be installed first. The version is pinned like every
+# other dependency in this project; bump it deliberately.
+RUN npm install -g corepack@0.36.0 && corepack enable
 
 # Set working directory
 WORKDIR /app

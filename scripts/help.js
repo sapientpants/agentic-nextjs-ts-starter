@@ -12,5 +12,5 @@ const width = Math.max(...names.map((name) => name.length));
 
 console.log('Available commands:');
 for (const name of names) {
-  console.log(`  pnpm ${name.padEnd(width)}  ${packageJson.scripts[name]}`);
+  console.log(`  pnpm run ${name.padEnd(width)}  ${packageJson.scripts[name]}`);
 }
